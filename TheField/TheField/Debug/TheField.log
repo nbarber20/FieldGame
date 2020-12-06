@@ -1,2 +1,36 @@
-﻿  TheField.cpp
-  TheField.vcxproj -> E:\PersonalWork\TheField\Debug\TheField.exe
+﻿  Entity_Interior.cpp
+e:\personalwork\fieldgame\thefield\thefield\textdisplay.h(21): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.h(19): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\constants.h(7): warning C4114: same type qualifier used more than once
+e:\personalwork\fieldgame\thefield\thefield\entity_interior.cpp(27): warning C4018: '<': signed/unsigned mismatch
+  Entity_Player.cpp
+e:\personalwork\fieldgame\thefield\thefield\textdisplay.h(21): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.h(19): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\constants.h(7): warning C4114: same type qualifier used more than once
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(12): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(17): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(21): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(32): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(37): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(41): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(57): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(58): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(55): warning C4101: 'target': unreferenced local variable
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(73): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(87): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(88): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(99): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(100): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(103): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(118): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(119): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(122): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.cpp(169): warning C4018: '<': signed/unsigned mismatch
+  Entity_Room.cpp
+e:\personalwork\fieldgame\thefield\thefield\textdisplay.h(21): warning C4018: '<': signed/unsigned mismatch
+  World.cpp
+e:\personalwork\fieldgame\thefield\thefield\textdisplay.h(21): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_player.h(19): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\world.cpp(22): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
+  TheField.vcxproj -> E:\PersonalWork\FieldGame\TheField\Debug\TheField.exe
