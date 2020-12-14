@@ -25,9 +25,9 @@ void Entity_Interior::AddChild(Position pos, Entity* toAdd, int roomIndex)
 
 	toAdd->parent = std::make_pair(pos, rooms[roomIndex]->roomEntity);
 
-	for (auto object : rooms[roomIndex]->roomEntity->children) {
-		if (object.first == pos) {
-			object.second.push_back(toAdd);
+	for (int i = 0; i < rooms[roomIndex]->roomEntity->children.size();i++) {
+		if (rooms[roomIndex]->roomEntity->children[i].first == pos) {
+			rooms[roomIndex]->roomEntity->children[i].second.push_back(toAdd);
 			return;
 		}
 	}

@@ -11,7 +11,22 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 {
 	Entity_Player* player = World::Instance().playerEntity;
 	if (currentInteractionState == WorldInteraction) {
-		ParsePlayerInput(input, textdisplay);
+		ParsePlayerInput(input, textdisplay, player);
+		InputError inputError = AttemptPlayerCommand(textdisplay,player);
+		if (inputError == NeedsSubject) {
+			textdisplay->addLog(TextDisplay::Log("Specify a subject", sf::Color::Red));
+		}
+		else if (inputError == NeedsPredicate) {
+			textdisplay->addLog(TextDisplay::Log("Specify a target", sf::Color::Red));
+		}
+		else if (inputError == NeedsSubjectPredicate) {
+			textdisplay->addLog(TextDisplay::Log("Specify a subject and target", sf::Color::Red));
+		}
+		else if (inputError == Impossible) {
+			textdisplay->addLog(TextDisplay::Log("That isn't currently possible", sf::Color::Red));
+		}
+
+
 		player->CheckForEvents();
 		std::vector<TextDisplay::Log> observations = ObservationManager::Instance().CompileObservations(player);
 		for (int i = 0; i < observations.size(); i++) {
@@ -47,101 +62,100 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 	}
 }
 
-void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdisplay)
+void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdisplay, Entity_Player* player)
 {
 	splitInput.clear();
-	std::vector<std::string> splitparticles;
+	particles.clear();
 	int i = 0;
 	std::stringstream ssin(input);
 	while (ssin.good()) {
 		std::string temp;
 		ssin >> temp;
-		if (std::find(particles.begin(), particles.end(), temp) == particles.end()){
+		if (std::find(particleList.begin(), particleList.end(), temp) == particleList.end()){
 			splitInput.push_back(temp);
 			i++;
 		}
 		else {
-			splitparticles.push_back(temp);
+			particles.push_back(temp);
 		}
 	}
 
 	textdisplay->addLog(TextDisplay::Log(input, sf::Color::Red));
 
-	Entity_Player* player = World::Instance().playerEntity;
-	std::string verb = GetVerb(splitparticles, player);
-	Entity* subject = GetNoun(player);
-	Entity* predicate = nullptr;	
+	verb = GetVerb(player);
+	subject = GetNoun(player);
+	predicate = nullptr;	
 	if (subject != nullptr) {
 		predicate = GetNoun(player);
 	}
+}
 
+InteractionManager::InputError InteractionManager::AttemptPlayerCommand(TextDisplay* textdisplay,Entity_Player* player)
+{
 	if (verb == "look") {
 		player->Look();
-		return;
+		return Success;
 	}
 	if (verb == "rotate") {
 		if (subject) {
 			subject->FaceClockWise();
-			return;
+			return Success;
 		}
-		textdisplay->addLog(TextDisplay::Log("Rotate what?", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "godir") {
 		Entity_Room* roomtest = dynamic_cast<Entity_Room*>(player->parent.second);
 		if (roomtest) {
 			Entity_Interior* interorTest = dynamic_cast<Entity_Interior*>(roomtest->parent.second);
 			if (interorTest) {
-				if (std::find(splitparticles.begin(), splitparticles.end(), "north") != splitparticles.end()) {
+				if (std::find(particles.begin(), particles.end(), "north") != particles.end()) {
 					player->TryMove(player, OnFloor, interorTest->GetAdjacent(North, roomtest));
 					player->Look();
-					return;
+					return Success;
 				}
-				else if (std::find(splitparticles.begin(), splitparticles.end(), "south") != splitparticles.end()) {
+				else if (std::find(particles.begin(), particles.end(), "south") != particles.end()) {
 					player->TryMove(player, OnFloor, interorTest->GetAdjacent(South, roomtest));
 					player->Look();
-					return;
+					return Success;
 				}
-				else if (std::find(splitparticles.begin(), splitparticles.end(), "east") != splitparticles.end()) {
+				else if (std::find(particles.begin(), particles.end(), "east") != particles.end()) {
 					player->TryMove(player, OnFloor, interorTest->GetAdjacent(East, roomtest));
 					player->Look();
-					return;
+					return Success;
 				}
-				else if (std::find(splitparticles.begin(), splitparticles.end(), "west") != splitparticles.end()) {
+				else if (std::find(particles.begin(), particles.end(), "west") != particles.end()) {
 					player->TryMove(player, OnFloor, interorTest->GetAdjacent(West, roomtest));
 					player->Look();
-					return;
+					return Success;
 				}
 			}
 		}
-		textdisplay->addLog(TextDisplay::Log("Which direction?", sf::Color::Red));
-		return;
+		return Impossible;
 	}
 	if (verb == "enter") {
 		if (subject) {
-			if (player->Enter(subject) == true) {
+			if (player->Enter(subject)) {
 				player->Look();
-				return;
+				return Success;
 			}
+			return Impossible;
 		}
-		textdisplay->addLog(TextDisplay::Log("You try as you might, but you just cant go there", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "exit") {
 		if (subject) {
-			if (player->Exit(subject) == true) {
+			if (player->Exit(subject)) {
 				player->Look();
-				return;
+				return Success;
 			}
 		}
 		else {
-			if (player->Exit(player->parent.second) == true) {
+			if (player->Exit(player->parent.second)) {
 				player->Look();
-				return;
+				return Success;
 			}
 		}
-		textdisplay->addLog(TextDisplay::Log("You try as you might, but you just cant leave", sf::Color::Red));
-		return;
+		return Impossible;
 	}
 	if (verb == "flip") {
 		if (subject) {
@@ -154,121 +168,117 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 			else {
 				subject->Rotate(UpsideDown);
 			}
-			return;
+			return Success;
 		}
-		textdisplay->addLog(TextDisplay::Log("Flip what?", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "take") {
 		if (subject) {
-			player->TryMove(subject, Position::RightHand, player);
-			return;
+			if (player->TryMove(subject, Position::RightHand, player)) {
+				return Success;
+			}
+			return Impossible;
 		}
-		textdisplay->addLog(TextDisplay::Log("Take what?", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "drink") {
 		if (subject) {
 			bool drinkall = false;
-			if (std::find(splitparticles.begin(), splitparticles.end(), "all") != splitparticles.end()) {
+			if (std::find(particles.begin(), particles.end(), "all") != particles.end()) {
 				drinkall = true;
 			}
-			if (player->Drink(subject, drinkall) == false) {
-				textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
+			if (player->Drink(subject, drinkall)) {
+				return Success;
 			}
-			return;
+			return Impossible;
 		}
-		textdisplay->addLog(TextDisplay::Log("Drink what?", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "eat") {
 		if (subject) {
-			if (player->Eat(subject) == false) {
-				textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
+			if (player->Eat(subject)) {
+				return Success;
 			}
-			return;
+			return Impossible;
 		}
-		textdisplay->addLog(TextDisplay::Log("Eat what?", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "break") {
 		if (subject) {
 			Entity_Constructed* constructed = dynamic_cast<Entity_Constructed*>(subject);
 			if (constructed) {
-				constructed->BreakConstructed(player->strength);
-				return; 
+				if (constructed->BreakConstructed(player->strength)) {
+					return Success;
+				}
 			}
+			return Impossible;
 		}
-		textdisplay->addLog(TextDisplay::Log("You cant break it", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "pour") {
 		if (subject) {
 			Entity_Container* container = dynamic_cast<Entity_Container*>(subject);
 			if (container) {
 				if (predicate) {
-					if (container->PourInto(predicate) == false) {
-						textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
+					if (container->PourInto(predicate)) {
+						return Success;
 					}
-					return;
 				}
 				else {
-					if (container->PourInto(container->parent.second) == false) {
-						textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
+					if (container->PourInto(container->parent.second)) {
+						return Success;
 					}
-					return;
 				}
+				return Impossible;
 			}
 			else {
 				Entity_Container* container2 = dynamic_cast<Entity_Container*>(subject->parent.second);
 				if (container2) {
 					if (predicate) {
-						if (container2->PourInto(predicate) == false) {
-							textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
+						if (container2->PourInto(predicate)) {
+							return Success;
 						}
-						return;
 					}
 					else {
-						if (container2->PourInto(container2->parent.second) == false) {
-							textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
+						if (container2->PourInto(container2->parent.second)) {
+							return Success;
 						}
-						return;
 					}
 				}
+				return Impossible;
 			}
 		}
-		textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "read") {
 		if (subject) {
 			Entity_Readable* readable = dynamic_cast<Entity_Readable*>(subject);
 			if (readable) {
 				readable->Read(player);
-				return;
+				return Success;
 			}
+			return Impossible;
 		}
-		textdisplay->addLog(TextDisplay::Log("Read what?", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "put") {
 		if (subject&&predicate) {
-			Position putPos = getPosition(splitparticles);
-			if (player->TryMove(subject,putPos,predicate)==false){
-				textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
+			Position putPos = getPosition();
+			if (player->TryMove(subject, putPos, predicate)) {
+				return Success;
 			}
+			return Impossible;
 		}
-		return;
+		return NeedsSubjectPredicate;
 	}
 	if (verb == "drop") {
 		if (subject) {
-			if (player->TryMove(subject, player->parent.first, player->parent.second) == false) {
-				textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
+			if (player->TryMove(subject, player->parent.first, player->parent.second)) {
+				return Success;
 			}
-			return;
+			return Impossible;
 		}
-		textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "talk") {
 		if (subject) {
@@ -277,38 +287,34 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 				if (npc->dialogTree != nullptr) {
 					EnterDialog(npc->dialogTree);
 					LogDialog(textdisplay);
-					return;
+					return Success;
 				}
-				textdisplay->addLog(TextDisplay::Log("They have nothing to say", sf::Color::Red));
-				return;
+				return Impossible;
 			}
+			return Impossible;
 		}
-		textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
-		return;
+		return NeedsSubject;
 	}
 	if (verb == "goddelete") {
 		if (subject) {
 			World::Instance().RemoveEntity(subject);
-			return;
 		}
-		textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
-		return;
+		return Success;
 	}
 	if (verb == "wait") {
 		textdisplay->addLog(TextDisplay::Log("You wait", sf::Color::Red));
-		return;
+		return Success;
 	}
-	if (verb == " ") {
-		textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
-		return;
+	if (verb == "") {
+		return Success;
 	}
 }
 
-std::string InteractionManager::GetVerb(std::vector<std::string> unused, Entity_Player* player)
+std::string InteractionManager::GetVerb(Entity_Player* player)
 {
 	if (splitInput[0] == "put")
 	{
-		if (std::find(unused.begin(), unused.end(), "down") != unused.end()) {
+		if (FindParticleInput("down")) {
 			return "drop";
 		}
 		else {
@@ -316,39 +322,39 @@ std::string InteractionManager::GetVerb(std::vector<std::string> unused, Entity_
 		}
 	}
 	if (splitInput[0] == "go") {
-		if (std::find(unused.begin(), unused.end(), "in") != unused.end()) {
+		if (FindParticleInput("in")) {
 			return "enter";
 		}
-		if (std::find(unused.begin(), unused.end(), "outside") != unused.end()) {
+		if (FindParticleInput("outside")) {
 			return "exit";
 		}
-		if (std::find(unused.begin(), unused.end(), "out") != unused.end()) {
+		if (FindParticleInput("out")) {
 			return "exit";
 		}
-		if (std::find(unused.begin(), unused.end(), "into") != unused.end()) {
-			return "exit";
-		}
-		if (std::find(unused.begin(), unused.end(), "inside") != unused.end()) {
+		if (FindParticleInput("into")) {
 			return "enter";
 		}
-		if (std::find(unused.begin(), unused.end(), "north") != unused.end()) {
+		if (FindParticleInput("inside")) {
+			return "enter";
+		}
+		if (FindParticleInput("north")) {
 			return "godir";
 		}
-		if (std::find(unused.begin(), unused.end(), "south") != unused.end()) {
+		if (FindParticleInput("south")) {
 			return "godir";
 		}
-		if (std::find(unused.begin(), unused.end(), "east") != unused.end()) {
+		if (FindParticleInput("east")) {
 			return "godir";
 		}
-		if (std::find(unused.begin(), unused.end(), "west") != unused.end()) {
+		if (FindParticleInput("west")) {
 			return "godir";
 		}
 	}
 	if (splitInput[0] == "get") {
-		if (std::find(unused.begin(), unused.end(), "in") != unused.end()) {
+		if (FindParticleInput("in")) {
 			return "enter";
 		}
-		if (std::find(unused.begin(), unused.end(), "out") != unused.end()) {
+		if (FindParticleInput("out")) {
 			return "exit";
 		}
 	}
@@ -396,8 +402,8 @@ std::string InteractionManager::GetVerb(std::vector<std::string> unused, Entity_
 		return "wait";
 	}
 
+	//GodMode is enabled
 	if (constants.godMode) {
-
 		if (splitInput[0] == "goddelete") {
 			return "goddelete";
 		}
@@ -426,7 +432,6 @@ Entity* InteractionManager::GetNoun(Entity_Player* player)
 	return subject;
 }
 
-
 Entity* InteractionManager::GetAdjectiveSubject(std::string adj, std::string subject, Entity_Player* player)
 {
 	Entity* found = player->FindEntityByName(subject, adj, { {Position::Taste} });
@@ -441,36 +446,36 @@ Entity* InteractionManager::GetAdjectiveSubject(std::string adj, std::string sub
 	return found;
 }
 
-Position InteractionManager::getPosition(std::vector<std::string> unused)
+Position InteractionManager::getPosition()
 {
-	if (std::find(unused.begin(), unused.end(), "front") != unused.end()) {
+	if (FindParticleInput("front")) {
 		return InFront;
 	}
-	if (std::find(unused.begin(), unused.end(), "behind") != unused.end()) {
+	if (FindParticleInput("behind")) {
 		return Behind;
 	}
-	if (std::find(unused.begin(), unused.end(), "below") != unused.end()) {
+	if (FindParticleInput("below")) {
 		return Below;
 	}
-	if (std::find(unused.begin(), unused.end(), "top") != unused.end()) {
+	if (FindParticleInput("top")) {
 		return On;
 	}
-	if (std::find(unused.begin(), unused.end(), "in") != unused.end()) {
+	if (FindParticleInput("in")) {
 		return Inside;
 	}
-	if (std::find(unused.begin(), unused.end(), "outside") != unused.end()) {
+	if (FindParticleInput("outside")) {
 		return InFront;
 	}
-	if (std::find(unused.begin(), unused.end(), "out") != unused.end()) {
+	if (FindParticleInput("out")) {
 		return InFront;
 	}
-	if (std::find(unused.begin(), unused.end(), "into") != unused.end()) {
+	if (FindParticleInput("into")) {
 		return Inside;
 	}
-	if (std::find(unused.begin(), unused.end(), "inside") != unused.end()) {
+	if (FindParticleInput("inside")) {
 		return Inside;
 	}
-	if (std::find(unused.begin(), unused.end(), "on") != unused.end()) {
+	if(FindParticleInput("on")) {
 		return On;
 	}
 	return Inside;
@@ -507,5 +512,13 @@ void InteractionManager::LogDialog(TextDisplay* textdisplay)
 		}
 	}
 
+}
+
+bool InteractionManager::FindParticleInput(std::string toFind)
+{
+	if (std::find(particles.begin(), particles.end(), toFind) != particles.end()) {
+		return true;
+	}
+	return false;
 }
 

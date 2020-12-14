@@ -65,8 +65,8 @@ void Entity_Player::CheckForEvents()
 {
 
 	std::vector<Entity*> nearbyEntities = getVisibleEntities(false);
-	for (auto nearbyEntity: nearbyEntities) {
-		Entity_Event* checkEvent = dynamic_cast<Entity_Event*>(nearbyEntity);
+	for (int i = 0; i < nearbyEntities.size();i++) {
+		Entity_Event* checkEvent = dynamic_cast<Entity_Event*>(nearbyEntities[i]);
 		if (checkEvent) {
 			checkEvent->AttemptTrigger();
 			return;
@@ -78,12 +78,12 @@ void Entity_Player::CheckForEvents()
 void Entity_Player::Look()
 {
 	std::vector<Entity*> nearbyEntities = getVisibleEntities(false);
-	for (auto nearbyEntity : nearbyEntities) {
-		if (nearbyEntity->names.size() > 0) {
+	for (int i = 0; i < nearbyEntities.size(); i++) {
+		if (nearbyEntities[i]->names.size() > 0) {
 			ObservationManager::Observation o = ObservationManager::Observation();
 			o.sense = ObservationManager::SENSE_Look;
 			o.type = ObservationManager::TYPE_Notice;
-			o.referenceEntity = nearbyEntity;
+			o.referenceEntity = nearbyEntities[i];
 			ObservationManager::Instance().MakeObservation(o);
 		}
 	}
