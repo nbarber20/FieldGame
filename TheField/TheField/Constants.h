@@ -3,6 +3,9 @@
 class Constants {
 public:
 	Constants() {};
-	static const int smallItemMaxThreshold = 16;
-	const const int RoomMinThreshold = 10000;
+	const int smallItemMaxThreshold = 16;
+	const int RoomMinThreshold = 10000;
+	const float mouthSize = 7.5f;
+	const float drinkableWaterThreshold = 231;
+	const bool godMode = true;
 };

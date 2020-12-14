@@ -3,6 +3,50 @@
 #include "Entity_Constructed.h"
 #include "Entity_Container.h"
 #include "Entity_Readable.h"
+#include "Entity_Room.h"
+#include "Entity_Interior.h"
+#include "Entity_Npc.h"
+
+void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
+{
+	Entity_Player* player = World::Instance().playerEntity;
+	if (currentInteractionState == WorldInteraction) {
+		ParsePlayerInput(input, textdisplay);
+		player->CheckForEvents();
+		std::vector<TextDisplay::Log> observations = ObservationManager::Instance().CompileObservations(player);
+		for (int i = 0; i < observations.size(); i++) {
+
+			textdisplay->addLog(observations[i]);
+		}
+		ObservationManager::Instance().ClearObservations();
+		World::Instance().Tick();
+		observations = ObservationManager::Instance().CompileObservations(player);
+		for (int i = 0; i < observations.size(); i++) {
+
+			textdisplay->addLog(observations[i]);
+		}
+		ObservationManager::Instance().ClearObservations();
+		textdisplay->addLog(TextDisplay::Log("", sf::Color::Red));
+	}
+	else if (currentInteractionState == Dialog) {
+
+		DialogTree::DialogTreeEvent event = DialogTree::EVENT_NONE;
+
+		if (input == "a")event = currentDialogTree->Respond(0);
+		if (input == "b")event = currentDialogTree->Respond(1);
+		if (input == "c")event = currentDialogTree->Respond(2);
+		if (input == "d")event = currentDialogTree->Respond(3);
+		if (event == DialogTree::EVENT_NONE) {
+			LogDialog(textdisplay);
+		}
+		else {
+			EnterWorldInteraction();
+			textdisplay->addLog(TextDisplay::Log("...", sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+		}
+	}
+}
+
 void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdisplay)
 {
 	splitInput.clear();
@@ -23,7 +67,7 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 
 	textdisplay->addLog(TextDisplay::Log(input, sf::Color::Red));
 
-	Entity_Player* player = world->playerEntity;
+	Entity_Player* player = World::Instance().playerEntity;
 	std::string verb = GetVerb(splitparticles, player);
 	Entity* subject = GetNoun(player);
 	Entity* predicate = nullptr;	
@@ -33,45 +77,71 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 
 	if (verb == "look") {
 		player->Look();
+		return;
 	}
 	if (verb == "rotate") {
 		if (subject) {
 			subject->FaceClockWise();
+			return;
 		}
-		else {
-			textdisplay->addLog(TextDisplay::Log("Rotate what?", sf::Color::Red));
+		textdisplay->addLog(TextDisplay::Log("Rotate what?", sf::Color::Red));
+		return;
+	}
+	if (verb == "godir") {
+		Entity_Room* roomtest = dynamic_cast<Entity_Room*>(player->parent.second);
+		if (roomtest) {
+			Entity_Interior* interorTest = dynamic_cast<Entity_Interior*>(roomtest->parent.second);
+			if (interorTest) {
+				if (std::find(splitparticles.begin(), splitparticles.end(), "north") != splitparticles.end()) {
+					player->TryMove(player, OnFloor, interorTest->GetAdjacent(North, roomtest));
+					player->Look();
+					return;
+				}
+				else if (std::find(splitparticles.begin(), splitparticles.end(), "south") != splitparticles.end()) {
+					player->TryMove(player, OnFloor, interorTest->GetAdjacent(South, roomtest));
+					player->Look();
+					return;
+				}
+				else if (std::find(splitparticles.begin(), splitparticles.end(), "east") != splitparticles.end()) {
+					player->TryMove(player, OnFloor, interorTest->GetAdjacent(East, roomtest));
+					player->Look();
+					return;
+				}
+				else if (std::find(splitparticles.begin(), splitparticles.end(), "west") != splitparticles.end()) {
+					player->TryMove(player, OnFloor, interorTest->GetAdjacent(West, roomtest));
+					player->Look();
+					return;
+				}
+			}
 		}
+		textdisplay->addLog(TextDisplay::Log("Which direction?", sf::Color::Red));
+		return;
 	}
 	if (verb == "enter") {
 		if (subject) {
 			if (player->Enter(subject) == true) {
 				player->Look();
-			}
-			else {
-				textdisplay->addLog(TextDisplay::Log("You try as you might, but you just cant fit", sf::Color::Red));
+				return;
 			}
 		}
-		else {
-			textdisplay->addLog(TextDisplay::Log("Where?", sf::Color::Red));
-		}
+		textdisplay->addLog(TextDisplay::Log("You try as you might, but you just cant go there", sf::Color::Red));
+		return;
 	}
 	if (verb == "exit") {
 		if (subject) {
 			if (player->Exit(subject) == true) {
 				player->Look();
-			}
-			else {
-				textdisplay->addLog(TextDisplay::Log("You try as you might, but you just cant leave", sf::Color::Red));
+				return;
 			}
 		}
 		else {
 			if (player->Exit(player->parent.second) == true) {
 				player->Look();
-			}
-			else {
-				textdisplay->addLog(TextDisplay::Log("Where?", sf::Color::Red));
+				return;
 			}
 		}
+		textdisplay->addLog(TextDisplay::Log("You try as you might, but you just cant leave", sf::Color::Red));
+		return;
 	}
 	if (verb == "flip") {
 		if (subject) {
@@ -84,42 +154,53 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 			else {
 				subject->Rotate(UpsideDown);
 			}
+			return;
 		}
-		else {
-			textdisplay->addLog(TextDisplay::Log("Flip what?", sf::Color::Red));
-		}
+		textdisplay->addLog(TextDisplay::Log("Flip what?", sf::Color::Red));
+		return;
 	}
 	if (verb == "take") {
 		if (subject) {
 			player->TryMove(subject, Position::RightHand, player);
+			return;
 		}
-		else {
-			textdisplay->addLog(TextDisplay::Log("Take what?", sf::Color::Red));
-		}
+		textdisplay->addLog(TextDisplay::Log("Take what?", sf::Color::Red));
+		return;
 	}
 	if (verb == "drink") {
 		if (subject) {
-			if (player->Drink(subject) == false) {
+			bool drinkall = false;
+			if (std::find(splitparticles.begin(), splitparticles.end(), "all") != splitparticles.end()) {
+				drinkall = true;
+			}
+			if (player->Drink(subject, drinkall) == false) {
 				textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
 			}
+			return;
 		}
-		else {
-			textdisplay->addLog(TextDisplay::Log("Drink what?", sf::Color::Red));
+		textdisplay->addLog(TextDisplay::Log("Drink what?", sf::Color::Red));
+		return;
+	}
+	if (verb == "eat") {
+		if (subject) {
+			if (player->Eat(subject) == false) {
+				textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
+			}
+			return;
 		}
+		textdisplay->addLog(TextDisplay::Log("Eat what?", sf::Color::Red));
+		return;
 	}
 	if (verb == "break") {
 		if (subject) {
 			Entity_Constructed* constructed = dynamic_cast<Entity_Constructed*>(subject);
 			if (constructed) {
 				constructed->BreakConstructed(player->strength);
-			}
-			else {
-				textdisplay->addLog(TextDisplay::Log("You cant break it", sf::Color::Red));
+				return; 
 			}
 		}
-		else {
-			textdisplay->addLog(TextDisplay::Log("Break what?", sf::Color::Red));
-		}
+		textdisplay->addLog(TextDisplay::Log("You cant break it", sf::Color::Red));
+		return;
 	}
 	if (verb == "pour") {
 		if (subject) {
@@ -129,11 +210,13 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 					if (container->PourInto(predicate) == false) {
 						textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
 					}
+					return;
 				}
 				else {
 					if (container->PourInto(container->parent.second) == false) {
 						textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
 					}
+					return;
 				}
 			}
 			else {
@@ -143,29 +226,30 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 						if (container2->PourInto(predicate) == false) {
 							textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
 						}
+						return;
 					}
 					else {
 						if (container2->PourInto(container2->parent.second) == false) {
 							textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
 						}
+						return;
 					}
 				}
 			}
 		}
+		textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));
+		return;
 	}
 	if (verb == "read") {
 		if (subject) {
 			Entity_Readable* readable = dynamic_cast<Entity_Readable*>(subject);
 			if (readable) {
 				readable->Read(player);
-			}
-			else {
-				textdisplay->addLog(TextDisplay::Log("You cant", sf::Color::Red));				
+				return;
 			}
 		}
-		else {
-			textdisplay->addLog(TextDisplay::Log("Read what?", sf::Color::Red));
-		}
+		textdisplay->addLog(TextDisplay::Log("Read what?", sf::Color::Red));
+		return;
 	}
 	if (verb == "put") {
 		if (subject&&predicate) {
@@ -174,43 +258,50 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 				textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
 			}
 		}
+		return;
 	}
 	if (verb == "drop") {
 		if (subject) {
 			if (player->TryMove(subject, player->parent.first, player->parent.second) == false) {
 				textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
 			}
+			return;
 		}
+		textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
+		return;
+	}
+	if (verb == "talk") {
+		if (subject) {
+			Entity_Npc* npc = dynamic_cast<Entity_Npc*>(subject);
+			if (npc) {
+				if (npc->dialogTree != nullptr) {
+					EnterDialog(npc->dialogTree);
+					LogDialog(textdisplay);
+					return;
+				}
+				textdisplay->addLog(TextDisplay::Log("They have nothing to say", sf::Color::Red));
+				return;
+			}
+		}
+		textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
+		return;
+	}
+	if (verb == "goddelete") {
+		if (subject) {
+			World::Instance().RemoveEntity(subject);
+			return;
+		}
+		textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
+		return;
 	}
 	if (verb == "wait") {
 		textdisplay->addLog(TextDisplay::Log("You wait", sf::Color::Red));
+		return;
 	}
 	if (verb == " ") {
 		textdisplay->addLog(TextDisplay::Log("You cant do that", sf::Color::Red));
+		return;
 	}
-
-
-	std::vector<TextDisplay::Log> observations = ObservationManager::Instance().CompileObservations(player);
-	for (int i = 0; i < observations.size(); i++) {
-
-		textdisplay->addLog(observations[i]);
-	}
-	ObservationManager::Instance().ClearObservations();
-	world->Tick();
-	observations = ObservationManager::Instance().CompileObservations(player);
-	for (int i = 0; i < observations.size(); i++) {
-
-		textdisplay->addLog(observations[i]);
-	}
-	ObservationManager::Instance().ClearObservations();
-	world->Tick();
-	observations = ObservationManager::Instance().CompileObservations(player);
-	for (int i = 0; i < observations.size(); i++) {
-
-		textdisplay->addLog(observations[i]);
-	}
-	ObservationManager::Instance().ClearObservations();
-	textdisplay->addLog(TextDisplay::Log("", sf::Color::Red));
 }
 
 std::string InteractionManager::GetVerb(std::vector<std::string> unused, Entity_Player* player)
@@ -239,6 +330,18 @@ std::string InteractionManager::GetVerb(std::vector<std::string> unused, Entity_
 		}
 		if (std::find(unused.begin(), unused.end(), "inside") != unused.end()) {
 			return "enter";
+		}
+		if (std::find(unused.begin(), unused.end(), "north") != unused.end()) {
+			return "godir";
+		}
+		if (std::find(unused.begin(), unused.end(), "south") != unused.end()) {
+			return "godir";
+		}
+		if (std::find(unused.begin(), unused.end(), "east") != unused.end()) {
+			return "godir";
+		}
+		if (std::find(unused.begin(), unused.end(), "west") != unused.end()) {
+			return "godir";
 		}
 	}
 	if (splitInput[0] == "get") {
@@ -271,6 +374,9 @@ std::string InteractionManager::GetVerb(std::vector<std::string> unused, Entity_
 	if (splitInput[0] == "drink" || splitInput[0] == "sip") {
 		return "drink";
 	}
+	if (splitInput[0] == "eat" || splitInput[0] == "nibble") {
+		return "eat";
+	}
 	if (splitInput[0] == "break") {
 		return "break";
 	}
@@ -283,9 +389,20 @@ std::string InteractionManager::GetVerb(std::vector<std::string> unused, Entity_
 	if (splitInput[0] == "drop") {
 		return "drop";
 	}
+	if (splitInput[0] == "talk" || splitInput[0] == "speak") {
+		return "talk";
+	}
 	if (splitInput[0] == "wait") {
 		return "wait";
 	}
+
+	if (constants.godMode) {
+
+		if (splitInput[0] == "goddelete") {
+			return "goddelete";
+		}
+	}
+
 	return " ";
 }
 
@@ -357,5 +474,38 @@ Position InteractionManager::getPosition(std::vector<std::string> unused)
 		return On;
 	}
 	return Inside;
+}
+
+void InteractionManager::EnterDialog(DialogTree* refTree)
+{
+	currentInteractionState = Dialog;
+	currentDialogTree = refTree;
+	
+}
+
+void InteractionManager::EnterWorldInteraction()
+{
+	currentInteractionState = WorldInteraction;
+}
+
+void InteractionManager::LogDialog(TextDisplay* textdisplay)
+{
+	textdisplay->addLog(TextDisplay::Log(currentDialogTree->TreeNodes[currentDialogTree->currentIndex].dialog, sf::Color::Yellow));
+	for (int i = 0; i < currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses.size() + 1; i++) {
+
+		std::string c = "a";
+		if (i == 1) c = "b";
+		if (i == 2) c = "c";
+		if (i == 3) c = "d";
+		if (i < currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses.size()) {
+			std::string s = c + "): " + currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses[i].first;
+			textdisplay->addLog(TextDisplay::Log(s, sf::Color::Yellow));
+		}
+		else {
+			std::string s = c + "): Leave";
+			textdisplay->addLog(TextDisplay::Log(s, sf::Color::Yellow));
+		}
+	}
+
 }
 

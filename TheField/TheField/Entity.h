@@ -32,6 +32,7 @@ enum Position
 	LeftHand,
 	Arms,
 	Chest,
+	Back,
 	Legs,
 	Feet,
 	Head,
@@ -67,6 +68,10 @@ public:
 		this->internalVolume = internalVolume;
 		this->visibleInsides = visibleInsides;
 	}
+	virtual ~Entity() {
+
+	}
+
 	virtual Entity* Clone() {
 		return new Entity(*this);
 	}
@@ -77,9 +82,12 @@ public:
 	void FaceClockWise();
 	void Face(FacingDirection r);
 	virtual bool SetParent(Position pos, Entity* newParent);
-	virtual bool SetParent(Position pos, Entity* newParent, bool attach);
+	virtual bool SetParent(Position pos, Entity* newParent, int roomIndex, bool attach, bool logObeservation);
+	virtual Entity* SplitEntity();
 	std::vector<Entity*> GetInventory();
 	std::vector<Entity*> GetInventory(Position p); 
+	float getInternalVoidSPace();
+	void DropAllChildren();
 	void AddAdjective(Position pos, std::string s);
 	void RemoveAdjective(std::string s);
 	std::vector<std::string> GetAdjectives();
@@ -102,7 +110,7 @@ public:
 	Rotation rotation = Upright;
 	FacingDirection facingDirection = North;
 protected:
-	virtual void AddChild(Position pos, Entity* toAdd);
+	virtual void AddChild(Position pos, Entity* toAdd, int roomIndex);
 	virtual bool RemoveChild(Entity* toRemove);
 };
 

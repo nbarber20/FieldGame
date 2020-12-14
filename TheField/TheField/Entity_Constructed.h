@@ -9,6 +9,7 @@ public:
 	{
 
 	}
+	virtual ~Entity_Constructed() {};
 
 	bool BreakConstructed(int inputStrength);
 	bool broken = false;

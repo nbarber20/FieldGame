@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include "Entity_Container.h"
 #include "ObservationManager.h"
+#include "World.h"
 
 int Entity::RandomRange(int start, int end)
 {
@@ -14,9 +15,9 @@ void Entity::Rotate(Rotation r)
 
 	if (r != Upright) {
 		std::vector<Entity*> ontop = GetInventory(On);
-		for (int i = 0; i < ontop.size(); i++) {
-			ontop[i]->SetParent(parent.first, parent.second);
-			ontop[i]->Rotate(Tipped);
+		for (auto object : ontop) {
+			object->SetParent(parent.first, parent.second);
+			object->Rotate(Tipped);
 		}
 	}
 
@@ -63,6 +64,11 @@ void Entity::Face(FacingDirection r)
 
 bool Entity::SetParent(Position pos, Entity* newParent)
 {
+	return SetParent(pos, newParent, 0, false,true);
+}
+
+bool Entity::SetParent(Position pos, Entity* newParent, int roomIndex, bool attach, bool logObeservation)
+{
 	if (newParent != nullptr) {
 		if (pos == Inside) {
 			if (this->size > newParent->internalVolume) {
@@ -70,27 +76,28 @@ bool Entity::SetParent(Position pos, Entity* newParent)
 			}
 		}
 	}
-
-	ObservationManager::Observation o = ObservationManager::Observation();
-	o.sense = ObservationManager::SENSE_Look;
-	o.type = ObservationManager::TYPE_Movement;
-	o.referenceEntity = this;
-	o.lastState = ObservationManager::Instance().PositionToString(this->parent.first,individualName);
-	ObservationManager::Instance().MakeObservation(o);
+	if (logObeservation) {
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Look;
+		o.type = ObservationManager::TYPE_Movement;
+		o.referenceEntity = this;
+		o.lastState = ObservationManager::Instance().PositionToString(this->parent.first, individualName);
+		ObservationManager::Instance().MakeObservation(o);
+	}
 
 	if (parent.second != nullptr) parent.second->RemoveChild(this);
 	parent = std::make_pair(pos, newParent);
-	if (newParent != nullptr) newParent->AddChild(pos, this);
+	if (newParent != nullptr) newParent->AddChild(pos, this, roomIndex);
+	attachedToParent = attach;
 	return true;
 }
 
-bool Entity::SetParent(Position pos, Entity* newParent, bool attach)
+Entity* Entity::SplitEntity()
 {
-	bool didparent = SetParent(pos, newParent);
-	if (didparent) {
-		attachedToParent = true;
-	}
-	return didparent;
+	Entity* newEntity = Clone();
+	World::Instance().AddEntity(newEntity);
+	newEntity->parent = std::make_pair(Inside, nullptr);
+	return newEntity;
 }
 
 std::vector<Entity*> Entity::GetInventory()
@@ -117,11 +124,33 @@ std::vector<Entity*> Entity::GetInventory(Position p)
 	return e;
 }
 
+float Entity::getInternalVoidSPace()
+{
+	int filledSize = this->internalVolume;
+	std::vector<Entity*> in = GetInventory(Inside);
+	for (auto object : in) {
+		filledSize -= object->size;
+	}
+	if (filledSize < 0) {
+		filledSize = 0;
+	}
+	return filledSize;
+}
+
+void Entity::DropAllChildren()
+{
+	for (int x = 0; x < children.size(); x++) {
+		for (int y = 0; y < children[x].second.size(); y++) {
+			children[x].second[y]->parent = this->parent;
+		}
+	}
+}
+
 void Entity::AddAdjective(Position pos, std::string s)
 {
-	for (int x = 0; x < adjectives.size(); x++) {
-		if (adjectives[x].first == pos) {
-			adjectives[x].second.push_back(s);
+	for (auto adj : adjectives) {
+		if (adj.first == pos) {
+			adj.second.push_back(s);
 			return;
 		}
 	}
@@ -204,12 +233,14 @@ bool Entity::IsChildOf(Entity* toCompare)
 	Entity* parentCheck = this->parent.second;
 	do {
 		if (parentCheck == toCompare)return true;
-		parentCheck = parentCheck->parent.second;
+		if (parentCheck != nullptr) {
+			parentCheck = parentCheck->parent.second;
+		}
 	} while (parentCheck!= nullptr);
 	return false;
 }
 
-void Entity::AddChild(Position pos, Entity* toAdd)
+void Entity::AddChild(Position pos, Entity* toAdd, int roomIndex)
 {
 
 	for (int x = 0; x < children.size(); x++) {
@@ -219,8 +250,8 @@ void Entity::AddChild(Position pos, Entity* toAdd)
 		}
 	}
 	//We do not have anything in that position currently
-	std::pair<Position, std::vector<Entity*>> pair = std::pair<Position, std::vector<Entity*>>(pos, { toAdd });
-	children.push_back(pair);
+	std::vector<Entity*> newVector ={ toAdd };
+	children.push_back(std::make_pair(pos,newVector));
 }
 
 bool Entity::RemoveChild(Entity* toRemove)

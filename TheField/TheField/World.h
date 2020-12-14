@@ -12,6 +12,7 @@ public:
 	}
 	World();
 	void AddEntity(Entity* e);
+	void RemoveEntity(Entity* e);
 	void Tick();
 	void Setup();
 	Entity_Player* playerEntity;

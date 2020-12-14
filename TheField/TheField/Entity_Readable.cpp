@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Entity_Readable.h"
 #include "ObservationManager.h"
-#include "Entity_Human.h"
-void Entity_Readable::Read(Entity_Human* humanRef)
+#include "Entity_Living.h"
+void Entity_Readable::Read(Entity_Living* humanRef)
 {
 	if (std::find(humanRef->readingLanguage.begin(), humanRef->readingLanguage.end(), this->requiredLanguage) != humanRef->readingLanguage.end()) {
 		ObservationManager::Observation o = ObservationManager::Observation();

@@ -7,15 +7,18 @@ public:
 	{
 		this->coutable = false;
 	};
+	virtual ~Entity_Fluid() {};
+
 	virtual Entity_Fluid* Clone() {
 		return new Entity_Fluid(*this);
 	}
+	virtual void Tick() override;
+	virtual void Rotate(Rotation r) override;
 
-	virtual void Rotate(Rotation r) override {
-		this->rotation = Upright;
-	}
-
+	Entity* SplitFluid(float fluidToRemove);
+	void MixFluid(Entity* toMixWith);
 	
+	float hydration;
 	bool swallowable = true;
 };
 

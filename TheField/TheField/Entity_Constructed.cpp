@@ -17,15 +17,15 @@ bool Entity_Constructed::BreakConstructed(int inputStrength)
 
 
 		std::vector<std::string> toRemove = GetAdjectives(Visual);
-		for (int i = 0; i < toRemove.size(); i++) {
-			RemoveAdjective(toRemove[i]);
+		for (auto i : toRemove) {
+			RemoveAdjective(i);
 		}
 
 		AddAdjective(Position::Visual, "broken");
 
 		std::vector<Entity*> inside = GetInventory(Inside);
-		for (int i = 0; i < inside.size(); i++) {
-			inside[i]->SetParent(parent.first, parent.second);
+		for (auto i : inside) {
+			i->SetParent(parent.first, parent.second);
 		}
 		return true;
 	}

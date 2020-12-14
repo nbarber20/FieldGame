@@ -11,11 +11,13 @@ public:
 	Entity_Container(bool visibleInsides, float internalVolume,float size) :Entity_Constructed(visibleInsides, internalVolume,size)
 	{
 	}; 
+	virtual ~Entity_Container() {};
 	virtual Entity_Container* Clone() {
 		return new Entity_Container(*this);
 	}
 	virtual void Tick() override;
 	virtual bool PourInto(Entity* target);
+	float permiability = 0.0f;
 };
 
 

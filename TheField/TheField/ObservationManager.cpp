@@ -28,37 +28,39 @@ std::vector <TextDisplay::Log> ObservationManager::CompileObservations(Entity* p
 		int pluralCount = 0;
 
 		if (e != nullptr) {
+			if (e->names.size() > 0) {
 
-			for (int j = 0; j < observations.size(); j++) {
-				if (observations[j].displayed == false) {
-					if(o.sense == observations[j].sense && o.type == observations[j].type &&  observations[j].referenceEntity != nullptr){
-						if (observations[j].referenceEntity != e) {
-							if (e->parent == observations[j].referenceEntity->parent)
-							{
-								if (e->CheckforNameMatch(observations[j].referenceEntity))
+				for (int j = 0; j < observations.size(); j++) {
+					if (observations[j].displayed == false) {
+						if (o.sense == observations[j].sense && o.type == observations[j].type &&  observations[j].referenceEntity != nullptr) {
+							if (observations[j].referenceEntity != e) {
+								if (e->parent == observations[j].referenceEntity->parent && e->coutable == true)
 								{
-									observations[j].displayed = true;
-									plural = true;
-									pluralCount++;
+									if (e->CheckforNameMatch(observations[j].referenceEntity))
+									{
+										observations[j].displayed = true;
+										plural = true;
+										pluralCount++;
+									}
 								}
 							}
 						}
 					}
 				}
-			}
 
-			preposition = getPreposition(e->parent.first, &prepositionNoun);
-			ADJ = e->GetRandomAdjective(Visual) + " ";
-			if (ADJ == " ")ADJ = "";
-			defrefName = "the " + e->names[0];
-			defrefNameADJ = "the " + ADJ + e->names[0];
-			if (e->coutable&& plural == false) {
-				indefdefrefName = "a " + e->names[0];
-				indefdefrefNameADJ = "a " + ADJ + e->names[0];
-			}
-			else {
-				indefdefrefName = e->names[0];
-				indefdefrefNameADJ = ADJ + e->names[0];
+				preposition = getPreposition(e->parent.first, &prepositionNoun);
+				ADJ = e->GetRandomAdjective(Visual) + " ";
+				if (ADJ == " ")ADJ = "";
+				defrefName = "the " + e->names[0];
+				defrefNameADJ = "the " + ADJ + e->names[0];
+				if (e->coutable&& plural == false) {
+					indefdefrefName = "a " + e->names[0];
+					indefdefrefNameADJ = "a " + ADJ + e->names[0];
+				}
+				else {
+					indefdefrefName = e->names[0];
+					indefdefrefNameADJ = ADJ + e->names[0];
+				}
 			}
 		}
 
@@ -68,41 +70,56 @@ std::vector <TextDisplay::Log> ObservationManager::CompileObservations(Entity* p
 			logs.push_back(TextDisplay::Log(o.information,sf::Color::Yellow));
 		}
 		if (o.type == TYPE_Notice) {
-			if (e->parent.second == playerEntity) 
+			if (o.information != "")
 			{
-				logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " your " + GetComponentName(e->parent.first), sf::Color::Yellow));
-			}
-			else if (e->parent == playerEntity->parent) {
-				if (e->size < constants.smallItemMaxThreshold) {
-					if (prepositionNoun) {
-						logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
-					}
-					else {
-						logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
-					}
-				}
-				else {
-					logs.push_back(TextDisplay::Log("You see " + indefdefrefNameADJ, sf::Color::Yellow));
-				}
+				logs.push_back(TextDisplay::Log(o.information, sf::Color::Yellow));
 			}
 			else {
-				if (plural) {
-					if (prepositionNoun) {
-						logs.push_back(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition, sf::Color::Yellow));
+				if (e->parent.second == playerEntity) 
+				{
+					logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " your " + GetComponentName(e->parent.first), sf::Color::Yellow));
+				}
+				else if (e->parent == playerEntity->parent) {
+					if (e->size < constants.smallItemMaxThreshold) {
+						if (prepositionNoun) {
+							logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
+						}
+						else {
+							logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+						}
 					}
 					else {
-						logs.push_back(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName+ "s " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+						logs.push_back(TextDisplay::Log("You see " + indefdefrefNameADJ, sf::Color::Yellow));
 					}
 				}
 				else {
-					if (prepositionNoun) {
-						logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
+					if (plural) {
+						if (e->size < constants.smallItemMaxThreshold) {
+							if (prepositionNoun) {
+								logs.push_back(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition, sf::Color::Yellow));
+							}
+							else {
+								logs.push_back(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+							}
+						}
+						else {
+							logs.push_back(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s here", sf::Color::Yellow));
+						}
 					}
 					else {
-						logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+						if (e->size < constants.smallItemMaxThreshold) {
+							if (prepositionNoun) {
+								logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
+							}
+							else {
+								logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+							}
+						}
+						else {
+							logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " here", sf::Color::Yellow));
+						}
 					}
 				}
-
 			}
 		}
 		if (o.type == TYPE_Movement) {
@@ -117,6 +134,9 @@ std::vector <TextDisplay::Log> ObservationManager::CompileObservations(Entity* p
 						else {
 							logs.push_back(TextDisplay::Log("You are " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 						}
+					}
+					else {
+						logs.push_back(TextDisplay::Log("You are in the " + e->parent.second->names[0], sf::Color::Yellow));
 					}
 				}
 				else {
@@ -143,6 +163,51 @@ std::vector <TextDisplay::Log> ObservationManager::CompileObservations(Entity* p
 }
 
 
+void ObservationManager::ConsumeObservations(std::vector<std::pair<int, int>> toConsume)
+{
+	for (int i = 0; i < toConsume.size(); i++) {
+		ObservationType type = (ObservationType)toConsume[i].first;
+		ObservationSense sense = (ObservationSense)toConsume[i].second;
+		if (type == TYPE_All&& sense == TYPE_All) {
+			ClearObservations();
+			return;
+		}
+
+		for (int j = 0; j < observations.size(); j++) {
+			if (type == TYPE_All) {
+				if (observations[j].sense == sense) {
+					RemoveObservation(j);
+				}
+			}
+			else if (sense == SENSE_All) {
+				if (observations[j].type == type) {
+					RemoveObservation(j);
+				}
+			}
+			else {
+				if (observations[j].type == type && observations[j].sense == sense) {
+					RemoveObservation(j);
+				}
+			}
+		}
+	}
+}
+
+void ObservationManager::RemoveObservationForEntity(Entity* entity)
+{
+	for (int i = 0; i < observations.size(); i++) {
+		if (observations[i].referenceEntity == entity) {
+			RemoveObservation(i);
+			return;
+		}
+	}
+}
+
+void ObservationManager::RemoveObservation(int index)
+{
+	observations.erase(std::remove(observations.begin(), observations.end(), observations[index]), observations.end());
+}
+
 std::string ObservationManager::RotationToString(Rotation r)
 {
 	switch (r)
@@ -154,6 +219,7 @@ std::string ObservationManager::RotationToString(Rotation r)
 	case Tipped:
 		return "tipped";
 	}
+	return "ERROR";
 }
 
 std::string ObservationManager::FacingDirectionToString(FacingDirection r)
@@ -169,6 +235,7 @@ std::string ObservationManager::FacingDirectionToString(FacingDirection r)
 	case West:
 		return "west";
 	}
+	return "ERROR";
 }
 
 std::string ObservationManager::PositionToString(Position r, std::string individualName)
@@ -193,6 +260,8 @@ std::string ObservationManager::PositionToString(Position r, std::string individ
 		return individualName + "'s arms";
 	case Chest:
 		return individualName + "'s chest";
+	case Back:
+		return individualName + "'s back";
 	case Legs:
 		return individualName + "'s legs";
 	case Feet:
@@ -214,6 +283,7 @@ std::string ObservationManager::PositionToString(Position r, std::string individ
 	case Smell:
 		return "ERROR";
 	}
+	return "ERROR";
 }
 
 std::string ObservationManager::GetComponentName(Position pos)
@@ -238,6 +308,8 @@ std::string ObservationManager::GetComponentName(Position pos)
 		return "arms";
 	case Chest:
 		return "chest";
+	case Back:
+		return "back";
 	case Legs:
 		return "legs";
 	case Feet:
@@ -259,6 +331,7 @@ std::string ObservationManager::GetComponentName(Position pos)
 	case Smell:
 		return "ERROR";
 	}
+	return "ERROR";
 }
 
 std::string ObservationManager::getPreposition(Position pos, bool* containsNoun)
@@ -281,6 +354,8 @@ std::string ObservationManager::getPreposition(Position pos, bool* containsNoun)
 	case LeftHand:
 		return "in";
 	case Arms:
+		return "on";
+	case Back:
 		return "on";
 	case Chest:
 		return "on";
@@ -308,5 +383,7 @@ std::string ObservationManager::getPreposition(Position pos, bool* containsNoun)
 	case Smell:
 		return "ERROR";
 	}
+	return "ERROR";
 }
+
 

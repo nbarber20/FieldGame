@@ -4,8 +4,12 @@
 #include "Entity_Container.h"
 #include "Entity_Fluid.h"
 #include "Entity_Room.h"
+#include "Entity_Interior.h"
+#include "Entity_Food.h"
+#include "Entity_Event.h"
+#include "World.h"
 
-std::vector<Entity*> Entity_Player::getVisibleEntities()
+std::vector<Entity*> Entity_Player::getVisibleEntities(bool getParent)
 {
 	std::vector<Entity*> visible;
 	std::vector<Entity*> onPerson = GetInventory();
@@ -27,7 +31,6 @@ std::vector<Entity*> Entity_Player::getVisibleEntities()
 		}
 	}
 
-
 	std::vector<Entity*> withintile = (parent.second)->GetInventory();
 	for (int i = 0; i < withintile.size(); i++) {
 		if (withintile[i] != this) {
@@ -47,43 +50,71 @@ std::vector<Entity*> Entity_Player::getVisibleEntities()
 		}
 	}
 
+	if (getParent) {
+		Entity_Room* parentRoomTest = dynamic_cast<Entity_Room*>(parent.second);
+		if (parentRoomTest) {
+			visible.push_back(parentRoomTest);
+			visible.push_back(parentRoomTest->parent.second);
+		}
+	}
+
 	return visible;
 }
 
-Entity* Entity_Player::getNearbyEntity(std::string entityName)
+void Entity_Player::CheckForEvents()
 {
-	Entity* target;
-	std::vector<Entity*> nearbyEntities = getVisibleEntities();
-	for (int i = 0; i < nearbyEntities.size(); i++) {
-		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
-			if (nearbyEntities[i]->names[n] == entityName) {
-				return nearbyEntities[i];
-			}
-		}
-		if (nearbyEntities[i]->individualName == entityName) {
-			return nearbyEntities[i];
+
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(false);
+	for (auto nearbyEntity: nearbyEntities) {
+		Entity_Event* checkEvent = dynamic_cast<Entity_Event*>(nearbyEntity);
+		if (checkEvent) {
+			checkEvent->AttemptTrigger();
+			return;
 		}
 	}
-	return nullptr;
 }
+
 
 void Entity_Player::Look()
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities();
-	for (int i = 0; i < nearbyEntities.size(); i++) {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Notice;
-		o.referenceEntity = nearbyEntities[i];
-		o.information = "there is a " + nearbyEntities[i]->names[0] + " here";
-		ObservationManager::Instance().MakeObservation(o);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(false);
+	for (auto nearbyEntity : nearbyEntities) {
+		if (nearbyEntity->names.size() > 0) {
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Notice;
+			o.referenceEntity = nearbyEntity;
+			ObservationManager::Instance().MakeObservation(o);
+		}
 	}
+
+
+	Entity_Room* roomTest = dynamic_cast<Entity_Room*>(parent.second);
+	if (roomTest) {
+		Entity_Interior* interiorTest = dynamic_cast<Entity_Interior*>(roomTest->parent.second);
+		if (interiorTest) {
+			for (int i = 0; i < 4; i++) {
+				FacingDirection dir = (FacingDirection)i;
+				Entity* room = interiorTest->GetAdjacent(dir, roomTest);
+				if (room) {
+					ObservationManager::Observation o = ObservationManager::Observation();
+					o.sense = ObservationManager::SENSE_Look;
+					o.type = ObservationManager::TYPE_Notice;
+					o.referenceEntity = room;
+					o.information = "There is a " + room->names[0] + " to the " + ObservationManager::Instance().FacingDirectionToString(dir);
+					ObservationManager::Instance().MakeObservation(o);
+				}
+			}
+		}
+	}
+
+
 }
 
 
 Entity* Entity_Player::FindEntityByName(std::string entityName)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities();
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -95,7 +126,7 @@ Entity* Entity_Player::FindEntityByName(std::string entityName)
 }
 Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adjective)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities();
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -114,7 +145,7 @@ Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adje
 
 Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adjective, std::vector<Position> positionBlacklist)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities();
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -133,7 +164,8 @@ Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adje
 
 bool Entity_Player::TryMove(Entity* e, Position toPos, Entity* toEntity)
 {
-	if (e->attachedToParent == true)return;
+	if (toEntity == nullptr)return false;
+	if (e->attachedToParent == true)return false;
 	Entity_Room* roomTest = dynamic_cast<Entity_Room*>(toEntity);
 	if (roomTest) {
 		if (toPos == Inside)toPos = OnFloor;
@@ -145,25 +177,28 @@ bool Entity_Player::TryMove(Entity* e, Position toPos, Entity* toEntity)
 
 bool Entity_Player::Enter(Entity* e)
 {
-	return this->SetParent(Inside, e);
+	return TryMove(this,Inside, e);
 }
 
 bool Entity_Player::Exit(Entity* e)
 {
-	if (e->parent.second->GetInventory(OnFloor).size() > 0) { //we can assume this is a house or something with a floor.
-		return this->SetParent(OnFloor, e->parent.second);
+	Entity* target = e->parent.second;
+	Entity_Interior* roomTest = dynamic_cast<Entity_Interior*>(e->parent.second);
+	if (roomTest) {
+		target = roomTest->parent.second;
 	}
-	else {
-		if (e->parent.second->internalVolume!=0) {
-			return this->SetParent(Inside, e->parent.second);
+	if (target != nullptr) {
+		if (target->internalVolume != 0) {
+			return TryMove(this, Inside, target);
 		}
 		else {
-			return this->SetParent(On, e->parent.second);
+			return TryMove(this, On, target);
 		}
 	}
+	return false;
 }
 
-bool Entity_Player::Drink(Entity* e)
+bool Entity_Player::Drink(Entity* e, bool drinkAll)
 {
 	Entity_Container* container = dynamic_cast<Entity_Container*>(e);
 	if (container) {
@@ -171,7 +206,22 @@ bool Entity_Player::Drink(Entity* e)
 		for (int i = 0; i < fluidCheck.size(); i++) {
 			Entity_Fluid* fluid = dynamic_cast<Entity_Fluid*>(fluidCheck[i]);
 			if (fluid) {
-				fluid->SetParent(Mouth, this);
+				if (drinkAll) {
+					if (fluid->size > constants.drinkableWaterThreshold) {
+						ObservationManager::Observation o = ObservationManager::Observation();
+						o.sense = ObservationManager::SENSE_Look;
+						o.type = ObservationManager::TYPE_Direct;
+						o.referenceEntity = e;
+						o.information = "There is too much to drink";
+						ObservationManager::Instance().MakeObservation(o);
+						return true;
+					}
+					fluid->SetParent(Mouth, this);
+				}
+				else {
+					Entity* e = fluid->SplitFluid(constants.mouthSize);
+					e->SetParent(Mouth, this);
+				}
 			}
 		}
 		if (fluidCheck.size() == 0) {
@@ -186,7 +236,33 @@ bool Entity_Player::Drink(Entity* e)
 	}
 	Entity_Fluid* fluid = dynamic_cast<Entity_Fluid*>(e);
 	if (fluid) {
-		fluid->SetParent(Mouth, this);
+		
+		if (drinkAll) {
+			if (fluid->size > constants.drinkableWaterThreshold) {
+				ObservationManager::Observation o = ObservationManager::Observation();
+				o.sense = ObservationManager::SENSE_Look;
+				o.type = ObservationManager::TYPE_Direct;
+				o.referenceEntity = e;
+				o.information = "There is too much to drink";
+				ObservationManager::Instance().MakeObservation(o);
+				return true;
+			}
+			fluid->SetParent(Mouth, this);
+		}
+		else {
+			Entity* e = fluid->SplitFluid(constants.mouthSize);
+			e->SetParent(Mouth, this);
+		}
+		return true;
+	}
+	return false;
+}
+
+bool Entity_Player::Eat(Entity* e)
+{
+	Entity_Food* food = dynamic_cast<Entity_Food*>(e);
+	if (food) {
+		e->SetParent(Mouth, this);
 		return true;
 	}
 	return false;
@@ -198,18 +274,29 @@ bool Entity_Player::TrySwallow(Entity* e)
 	Entity_Fluid* fluid = dynamic_cast<Entity_Fluid*>(e);
 	if (fluid) {
 		if (fluid->swallowable) {
+			World::Instance().RemoveEntity(fluid);
 			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
+			o.sense = ObservationManager::SENSE_Taste;
 			o.type = ObservationManager::TYPE_Direct;
-			o.referenceEntity = e;
 			o.information = "You drink the " + e->GetRandomAdjective(Taste)+ " " + e->names[0];
 			ObservationManager::Instance().MakeObservation(o);
-
-			e->SetParent(Inside, nullptr);
+			this->AddHydration(fluid->hydration);
 			return true;
 		}
 	}
-
+	Entity_Food* food = dynamic_cast<Entity_Food*>(e);
+	if (food) {
+		if (food->spoiled == false) {
+			World::Instance().RemoveEntity(food);
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Taste;
+			o.type = ObservationManager::TYPE_Direct;
+			o.information = "You eat the " + e->GetRandomAdjective(Taste) + " " + e->names[0];
+			ObservationManager::Instance().MakeObservation(o);
+			this->AddNourishment(food->nutritionalValue);
+			return true;
+		}
+	}
 
 
 
