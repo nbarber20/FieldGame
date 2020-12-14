@@ -32,6 +32,7 @@ public:
 	virtual void Look();
 	virtual Entity* FindEntityByName(std::string entityName);
 	virtual Entity* FindEntityByName(std::string entityName, std::string adjective);
+	virtual Entity* FindEntityByName(std::string entityName, Position realitivePosition, std::string realitiveEntityName);
 	virtual Entity* FindEntityByName(std::string entityName, std::string adjective, std::vector<Position> positionBlacklist);
 	virtual bool TryMove(Entity* e, Position toPos, Entity* toEntity);
 	virtual bool Enter(Entity* e);

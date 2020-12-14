@@ -162,8 +162,32 @@ Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adje
 }
 
 
+Entity* Entity_Player::FindEntityByName(std::string entityName, Position realitivePosition, std::string realitiveEntityName)
+{
+	
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true);
+	for (int i = 0; i < nearbyEntities.size(); i++) {
+		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
+			if (nearbyEntities[i]->names[n] == entityName) {
+				if (nearbyEntities[i]->parent.second != nullptr && nearbyEntities[i]->parent.first == realitivePosition) {
+					if (realitiveEntityName == "") {
+						return nearbyEntities[i];
+					}
+					for (int n2 = 0; n2 < nearbyEntities[i]->parent.second->names.size(); n2++) {
+						if (nearbyEntities[i]->parent.second->names[n2] == realitiveEntityName) {
+							return nearbyEntities[i];
+						}
+					}
+				}
+			}
+		}
+	}
+	return nullptr;
+}
+
 bool Entity_Player::TryMove(Entity* e, Position toPos, Entity* toEntity)
 {
+	if (toPos == Nowhere) return false;
 	if (toEntity == nullptr)return false;
 	if (e->attachedToParent == true)return false;
 	Entity_Room* roomTest = dynamic_cast<Entity_Room*>(toEntity);

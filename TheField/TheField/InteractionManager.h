@@ -28,14 +28,16 @@ public:
 	InteractionManager(){};
 	void Update(std::string input, TextDisplay* textdisplay);
 	void ParsePlayerInput(std::string input, TextDisplay* textdisplay, Entity_Player* player);
-	InputError AttemptPlayerCommand(TextDisplay* textdisplay, Entity_Player* player);
-	std::string GetVerb(Entity_Player* player);
+	InputError AttemptPlayerCommand(Entity_Player* player);
+	std::string GetHelp(std::string HelpPage);
+	std::string GetVerb(Entity_Player* player,int index);
 	Entity* GetNoun(Entity_Player* player);
 	Entity* GetAdjectiveSubject(std::string adj, std::string subject, Entity_Player* player);
+	Entity* GetPositionalSubject(std::string subject, std::string relevant,  Entity_Player* player);
 	Position getPosition();
 	void EnterDialog(DialogTree* refTree);
 	void EnterWorldInteraction();
-	void LogDialog(TextDisplay* textdisplay);
+	void LogDialog();
 	bool FindParticleInput(std::string toFind);
 private:
 	InteractionState currentInteractionState = WorldInteraction;
@@ -66,6 +68,7 @@ private:
 		"behind",
 		"below",
 		"top",
+		"floor",
 		"north",
 		"south",
 		"east",

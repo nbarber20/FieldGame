@@ -12,7 +12,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 	Entity_Player* player = World::Instance().playerEntity;
 	if (currentInteractionState == WorldInteraction) {
 		ParsePlayerInput(input, textdisplay, player);
-		InputError inputError = AttemptPlayerCommand(textdisplay,player);
+		InputError inputError = AttemptPlayerCommand(player);
 		if (inputError == NeedsSubject) {
 			textdisplay->addLog(TextDisplay::Log("Specify a subject", sf::Color::Red));
 		}
@@ -52,7 +52,13 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 		if (input == "c")event = currentDialogTree->Respond(2);
 		if (input == "d")event = currentDialogTree->Respond(3);
 		if (event == DialogTree::EVENT_NONE) {
-			LogDialog(textdisplay);
+			LogDialog();
+			std::vector<TextDisplay::Log> observations = ObservationManager::Instance().CompileObservations(player);
+			for (int i = 0; i < observations.size(); i++) {
+
+				textdisplay->addLog(observations[i]);
+			}
+			ObservationManager::Instance().ClearObservations();
 		}
 		else {
 			EnterWorldInteraction();
@@ -82,7 +88,7 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 
 	textdisplay->addLog(TextDisplay::Log(input, sf::Color::Red));
 
-	verb = GetVerb(player);
+	verb = GetVerb(player,0);
 	subject = GetNoun(player);
 	predicate = nullptr;	
 	if (subject != nullptr) {
@@ -90,7 +96,7 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 	}
 }
 
-InteractionManager::InputError InteractionManager::AttemptPlayerCommand(TextDisplay* textdisplay,Entity_Player* player)
+InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_Player* player)
 {
 	if (verb == "look") {
 		player->Look();
@@ -286,7 +292,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(TextDisp
 			if (npc) {
 				if (npc->dialogTree != nullptr) {
 					EnterDialog(npc->dialogTree);
-					LogDialog(textdisplay);
+					LogDialog();
 					return Success;
 				}
 				return Impossible;
@@ -302,7 +308,20 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(TextDisp
 		return Success;
 	}
 	if (verb == "wait") {
-		textdisplay->addLog(TextDisplay::Log("You wait", sf::Color::Red));
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Look;
+		o.type = ObservationManager::TYPE_Direct;
+		o.information = "You wait";
+		ObservationManager::Instance().MakeObservation(o);
+		return Success;
+	}
+	if (verb == "help") {
+
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Look;
+		o.type = ObservationManager::TYPE_Direct;
+		o.information = GetHelp(GetVerb(player, 1));
+		ObservationManager::Instance().MakeObservation(o);
 		return Success;
 	}
 	if (verb == "") {
@@ -310,9 +329,19 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(TextDisp
 	}
 }
 
-std::string InteractionManager::GetVerb(Entity_Player* player)
+std::string InteractionManager::GetHelp(std::string HelpPage)
 {
-	if (splitInput[0] == "put")
+	if (HelpPage == "") {
+		return "Commands should be a verb, followed by a subject. Some commands also require a subject and target. Try out some of the following commands: look, enter, go (direction), talk, take, drop, put";
+	}
+	//TODO add more help pages.
+}
+
+std::string InteractionManager::GetVerb(Entity_Player* player, int index)
+{
+	if (index < 0 || index >= splitInput.size())return "";
+
+	if (splitInput[index] == "put")
 	{
 		if (FindParticleInput("down")) {
 			return "drop";
@@ -321,7 +350,7 @@ std::string InteractionManager::GetVerb(Entity_Player* player)
 			return "put";
 		}
 	}
-	if (splitInput[0] == "go") {
+	if (splitInput[index] == "go") {
 		if (FindParticleInput("in")) {
 			return "enter";
 		}
@@ -350,7 +379,7 @@ std::string InteractionManager::GetVerb(Entity_Player* player)
 			return "godir";
 		}
 	}
-	if (splitInput[0] == "get") {
+	if (splitInput[index] == "get") {
 		if (FindParticleInput("in")) {
 			return "enter";
 		}
@@ -359,57 +388,60 @@ std::string InteractionManager::GetVerb(Entity_Player* player)
 		}
 	}
 
-	if (splitInput[0] == "look"|| splitInput[0] == "examine") {
+	if (splitInput[index] == "look"|| splitInput[index] == "examine" || splitInput[index] == "peek" || splitInput[index] == "study" || splitInput[index] == "watch") {
 		return "look";
 	}
-	if (splitInput[0] == "rotate" || splitInput[0] == "turn") {
+	if (splitInput[index] == "rotate" || splitInput[index] == "turn" || splitInput[index] == "spin") {
 		return "rotate";
 	}
-	if (splitInput[0] == "enter") {
+	if (splitInput[index] == "enter") {
 		return "enter";
 	}
-	if (splitInput[0] == "leave" || splitInput[0] == "exit") {
+	if (splitInput[index] == "leave" || splitInput[index] == "exit") {
 		return "exit";
 	}
-	if (splitInput[0] == "flip") {
+	if (splitInput[index] == "flip"|| splitInput[index] == "overturn" || splitInput[index] == "roll") {
 		return "flip";
 	}
-	if (splitInput[0] == "take" || splitInput[0] == "steal"|| splitInput[0] == "pickup" || splitInput[0] == "get") {
+	if (splitInput[index] == "take" || splitInput[index] == "steal"|| splitInput[index] == "pickup" || splitInput[index] == "get" || splitInput[index] == "remove") {
 		return "take";
 	}
-	if (splitInput[0] == "drink" || splitInput[0] == "sip") {
+	if (splitInput[index] == "drink" || splitInput[index] == "sip") {
 		return "drink";
 	}
-	if (splitInput[0] == "eat" || splitInput[0] == "nibble") {
+	if (splitInput[index] == "eat" || splitInput[index] == "nibble" || splitInput[index] == "consume" || splitInput[index] == "ingest") {
 		return "eat";
 	}
-	if (splitInput[0] == "break") {
+	if (splitInput[index] == "break") {
 		return "break";
 	}
-	if (splitInput[0] == "pour") {
+	if (splitInput[index] == "pour") {
 		return "pour";
 	}
-	if (splitInput[0] == "read") {
+	if (splitInput[index] == "read") {
 		return "read";
 	}
-	if (splitInput[0] == "drop") {
+	if (splitInput[index] == "drop") {
 		return "drop";
 	}
-	if (splitInput[0] == "talk" || splitInput[0] == "speak") {
+	if (splitInput[index] == "talk" || splitInput[index] == "speak") {
 		return "talk";
 	}
-	if (splitInput[0] == "wait") {
+	if (splitInput[index] == "wait") {
 		return "wait";
+	}
+	if (splitInput[index] == "help") {
+		return "help";
 	}
 
 	//GodMode is enabled
 	if (constants.godMode) {
-		if (splitInput[0] == "goddelete") {
+		if (splitInput[index] == "goddelete") {
 			return "goddelete";
 		}
 	}
 
-	return " ";
+	return "";
 }
 
 Entity* InteractionManager::GetNoun(Entity_Player* player)
@@ -418,11 +450,19 @@ Entity* InteractionManager::GetNoun(Entity_Player* player)
 	std::string toRemove[2];
 	int i = 0;
 	do {
-		subject = player->FindEntityByName(splitInput[i]);
 		toRemove[0] = splitInput[i];
+		if (subject == nullptr) {
+			subject = GetPositionalSubject(splitInput[i], "", player);
+		}
+		if (subject == nullptr&& i < splitInput.size() - 1) {
+			subject = GetPositionalSubject(splitInput[i], splitInput[i + 1], player);
+			toRemove[1] = splitInput[i + 1];
+		}
+		if (subject == nullptr) {
+			subject = player->FindEntityByName(splitInput[i]);
+		}
 		if (subject == nullptr&& i< splitInput.size()-1) {
 			subject = GetAdjectiveSubject(splitInput[i], splitInput[i + 1], player);
-			toRemove[0] = splitInput[i];
 			toRemove[1] = splitInput[i + 1];
 		}
 		i++;
@@ -444,6 +484,13 @@ Entity* InteractionManager::GetAdjectiveSubject(std::string adj, std::string sub
 		}
 	}
 	return found;
+}
+
+Entity* InteractionManager::GetPositionalSubject(std::string subject, std::string relevant, Entity_Player* player)
+{
+	Position p = getPosition();
+	if (p == Nowhere)return nullptr;
+	return player->FindEntityByName(subject,p,relevant);
 }
 
 Position InteractionManager::getPosition()
@@ -475,10 +522,13 @@ Position InteractionManager::getPosition()
 	if (FindParticleInput("inside")) {
 		return Inside;
 	}
+	if (FindParticleInput("on")&& FindParticleInput("floor")) {
+		return OnFloor;
+	}
 	if(FindParticleInput("on")) {
 		return On;
 	}
-	return Inside;
+	return Nowhere;
 }
 
 void InteractionManager::EnterDialog(DialogTree* refTree)
@@ -493,9 +543,13 @@ void InteractionManager::EnterWorldInteraction()
 	currentInteractionState = WorldInteraction;
 }
 
-void InteractionManager::LogDialog(TextDisplay* textdisplay)
+void InteractionManager::LogDialog()
 {
-	textdisplay->addLog(TextDisplay::Log(currentDialogTree->TreeNodes[currentDialogTree->currentIndex].dialog, sf::Color::Yellow));
+	ObservationManager::Observation o = ObservationManager::Observation();
+	o.sense = ObservationManager::SENSE_Look;
+	o.type = ObservationManager::TYPE_Direct;
+	o.information = currentDialogTree->TreeNodes[currentDialogTree->currentIndex].dialog;
+	ObservationManager::Instance().MakeObservation(o);
 	for (int i = 0; i < currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses.size() + 1; i++) {
 
 		std::string c = "a";
@@ -504,11 +558,19 @@ void InteractionManager::LogDialog(TextDisplay* textdisplay)
 		if (i == 3) c = "d";
 		if (i < currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses.size()) {
 			std::string s = c + "): " + currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses[i].first;
-			textdisplay->addLog(TextDisplay::Log(s, sf::Color::Yellow));
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Direct;
+			o.information = s;
+			ObservationManager::Instance().MakeObservation(o);
 		}
 		else {
 			std::string s = c + "): Leave";
-			textdisplay->addLog(TextDisplay::Log(s, sf::Color::Yellow));
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Direct;
+			o.information = s;
+			ObservationManager::Instance().MakeObservation(o);
 		}
 	}
 

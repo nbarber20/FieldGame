@@ -26,12 +26,15 @@ public:
 		return text;
 	}
 	void addLog(Log newlog) {
+		std::size_t found = newlog.logText.find_first_of(' ');
+		while (found != std::string::npos && found<charLength)
+		{
+			found = newlog.logText.find_first_of(' ', found + 1);
+		}
+		if (found != std::string::npos) {
 
-		int n = newlog.logText.rfind(' ', charLength);
-		if (n != std::string::npos && n >= charLength) {
-
-			Log firstLog = Log(newlog.logText.substr(0, n), newlog.logColor);
-			Log secondLog = Log(newlog.logText.substr(n+1, newlog.logText.length()-1), newlog.logColor);
+			Log firstLog = Log(newlog.logText.substr(0, found), newlog.logColor);
+			Log secondLog = Log(newlog.logText.substr(found +1, newlog.logText.length()-1), newlog.logColor);
 
 			logs.push_back(firstLog);
 			addLog(secondLog);

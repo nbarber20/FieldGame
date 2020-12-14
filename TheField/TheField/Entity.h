@@ -16,6 +16,7 @@ enum Languages
 
 enum Position
 {  
+	Nowhere,
 	InFront,
 	Inside,
 	Behind,
