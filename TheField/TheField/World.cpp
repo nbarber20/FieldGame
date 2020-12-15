@@ -10,6 +10,7 @@
 #include "Entity_Event.h"
 #include "Entity_Food.h"
 #include "Entity_Npc.h"
+#include "Entity_Mechanisim.h"
 #include "ObservationManager.h"
 World::World()
 {
@@ -81,7 +82,7 @@ void World::Setup()
 	DialogTree::DialogNode node2; 
 	node2.dialog = "The man offers you food and supplies, whats his is yours.";
 	DialogTree::DialogNode node3;
-	node3.dialog = "The man takes offense to your insult and kindly asks you to leave.";
+	node3.dialog = "You insult the man, The guy makes a frowny face :C";
 	tree->TreeNodes.push_back(node1);
 	tree->TreeNodes.push_back(node2);
 	tree->TreeNodes.push_back(node3);
@@ -94,7 +95,7 @@ void World::Setup()
 	EnterHouseEvent->setObservationConsumptionList({
 		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
 		});
-	EnterHouseEvent->EventText = "Upon entering the farm house, a warm feeling rushes over you. The environment around you has changed from harsh to cozy and comfortable.";
+	EnterHouseEvent->EventText = "Upon entering the farm house, a warm feeling rushes over you.";
 	EnterHouseEvent->SetParent(OnFloor, House, 0, false, false);
 	entities.push_back(EnterHouseEvent);
 
@@ -115,10 +116,23 @@ void World::Setup()
 	entities.push_back(Bed);
 
 
+
 	Entity* Table = new Entity(true, 0.0f, 1728.0f);
 	Table->names = { "table" };
 	Table->SetParent(OnFloor, House,0, false, false);
 	entities.push_back(Table);
+
+
+
+	Entity_Mechanisim* UselessButton = new Entity_Mechanisim(true, 0.0f, 1728.0f);
+	UselessButton->names = { "button" };
+	UselessButton->SetParent(On, Table);
+	std::vector<Task*> tasks = {
+		new Task_LogText("You press the button. It suddenly disappears."),
+		new Task_DestroySelf(UselessButton),
+	};
+	UselessButton->AddBehavior(std::make_pair("press", tasks));
+	entities.push_back(UselessButton);
 
 	Entity_Food* Potato = new Entity_Food(true, 14.44f, 14.50f);
 	Potato->names = { "potato" };

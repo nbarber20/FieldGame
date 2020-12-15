@@ -166,6 +166,7 @@
     <ClInclude Include="Entity_GroundTile.h" />
     <ClInclude Include="Entity_Living.h" />
     <ClInclude Include="Entity_Interior.h" />
+    <ClInclude Include="Entity_Mechanisim.h" />
     <ClInclude Include="Entity_Npc.h" />
     <ClInclude Include="Entity_Player.h" />
     <ClInclude Include="Entity_Readable.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="InteractionManager.h" />
     <ClInclude Include="ObservationManager.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Task.h" />
     <ClInclude Include="TextDisplay.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
@@ -185,6 +187,7 @@
     <ClCompile Include="Entity_Food.cpp" />
     <ClCompile Include="Entity_Living.cpp" />
     <ClCompile Include="Entity_Interior.cpp" />
+    <ClCompile Include="Entity_Mechanisim.cpp" />
     <ClCompile Include="Entity_Npc.cpp" />
     <ClCompile Include="Entity_Player.cpp" />
     <ClCompile Include="Entity_Readable.cpp" />

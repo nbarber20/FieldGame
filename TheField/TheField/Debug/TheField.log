@@ -1,15 +1,20 @@
 ﻿  InteractionManager.cpp
 e:\personalwork\fieldgame\thefield\thefield\textdisplay.h(30): warning C4018: '<': signed/unsigned mismatch
 e:\personalwork\fieldgame\thefield\thefield\dialogtree.h(28): warning C4018: '>=': signed/unsigned mismatch
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(32): warning C4018: '<': signed/unsigned mismatch
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(39): warning C4018: '<': signed/unsigned mismatch
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(57): warning C4018: '<': signed/unsigned mismatch
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(344): warning C4018: '>=': signed/unsigned mismatch
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(459): warning C4018: '<': signed/unsigned mismatch
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(466): warning C4018: '<': signed/unsigned mismatch
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(471): warning C4018: '<': signed/unsigned mismatch
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(555): warning C4018: '<': signed/unsigned mismatch
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(561): warning C4018: '<': signed/unsigned mismatch
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(340): warning C4715: 'InteractionManager::GetHelp': not all control paths return a value
-e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(332): warning C4715: 'InteractionManager::AttemptPlayerCommand': not all control paths return a value
+e:\personalwork\fieldgame\thefield\thefield\entity_mechanisim.h(10): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_mechanisim.h(11): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_mechanisim.h(19): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_mechanisim.h(29): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\entity_mechanisim.h(31): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(33): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(40): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(58): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(352): warning C4018: '>=': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(463): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(468): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(475): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(482): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(566): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(572): warning C4018: '<': signed/unsigned mismatch
+e:\personalwork\fieldgame\thefield\thefield\interactionmanager.cpp(348): warning C4715: 'InteractionManager::GetHelp': not all control paths return a value
   TheField.vcxproj -> E:\PersonalWork\FieldGame\TheField\Debug\TheField.exe

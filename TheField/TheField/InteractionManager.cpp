@@ -6,6 +6,7 @@
 #include "Entity_Room.h"
 #include "Entity_Interior.h"
 #include "Entity_Npc.h"
+#include "Entity_Mechanisim.h"
 
 void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 {
@@ -102,14 +103,14 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		player->Look();
 		return Success;
 	}
-	if (verb == "rotate") {
+	else if (verb == "rotate") {
 		if (subject) {
 			subject->FaceClockWise();
 			return Success;
 		}
 		return NeedsSubject;
 	}
-	if (verb == "godir") {
+	else if (verb == "godir") {
 		Entity_Room* roomtest = dynamic_cast<Entity_Room*>(player->parent.second);
 		if (roomtest) {
 			Entity_Interior* interorTest = dynamic_cast<Entity_Interior*>(roomtest->parent.second);
@@ -138,7 +139,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return Impossible;
 	}
-	if (verb == "enter") {
+	else if (verb == "enter") {
 		if (subject) {
 			if (player->Enter(subject)) {
 				player->Look();
@@ -148,7 +149,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubject;
 	}
-	if (verb == "exit") {
+	else if (verb == "exit") {
 		if (subject) {
 			if (player->Exit(subject)) {
 				player->Look();
@@ -163,7 +164,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return Impossible;
 	}
-	if (verb == "flip") {
+	else if (verb == "flip") {
 		if (subject) {
 			if (subject->rotation == Upright) {
 				subject->Rotate(UpsideDown);
@@ -178,7 +179,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubject;
 	}
-	if (verb == "take") {
+	else if (verb == "take") {
 		if (subject) {
 			if (player->TryMove(subject, Position::RightHand, player)) {
 				return Success;
@@ -187,7 +188,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubject;
 	}
-	if (verb == "drink") {
+	else if (verb == "drink") {
 		if (subject) {
 			bool drinkall = false;
 			if (std::find(particles.begin(), particles.end(), "all") != particles.end()) {
@@ -200,7 +201,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubject;
 	}
-	if (verb == "eat") {
+	else if (verb == "eat") {
 		if (subject) {
 			if (player->Eat(subject)) {
 				return Success;
@@ -209,7 +210,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubject;
 	}
-	if (verb == "break") {
+	else if (verb == "break") {
 		if (subject) {
 			Entity_Constructed* constructed = dynamic_cast<Entity_Constructed*>(subject);
 			if (constructed) {
@@ -221,7 +222,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubject;
 	}
-	if (verb == "pour") {
+	else if (verb == "pour") {
 		if (subject) {
 			Entity_Container* container = dynamic_cast<Entity_Container*>(subject);
 			if (container) {
@@ -256,7 +257,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubject;
 	}
-	if (verb == "read") {
+	else if (verb == "read") {
 		if (subject) {
 			Entity_Readable* readable = dynamic_cast<Entity_Readable*>(subject);
 			if (readable) {
@@ -267,7 +268,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubject;
 	}
-	if (verb == "put") {
+	else if (verb == "put") {
 		if (subject&&predicate) {
 			Position putPos = getPosition();
 			if (player->TryMove(subject, putPos, predicate)) {
@@ -277,7 +278,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubjectPredicate;
 	}
-	if (verb == "drop") {
+	else if (verb == "drop") {
 		if (subject) {
 			if (player->TryMove(subject, player->parent.first, player->parent.second)) {
 				return Success;
@@ -286,7 +287,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubject;
 	}
-	if (verb == "talk") {
+	else if (verb == "talk") {
 		if (subject) {
 			Entity_Npc* npc = dynamic_cast<Entity_Npc*>(subject);
 			if (npc) {
@@ -301,13 +302,13 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		}
 		return NeedsSubject;
 	}
-	if (verb == "goddelete") {
+	else if (verb == "goddelete") {
 		if (subject) {
 			World::Instance().RemoveEntity(subject);
 		}
 		return Success;
 	}
-	if (verb == "wait") {
+	else if (verb == "wait") {
 		ObservationManager::Observation o = ObservationManager::Observation();
 		o.sense = ObservationManager::SENSE_Look;
 		o.type = ObservationManager::TYPE_Direct;
@@ -315,7 +316,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		ObservationManager::Instance().MakeObservation(o);
 		return Success;
 	}
-	if (verb == "help") {
+	else if (verb == "help") {
 
 		ObservationManager::Observation o = ObservationManager::Observation();
 		o.sense = ObservationManager::SENSE_Look;
@@ -324,7 +325,16 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		ObservationManager::Instance().MakeObservation(o);
 		return Success;
 	}
-	if (verb == "") {
+	else{
+		if (subject) {
+			Entity_Mechanisim* mechanism = dynamic_cast<Entity_Mechanisim*>(subject);
+			if (mechanism) {
+				if (mechanism->AttemptBehavior(verb)) {
+					return Success;
+				}
+			}
+			return Impossible;
+		}
 		return Success;
 	}
 }
@@ -441,7 +451,7 @@ std::string InteractionManager::GetVerb(Entity_Player* player, int index)
 		}
 	}
 
-	return "";
+	return splitInput[index];
 }
 
 Entity* InteractionManager::GetNoun(Entity_Player* player)
@@ -450,22 +460,25 @@ Entity* InteractionManager::GetNoun(Entity_Player* player)
 	std::string toRemove[2];
 	int i = 0;
 	do {
-		toRemove[0] = splitInput[i];
-		if (subject == nullptr) {
-			subject = GetPositionalSubject(splitInput[i], "", player);
-		}
-		if (subject == nullptr&& i < splitInput.size() - 1) {
-			subject = GetPositionalSubject(splitInput[i], splitInput[i + 1], player);
-			toRemove[1] = splitInput[i + 1];
-		}
-		if (subject == nullptr) {
-			subject = player->FindEntityByName(splitInput[i]);
-		}
-		if (subject == nullptr&& i< splitInput.size()-1) {
-			subject = GetAdjectiveSubject(splitInput[i], splitInput[i + 1], player);
-			toRemove[1] = splitInput[i + 1];
+		if (i < splitInput.size()) {
+			toRemove[0] = splitInput[i];
+			if (subject == nullptr) {
+				subject = GetPositionalSubject(splitInput[i], "", player);
+			}
+			if (subject == nullptr&& i < splitInput.size() - 1) {
+				subject = GetPositionalSubject(splitInput[i], splitInput[i + 1], player);
+				toRemove[1] = splitInput[i + 1];
+			}
+			if (subject == nullptr) {
+				subject = player->FindEntityByName(splitInput[i]);
+			}
+			if (subject == nullptr&& i < splitInput.size() - 1) {
+				subject = GetAdjectiveSubject(splitInput[i], splitInput[i + 1], player);
+				toRemove[1] = splitInput[i + 1];
+			}
 		}
 		i++;
+
 	} while (subject == nullptr&& i< splitInput.size());
 	splitInput.erase(std::remove(splitInput.begin(), splitInput.end(), toRemove[0]), splitInput.end());
 	splitInput.erase(std::remove(splitInput.begin(), splitInput.end(), toRemove[1]), splitInput.end());
