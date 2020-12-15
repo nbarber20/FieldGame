@@ -1,4 +1,6 @@
-
-TheField/TheField/Debug/*
-TheField/Debug/*
-TheField/.vs/*
+TheField/SFML-2.5.1/
+TheField/TheField/Debug/
+TheField/TheField/x64/
+TheField/Debug/
+TheField/.vs/
+TheField/x64/

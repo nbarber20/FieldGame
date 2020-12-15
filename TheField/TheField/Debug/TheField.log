@@ -1,4 +1,0 @@
-﻿  TheField.cpp
-C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\TextDisplay.h(30,45): warning C4018:  '<': signed/unsigned mismatch
-C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\DialogTree.h(28,44): warning C4018:  '>=': signed/unsigned mismatch
-  TheField.vcxproj -> C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\Debug\TheField.exe
