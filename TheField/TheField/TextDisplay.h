@@ -2,6 +2,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <cctype>
 class TextDisplay
 {
 public:
@@ -26,6 +27,10 @@ public:
 		return text;
 	}
 	void addLog(Log newlog) {
+
+		std::transform(newlog.logText.begin(), newlog.logText.end(), newlog.logText.begin(), std::tolower);
+
+
 		std::size_t found = newlog.logText.find_first_of(' ');
 		while (found != std::string::npos && found<charLength)
 		{
