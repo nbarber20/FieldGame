@@ -1,4 +1,4 @@
 
-TheField/TheField/Debug/
-TheField/Debug/
-TheField/.vs/
+TheField/TheField/Debug/*
+TheField/Debug/*
+TheField/.vs/*

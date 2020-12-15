@@ -38,3 +38,14 @@ public:
 private:
 	std::string text;
 };
+
+class Task_AttackEntity : public Task {
+public:
+	Task_AttackEntity(Entity* self) {
+		this->ref = self;
+	};
+	virtual void Execute() {
+	};
+private:
+	Entity* ref;
+};

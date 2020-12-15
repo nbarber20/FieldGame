@@ -82,6 +82,7 @@ public:
 	virtual void Rotate(Rotation r);
 	void FaceClockWise();
 	void Face(FacingDirection r);
+	void Point(Entity* e);
 	virtual bool SetParent(Position pos, Entity* newParent);
 	virtual bool SetParent(Position pos, Entity* newParent, int roomIndex, bool attach, bool logObeservation);
 	virtual Entity* SplitEntity();
@@ -105,6 +106,7 @@ public:
 	float internalVolume = 0;
 	bool visibleInsides = false;
 	bool coutable = true;
+	Entity* pointingTarget;
 	std::pair < Position, Entity*> parent;
 	bool attachedToParent = false;
 	std::vector<std::pair<Position, std::vector<Entity*>>> children;

@@ -12,6 +12,7 @@ void Entity_Living::Tick()
 		o.type = ObservationManager::TYPE_Direct;
 		o.information = "You are starving.";
 		ObservationManager::Instance().MakeObservation(o);
+		TakeDamage(Hunger, 1.0f, 1);
 	}
 	else if (nourishment <= 20) {
 		ObservationManager::Observation o = ObservationManager::Observation();
@@ -19,6 +20,7 @@ void Entity_Living::Tick()
 		o.type = ObservationManager::TYPE_Direct;
 		o.information = "You really need to eat.";
 		ObservationManager::Instance().MakeObservation(o);
+		TakeDamage(Hunger, 0.35f, 1);
 	}
 	else if (nourishment <= 40) {
 		ObservationManager::Observation o = ObservationManager::Observation();
@@ -34,6 +36,7 @@ void Entity_Living::Tick()
 		o.type = ObservationManager::TYPE_Direct;
 		o.information = "You are dying of dehydration.";
 		ObservationManager::Instance().MakeObservation(o);
+		TakeDamage(Thirst, 1.0f, 1);
 	}
 	else if (hydration <= 20) {
 		ObservationManager::Observation o = ObservationManager::Observation();
@@ -41,6 +44,7 @@ void Entity_Living::Tick()
 		o.type = ObservationManager::TYPE_Direct;
 		o.information = "You really need to drink something.";
 		ObservationManager::Instance().MakeObservation(o);
+		TakeDamage(Thirst, 0.35f, 1);
 	}
 	else if (hydration <= 40) {
 		ObservationManager::Observation o = ObservationManager::Observation();
@@ -48,6 +52,16 @@ void Entity_Living::Tick()
 		o.type = ObservationManager::TYPE_Direct;
 		o.information = "You are feeling thirsty.";
 		ObservationManager::Instance().MakeObservation(o);
+	}
+}
+
+void Entity_Living::TakeDamage(DamageType type, float multiplier, int lethalityLevel) {
+	//TODO resistances
+
+	if (multiplier > healthThresholds[(int)healthStatus]) {
+		int offset = (int)healthStatus + lethalityLevel;
+		if (offset > 6)offset = 6;
+		healthStatus = (HealthStatus)(offset);
 	}
 }
 
