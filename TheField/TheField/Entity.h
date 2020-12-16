@@ -101,12 +101,12 @@ public:
 
 	std::vector <std::string> names;
 	std::string individualName;
+	std::string lookInfo;
 	std::vector<std::pair<Position, std::vector<std::string>>> adjectives;
 	float size = 0;
 	float internalVolume = 0;
 	bool visibleInsides = false;
 	bool coutable = true;
-	Entity* pointingTarget;
 	std::pair < Position, Entity*> parent;
 	bool attachedToParent = false;
 	std::vector<std::pair<Position, std::vector<Entity*>>> children;

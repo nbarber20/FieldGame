@@ -43,6 +43,7 @@ private:
 	InteractionState currentInteractionState = WorldInteraction;
 	Constants constants;
 	
+	std::string lastInput;
 	std::string verb;
 	Entity* subject;
 	Entity* predicate; 

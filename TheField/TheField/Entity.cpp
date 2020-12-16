@@ -62,9 +62,6 @@ void Entity::Face(FacingDirection r)
 	facingDirection = r;
 }
 
-void Entity::Point(Entity* e) {
-	pointingTarget = e;
-}
 bool Entity::SetParent(Position pos, Entity* newParent)
 {
 	return SetParent(pos, newParent, 0, false,true);

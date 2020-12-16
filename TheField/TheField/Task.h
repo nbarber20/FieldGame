@@ -41,11 +41,26 @@ private:
 
 class Task_AttackEntity : public Task {
 public:
-	Task_AttackEntity(Entity* self) {
-		this->ref = self;
+	Task_AttackEntity(Entity* self, Entity_Living::DamageType damageType, float damageMultiplier, int lethality) {
+		this->self = self;
+		this->damageMultiplier = damageMultiplier;
+		this->lethality = lethality;
+		this->damageType = damageType;
 	};
 	virtual void Execute() {
+		Entity_Mechanisim* mechanism = dynamic_cast<Entity_Mechanisim*>(self);
+		if (mechanism) {
+			if (mechanism->target) {
+				Entity_Living* living = dynamic_cast<Entity_Living*>(mechanism->target);
+				if (living) {
+					living->TakeDamage(damageType, damageMultiplier, lethality);
+				}
+			}
+		}
 	};
 private:
-	Entity* ref;
+	Entity* self;
+	Entity_Living::DamageType damageType;
+	float damageMultiplier;
+	int lethality;
 };

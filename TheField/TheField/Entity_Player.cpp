@@ -9,6 +9,60 @@
 #include "Entity_Event.h"
 #include "World.h"
 
+void Entity_Player::Tick()
+{
+	Entity_Living::Tick();
+	std::vector<Entity*> inMouth = GetInventory(Mouth);
+	for (auto object : inMouth)
+	{
+		TrySwallow(object);
+	}
+
+	if (nourishment <= 0) {
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Physical;
+		o.type = ObservationManager::TYPE_Direct;
+		o.information = "You are starving";
+		ObservationManager::Instance().MakeObservation(o);
+	}
+	else if (nourishment <= 20) {
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Physical;
+		o.type = ObservationManager::TYPE_Direct;
+		o.information = "You really need to eat";
+		ObservationManager::Instance().MakeObservation(o);
+	}
+	else if (nourishment <= 40) {
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Physical;
+		o.type = ObservationManager::TYPE_Direct;
+		o.information = "You could eat something";
+		ObservationManager::Instance().MakeObservation(o);
+	}
+
+	if (hydration <= 0) {
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Physical;
+		o.type = ObservationManager::TYPE_Direct;
+		o.information = "You are dying of dehydration";
+		ObservationManager::Instance().MakeObservation(o);
+	}
+	else if (hydration <= 20) {
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Physical;
+		o.type = ObservationManager::TYPE_Direct;
+		o.information = "You really need to drink something";
+		ObservationManager::Instance().MakeObservation(o);
+	}
+	else if (hydration <= 40) {
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Physical;
+		o.type = ObservationManager::TYPE_Direct;
+		o.information = "You are feeling thirsty";
+		ObservationManager::Instance().MakeObservation(o);
+	}
+}
+
 std::vector<Entity*> Entity_Player::getVisibleEntities(bool getParent)
 {
 	std::vector<Entity*> visible;
@@ -111,6 +165,26 @@ void Entity_Player::Look()
 
 }
 
+
+void Entity_Player::Look(Entity* subject)
+{
+	if (subject->lookInfo != "") {
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Look;
+		o.type = ObservationManager::TYPE_Direct;
+		o.referenceEntity = subject;
+		o.information = subject->lookInfo;
+		ObservationManager::Instance().MakeObservation(o);
+	}
+	else {
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Look;
+		o.type = ObservationManager::TYPE_Direct;
+		o.referenceEntity = subject;
+		o.information = "You find nothing of note";
+		ObservationManager::Instance().MakeObservation(o);
+	}
+}
 
 Entity* Entity_Player::FindEntityByName(std::string entityName)
 {
@@ -298,26 +372,26 @@ bool Entity_Player::TrySwallow(Entity* e)
 	Entity_Fluid* fluid = dynamic_cast<Entity_Fluid*>(e);
 	if (fluid) {
 		if (fluid->swallowable) {
-			World::Instance().RemoveEntity(fluid);
 			ObservationManager::Observation o = ObservationManager::Observation();
 			o.sense = ObservationManager::SENSE_Taste;
 			o.type = ObservationManager::TYPE_Direct;
 			o.information = "You drink the " + e->GetRandomAdjective(Taste)+ " " + e->names[0];
 			ObservationManager::Instance().MakeObservation(o);
 			this->AddHydration(fluid->hydration);
+			World::Instance().RemoveEntity(fluid);
 			return true;
 		}
 	}
 	Entity_Food* food = dynamic_cast<Entity_Food*>(e);
 	if (food) {
 		if (food->spoiled == false) {
-			World::Instance().RemoveEntity(food);
 			ObservationManager::Observation o = ObservationManager::Observation();
 			o.sense = ObservationManager::SENSE_Taste;
 			o.type = ObservationManager::TYPE_Direct;
 			o.information = "You eat the " + e->GetRandomAdjective(Taste) + " " + e->names[0];
 			ObservationManager::Instance().MakeObservation(o);
 			this->AddNourishment(food->nutritionalValue);
+			World::Instance().RemoveEntity(food);
 			return true;
 		}
 	}

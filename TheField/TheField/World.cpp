@@ -12,6 +12,7 @@
 #include "Entity_Npc.h"
 #include "Entity_Mechanisim.h"
 #include "ObservationManager.h"
+#include "Task.h"
 World::World()
 {
 }
@@ -57,6 +58,25 @@ void World::Setup()
 	backPack->permiability = 4.5f;
 	entities.push_back(backPack);
 
+	Entity_Mechanisim* handGun = new Entity_Mechanisim(true, 0.0f, 14.5f);
+	handGun->names = { "handgun" };
+	std::vector<Task*> tasks = {
+		new Task_LogText("The handgun fires"),
+		new Task_AttackEntity(handGun,Entity_Living::Piercing,1,3),
+	};
+	handGun->AddBehavior(std::make_pair("fire", tasks));
+	handGun->SetParent(RightHand, playerEntity);
+	entities.push_back(handGun);
+
+	Entity_Mechanisim* club = new Entity_Mechanisim(true, 0.0f, 14.5f);
+	club->names = { "club" };
+	std::vector<Task*> tasks3 = {
+		new Task_LogText("You swing the club"),
+		new Task_AttackEntity(club,Entity_Living::Blunt,0.4f,2),
+	};
+	club->AddBehavior(std::make_pair("swing", tasks3));
+	club->SetParent(RightHand, playerEntity);
+	entities.push_back(club);
 
 	Entity_Interior* House = new Entity_Interior(false, 47520.0f, 47520.0f);
 	House->names = { "house","home"};
@@ -76,11 +96,11 @@ void World::Setup()
 	//Make Tree
 	DialogTree* tree = new DialogTree();
 	DialogTree::DialogNode node1;
-	node1.dialog = "The man greets you kindly, welcoming you to his humble farmhouse.";
+	node1.dialog = "The man greets you kindly, welcoming you to his humble farmhouse";
 	node1.responses.push_back(std::make_pair("Greet the man", 1)); 
 	node1.responses.push_back(std::make_pair("Insult the man", 2));
 	DialogTree::DialogNode node2; 
-	node2.dialog = "The man offers you food and supplies, whats his is yours.";
+	node2.dialog = "The man offers you food and supplies, whats his is yours";
 	DialogTree::DialogNode node3;
 	node3.dialog = "You insult the man, The guy makes a frowny face :C";
 	tree->TreeNodes.push_back(node1);
@@ -95,7 +115,7 @@ void World::Setup()
 	EnterHouseEvent->setObservationConsumptionList({
 		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
 		});
-	EnterHouseEvent->EventText = "Upon entering the farm house, a warm feeling rushes over you.";
+	EnterHouseEvent->EventText = "Upon entering the farm house, a warm feeling rushes over you";
 	EnterHouseEvent->SetParent(OnFloor, House, 0, false, false);
 	entities.push_back(EnterHouseEvent);
 
@@ -104,8 +124,9 @@ void World::Setup()
 	Toilet->SetParent(OnFloor, House, 2 ,true, false);
 	entities.push_back(Toilet);
 
-	Entity* ToiletWater = new Entity_Fluid(true, 0.0f, 200.0f);
+	Entity_Fluid* ToiletWater = new Entity_Fluid(true, 0.0f, 200.0f);
 	ToiletWater->names = { "water" };
+	ToiletWater->hydration = 10.0f;
 	ToiletWater->SetParent(Inside, Toilet);
 	entities.push_back(ToiletWater);
 
@@ -127,15 +148,17 @@ void World::Setup()
 	Entity_Mechanisim* UselessButton = new Entity_Mechanisim(true, 0.0f, 1728.0f);
 	UselessButton->names = { "button" };
 	UselessButton->SetParent(On, Table);
-	std::vector<Task*> tasks = {
-		new Task_LogText("You press the button. It suddenly disappears."),
+	std::vector<Task*> UselessButtontasks = {
+		new Task_LogText("You press the button. It suddenly disappears"),
 		new Task_DestroySelf(UselessButton),
 	};
-	UselessButton->AddBehavior(std::make_pair("press", tasks));
+	UselessButton->AddBehavior(std::make_pair("press", UselessButtontasks));
 	entities.push_back(UselessButton);
 
 	Entity_Food* Potato = new Entity_Food(true, 14.44f, 14.50f);
 	Potato->names = { "potato" };
+	Potato->lookInfo = "It's a cooked potato, still warm";
+	Potato->nutritionalValue = 35.0f;
 	Potato->SetParent(On, Table);
 	entities.push_back(Potato);
 
@@ -147,18 +170,20 @@ void World::Setup()
 	entities.push_back(Cup);
 
 
-	Entity* Tea = new Entity_Fluid(true, 0.0f, 7.0f);
+	Entity_Fluid* Tea = new Entity_Fluid(true, 0.0f, 7.0f);
 	Tea->names = { "tea" };
 	Tea->SetParent(Inside, Cup);
 	Tea->AddAdjective(Taste, "bitter");
 	Tea->AddAdjective(Visual, "black");
+	Tea->hydration = 45.0f;
 	entities.push_back(Tea);
 
-	Entity* Tea2 = new Entity_Fluid(true, 0.0f, 7.0f);
+	Entity_Fluid* Tea2 = new Entity_Fluid(true, 0.0f, 7.0f);
 	Tea2->names = { "tea" };
 	Tea2->SetParent(Inside, Cup);
 	Tea2->AddAdjective(Taste, "bitter");
 	Tea2->AddAdjective(Visual, "black");
+	Tea2->hydration = 35.0f;
 	entities.push_back(Tea2);
 
 	Entity* Cup2 = new Entity_Container(true, 14.44f, 14.50f);
@@ -174,16 +199,17 @@ void World::Setup()
 	Cup3->AddAdjective(Visual, "glass");
 	entities.push_back(Cup3);
 
-	Entity* Tea3 = new Entity_Fluid(true, 0.0f, 0.0f);
+	Entity_Fluid* Tea3 = new Entity_Fluid(true, 0.0f, 0.0f);
 	Tea3->names = { "tea" };
 	Tea3->SetParent(Inside, Cup3);
 	Tea3->AddAdjective(Taste, "smooth");
 	Tea3->AddAdjective(Visual, "green");
+	Tea3->hydration = 35.0f;
 	entities.push_back(Tea3);
 	
 	Entity_Readable* Note = new Entity_Readable(true, 0.0f, 0.0f);
 	Note->requiredLanguage = English;
-	Note->text = "This is a note.";
+	Note->text = "This is a note";
 	Note->names = { "note" };
 	Note->SetParent(On, Table);
 	entities.push_back(Note);

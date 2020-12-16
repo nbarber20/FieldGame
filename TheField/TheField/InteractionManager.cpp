@@ -12,7 +12,14 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 {
 	Entity_Player* player = World::Instance().playerEntity;
 	if (currentInteractionState == WorldInteraction) {
-		ParsePlayerInput(input, textdisplay, player);
+		if (input == "again")
+		{
+			ParsePlayerInput(lastInput, textdisplay, player);
+		}
+		else {
+			lastInput = input;
+			ParsePlayerInput(input, textdisplay, player);
+		}
 		InputError inputError = AttemptPlayerCommand(player);
 		if (inputError == NeedsSubject) {
 			textdisplay->addLog(TextDisplay::Log("Specify a subject", sf::Color::Red));
@@ -100,6 +107,10 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_Player* player)
 {
 	if (verb == "look") {
+		if (subject) {
+			player->Look(subject);
+			return Success;
+		}
 		player->Look();
 		return Success;
 	}
@@ -329,7 +340,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		if (subject) {
 			Entity_Mechanisim* mechanism = dynamic_cast<Entity_Mechanisim*>(subject);
 			if (mechanism) {
-				if (mechanism->AttemptBehavior(verb)) {
+				if (mechanism->AttemptBehavior(verb,predicate)) {
 					return Success;
 				}
 			}
