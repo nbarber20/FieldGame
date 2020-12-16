@@ -15,20 +15,46 @@ public:
 		}
 		std::string logText = "";
 		sf::Color logColor;
+		sf::Texture* tex = nullptr;
 	};
 
 	TextDisplay() {};
-	std::string getVisibleText() {
-		std::string text;
 
-		for (auto log : logs){
-			text += log.logText + '\n';
+	void DisplayText(float scrollPos, sf::Text* displayTex, sf::Sprite* sprite, sf::RenderWindow* window)
+	{
+
+		int yOffset = 0;
+		for (int i = 0; i < logs.size();i++) {
+			if (logs[i].tex != nullptr) {
+				sprite->setTexture(*logs[i].tex);
+				sprite->setPosition(200,scrollPos + yOffset);
+				window->draw(*sprite);
+				yOffset += 160;
+			}
+			else {
+				displayTex->setPosition(0, scrollPos + yOffset);
+				displayTex->setString(logs[i].logText);
+				window->draw(*displayTex);
+				yOffset += 16;
+			}
 		}
-		return text;
+	}
+
+
+	void addImage(std::string filename) {
+		Log newLog = Log("",sf::Color::Red);
+		sf::Texture* tex = new sf::Texture();
+		if (tex->loadFromFile(filename)) {
+			newLog.tex = tex;
+		}
+		else {
+			newLog.logText = "Image Error";
+		}
+		logs.push_back(newLog);
 	}
 	void addLog(Log newlog) {
 
-		std::transform(newlog.logText.begin(), newlog.logText.end(), newlog.logText.begin(), std::tolower);
+		//std::transform(newlog.logText.begin(), newlog.logText.end(), newlog.logText.begin(), std::tolower);
 
 
 		std::size_t found = newlog.logText.find_first_of(' ');
