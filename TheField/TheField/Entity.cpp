@@ -92,6 +92,14 @@ bool Entity::SetParent(Position pos, Entity* newParent, int roomIndex, bool atta
 	return true;
 }
 
+bool Entity::SetParentOverride(Position pos, Entity* newParent)
+{
+	if (parent.second != nullptr) parent.second->RemoveChild(this);
+	parent = std::make_pair(pos, newParent);
+	if (newParent != nullptr) newParent->AddChild(pos, this, 0);
+	return true;
+}
+
 Entity* Entity::SplitEntity()
 {
 	Entity* newEntity = Clone();

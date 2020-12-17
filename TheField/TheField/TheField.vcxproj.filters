@@ -90,6 +90,12 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Entity_Clip.h">
+      <Filter>Header Files\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity_Firearm.h">
+      <Filter>Header Files\Entity</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -146,6 +152,12 @@
     <ClCompile Include="Entity_Mechanisim.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="Entity_Clip.cpp">
+      <Filter>Source Files\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity_Firearm.cpp">
+      <Filter>Source Files\Entity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TheField.rc">
@@ -153,7 +165,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon1.ico">
+    <Image Include="icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

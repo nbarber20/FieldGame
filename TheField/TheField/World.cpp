@@ -11,6 +11,8 @@
 #include "Entity_Food.h"
 #include "Entity_Npc.h"
 #include "Entity_Mechanisim.h"
+#include "Entity_Clip.h"
+#include "Entity_Firearm.h"
 #include "ObservationManager.h"
 #include "Task.h"
 World::World()
@@ -58,15 +60,16 @@ void World::Setup()
 	backPack->permiability = 4.5f;
 	entities.push_back(backPack);
 
-	Entity_Mechanisim* handGun = new Entity_Mechanisim(true, 0.0f, 14.5f);
-	handGun->names = { "handgun" };
-	std::vector<Task*> tasks = {
-		new Task_LogText("The handgun fires"),
-		new Task_AttackEntity(handGun,Entity_Living::Piercing,1,3),
-	};
-	handGun->AddBehavior(std::make_pair("fire", tasks));
+	Entity_Firearm* handGun = new Entity_Firearm(14.5f,Entity_Clip::Pistol);
+	handGun->names = { "handgun", "gun" };
 	handGun->SetParent(RightHand, playerEntity);
 	entities.push_back(handGun);
+
+	Entity_Clip* handGunAmmo = new Entity_Clip(7.f,7, Entity_Clip::Pistol);
+	handGunAmmo->names = { "clip"};
+	entities.push_back(handGunAmmo);
+
+	handGun->Reload(handGunAmmo);
 
 	Entity_Mechanisim* club = new Entity_Mechanisim(true, 0.0f, 14.5f);
 	club->names = { "club" };
@@ -75,7 +78,7 @@ void World::Setup()
 		new Task_AttackEntity(club,Entity_Living::Blunt,0.4f,2),
 	};
 	club->AddBehavior(std::make_pair("swing", tasks3));
-	club->SetParent(RightHand, playerEntity);
+	club->SetParent(LeftHand, playerEntity);
 	entities.push_back(club);
 
 	Entity_Interior* House = new Entity_Interior(false, 47520.0f, 47520.0f);

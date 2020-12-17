@@ -7,11 +7,33 @@
 #include "Entity_Interior.h"
 #include "Entity_Npc.h"
 #include "Entity_Mechanisim.h"
+#include "Entity_Firearm.h"
 
 void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 {
 	Entity_Player* player = World::Instance().playerEntity;
-	if (currentInteractionState == WorldInteraction) {
+
+	if (currentInteractionState == Intro) {
+		introStage++;
+		if (introStage == 1) {
+			textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("How did you die?", sf::Color::Yellow));
+		}
+		else if (introStage == 2) {
+			textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+			textdisplay->addImage("Data/Field_Start.png");
+			textdisplay->addLog(TextDisplay::Log("You find yourself laying in a large grassy field. Its nearly sunset", sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("Perhaps this is a dream", sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("Perhaps this is a the afterlife", sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("What will you do next?", sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+			currentInteractionState = WorldInteraction;
+		}
+
+	}
+	else if (currentInteractionState == WorldInteraction) {
 		if (input == "again")
 		{
 			ParsePlayerInput(lastInput, textdisplay, player);
@@ -336,6 +358,17 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		ObservationManager::Instance().MakeObservation(o);
 		return Success;
 	}
+	else if (verb == "fire") {
+		if (subject&& predicate) {
+			Entity_Firearm* gun = dynamic_cast<Entity_Firearm*>(subject);
+			if (gun) {
+				gun->Fire(predicate);
+				return Success;
+			}
+			return Impossible;
+		}
+		return NeedsSubjectPredicate;
+	}
 	else{
 		if (subject) {
 			Entity_Mechanisim* mechanism = dynamic_cast<Entity_Mechanisim*>(subject);
@@ -447,6 +480,9 @@ std::string InteractionManager::GetVerb(Entity_Player* player, int index)
 	}
 	if (splitInput[index] == "talk" || splitInput[index] == "speak") {
 		return "talk";
+	}
+	if (splitInput[index] == "fire" || splitInput[index] == "shoot") {
+		return "fire";
 	}
 	if (splitInput[index] == "wait") {
 		return "wait";
