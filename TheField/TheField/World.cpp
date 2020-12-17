@@ -81,6 +81,17 @@ void World::Setup()
 	club->SetParent(LeftHand, playerEntity);
 	entities.push_back(club);
 
+
+
+	Entity_Event* EnterFarmEvent = new Entity_Event();
+	EnterFarmEvent->setObservationConsumptionList({
+		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
+		});
+	EnterFarmEvent->EventImageFile = "Data/Farmhouse.png";
+	EnterFarmEvent->EventText = "You happen upon a farmhouse";
+	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
+	entities.push_back(EnterFarmEvent);
+
 	Entity_Interior* House = new Entity_Interior(false, 47520.0f, 47520.0f);
 	House->names = { "house","home"};
 	House->SetParent(On, Ground, 0, true, false);

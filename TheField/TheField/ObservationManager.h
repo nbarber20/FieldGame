@@ -26,6 +26,7 @@ public:
 	enum ObservationType {
 		TYPE_All,
 		TYPE_Direct,
+		TYPE_Image,
 		TYPE_Notice,
 		TYPE_Movement,
 		TYPE_Rotation,
@@ -40,13 +41,15 @@ public:
 				lhs.referenceEntity == rhs.referenceEntity &&
 				lhs.lastState == rhs.lastState &&
 				lhs.information == rhs.information &&
-				lhs.displayed == rhs.displayed;			
+				lhs.displayed == rhs.displayed &&	
+				lhs.imageFile == rhs.imageFile;
 			 }
 		ObservationSense sense;
 		ObservationType type;
 		Entity* referenceEntity;
 		std::string lastState;
 		std::string information;
+		std::string imageFile;
 		bool displayed = false;
 	};
 	ObservationManager() {};
@@ -55,7 +58,7 @@ public:
 		//Todo check within players sense distance...
 		observations.push_back(observation);
 	}
-	std::vector <TextDisplay::Log> CompileObservations(Entity* playerEntity);
+	void CompileObservations(Entity* playerEntity, TextDisplay* textDisplay);
 	std::vector<Observation> GetObservations() {
 		return observations;
 	}

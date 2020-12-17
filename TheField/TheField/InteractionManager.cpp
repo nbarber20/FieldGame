@@ -58,18 +58,8 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 
 
 		player->CheckForEvents();
-		std::vector<TextDisplay::Log> observations = ObservationManager::Instance().CompileObservations(player);
-		for (int i = 0; i < observations.size(); i++) {
-
-			textdisplay->addLog(observations[i]);
-		}
-		ObservationManager::Instance().ClearObservations();
 		World::Instance().Tick();
-		observations = ObservationManager::Instance().CompileObservations(player);
-		for (int i = 0; i < observations.size(); i++) {
-
-			textdisplay->addLog(observations[i]);
-		}
+		ObservationManager::Instance().CompileObservations(player, textdisplay);
 		ObservationManager::Instance().ClearObservations();
 		textdisplay->addLog(TextDisplay::Log("", sf::Color::Red));
 	}
@@ -83,11 +73,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 		if (input == "d")event = currentDialogTree->Respond(3);
 		if (event == DialogTree::EVENT_NONE) {
 			LogDialog();
-			std::vector<TextDisplay::Log> observations = ObservationManager::Instance().CompileObservations(player);
-			for (int i = 0; i < observations.size(); i++) {
-
-				textdisplay->addLog(observations[i]);
-			}
+			ObservationManager::Instance().CompileObservations(player, textdisplay);
 			ObservationManager::Instance().ClearObservations();
 		}
 		else {

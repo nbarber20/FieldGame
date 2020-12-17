@@ -12,6 +12,7 @@ public:
 
 	void setObservationConsumptionList(std::vector<std::pair<int, int>> newList);
 	bool AttemptTrigger();
+	std::string EventImageFile;
 	std::string EventText;
 private:
 	std::vector<std::pair<int,int>> ObservationTypeSenseConsumptionList;

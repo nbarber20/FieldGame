@@ -54,7 +54,7 @@ public:
 	}
 	void addLog(Log newlog) {
 
-		std::transform(newlog.logText.begin(), newlog.logText.end(), newlog.logText.begin(), std::tolower);
+		//std::transform(newlog.logText.begin(), newlog.logText.end(), newlog.logText.begin(), std::tolower);
 
 
 		std::size_t found = newlog.logText.find_first_of(' ');

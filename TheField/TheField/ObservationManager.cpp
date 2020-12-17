@@ -4,9 +4,8 @@
 #include <SFML/Graphics.hpp>
 #include "Entity.h"
 
-std::vector <TextDisplay::Log> ObservationManager::CompileObservations(Entity* playerEntity)
+void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* textDisplay)
 {
-	std::vector <TextDisplay::Log> logs;
 	Constants constants;
 
 
@@ -65,58 +64,60 @@ std::vector <TextDisplay::Log> ObservationManager::CompileObservations(Entity* p
 		}
 
 
-
+		if (o.type == TYPE_Image) {
+			textDisplay->addImage(o.imageFile);
+		}
 		if (o.type == TYPE_Direct) {
-			logs.push_back(TextDisplay::Log(o.information,sf::Color::Yellow));
+			textDisplay->addLog(TextDisplay::Log(o.information,sf::Color::Yellow));
 		}
 		if (o.type == TYPE_Notice) {
 			if (o.information != "")
 			{
-				logs.push_back(TextDisplay::Log(o.information, sf::Color::Yellow));
+				textDisplay->addLog(TextDisplay::Log(o.information, sf::Color::Yellow));
 			}
 			else {
 				if (e->parent.second == playerEntity) 
 				{
-					logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " your " + GetComponentName(e->parent.first), sf::Color::Yellow));
+					textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " your " + GetComponentName(e->parent.first), sf::Color::Yellow));
 				}
 				else if (e->parent == playerEntity->parent) {
 					if (e->size < constants.smallItemMaxThreshold) {
 						if (prepositionNoun) {
-							logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
 						}
 						else {
-							logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 						}
 					}
 					else {
-						logs.push_back(TextDisplay::Log("You see " + indefdefrefNameADJ, sf::Color::Yellow));
+						textDisplay->addLog(TextDisplay::Log("You see " + indefdefrefNameADJ, sf::Color::Yellow));
 					}
 				}
 				else {
 					if (plural) {
 						if (e->size < constants.smallItemMaxThreshold) {
 							if (prepositionNoun) {
-								logs.push_back(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition, sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition, sf::Color::Yellow));
 							}
 							else {
-								logs.push_back(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 							}
 						}
 						else {
-							logs.push_back(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s here", sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s here", sf::Color::Yellow));
 						}
 					}
 					else {
 						if (e->size < constants.smallItemMaxThreshold) {
 							if (prepositionNoun) {
-								logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
 							}
 							else {
-								logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 							}
 						}
 						else {
-							logs.push_back(TextDisplay::Log("There is " + indefdefrefNameADJ + " here", sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " here", sf::Color::Yellow));
 						}
 					}
 				}
@@ -128,38 +129,36 @@ std::vector <TextDisplay::Log> ObservationManager::CompileObservations(Entity* p
 					if (!prepositionNoun) {
 						bool wasinside = o.lastState == "inside" || o.lastState == "on the floor";
 						if (wasinside && e->parent.first != Inside) {
-							logs.push_back(TextDisplay::Log("You are outside", sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log("You are outside", sf::Color::Yellow));
 
 						}
 						else {
-							logs.push_back(TextDisplay::Log("You are " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log("You are " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 						}
 					}
 					else {
-						logs.push_back(TextDisplay::Log("You are in the " + e->parent.second->names[0], sf::Color::Yellow));
+						textDisplay->addLog(TextDisplay::Log("You are in the " + e->parent.second->names[0], sf::Color::Yellow));
 					}
 				}
 				else {
 					if (prepositionNoun) {
-						logs.push_back(TextDisplay::Log(defrefName + " is now " + preposition, sf::Color::Yellow));
+						textDisplay->addLog(TextDisplay::Log(defrefName + " is now " + preposition, sf::Color::Yellow));
 					}
 					else {
 						if (e->parent.second != nullptr) {
-							logs.push_back(TextDisplay::Log(defrefName + " is now " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log(defrefName + " is now " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 						}
 					}
 				}
 			}
 		}
 		if (o.type == TYPE_Rotation) {
-			logs.push_back(TextDisplay::Log(defrefName + " is now " + RotationToString(e->rotation), sf::Color::Yellow));
+			textDisplay->addLog(TextDisplay::Log(defrefName + " is now " + RotationToString(e->rotation), sf::Color::Yellow));
 		}
 		if (o.type == TYPE_FacingDirection) {
-			logs.push_back(TextDisplay::Log(defrefName + " is now facing " + FacingDirectionToString(e->facingDirection), sf::Color::Yellow));
+			textDisplay->addLog(TextDisplay::Log(defrefName + " is now facing " + FacingDirectionToString(e->facingDirection), sf::Color::Yellow));
 		}
-
 	}
-	return logs;
 }
 
 
