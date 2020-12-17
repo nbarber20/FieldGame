@@ -511,6 +511,7 @@ Entity* InteractionManager::GetNoun(Entity_Player* player)
 			toRemove[0] = splitInput[i];
 			if (subject == nullptr) {
 				subject = GetPositionalSubject(splitInput[i], "", player);
+				toRemove[1] = "";
 			}
 			if (subject == nullptr&& i < splitInput.size() - 1) {
 				subject = GetPositionalSubject(splitInput[i], splitInput[i + 1], player);
@@ -518,11 +519,13 @@ Entity* InteractionManager::GetNoun(Entity_Player* player)
 			}
 			if (subject == nullptr) {
 				subject = player->FindEntityByName(splitInput[i]);
+				toRemove[1] = "";
 			}
 			if (subject == nullptr&& i < splitInput.size() - 1) {
 				subject = GetAdjectiveSubject(splitInput[i], splitInput[i + 1], player);
 				toRemove[1] = splitInput[i + 1];
 			}
+			if (subject != nullptr)break;
 		}
 		i++;
 
