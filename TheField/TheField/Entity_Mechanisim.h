@@ -5,8 +5,15 @@ class Task;
 class Entity_Mechanisim : public Entity
 {
 public:
-	Entity_Mechanisim(bool visibleInsides, float internalVolume, float size) : Entity(visibleInsides, internalVolume, size) {};
+	Entity_Mechanisim() {
+		typeID = "Entity_Mechanisim";
+	};
+	Entity_Mechanisim(int id, bool visibleInsides, float internalVolume, float size) : Entity(id, visibleInsides, internalVolume, size) {
+		typeID = "Entity_Mechanisim";
+	};
 	virtual ~Entity_Mechanisim();
+	virtual void WriteData(std::fstream* output);
+	virtual void ReadData(std::fstream* input);
 	virtual void Tick() override;
 	bool AttemptBehavior(std::string input, Entity* target);
 	void AddBehavior(std::pair < std::string, std::vector<Task*>> behaviorToAdd);

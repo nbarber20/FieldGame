@@ -3,15 +3,33 @@
 class Entity_Fluid : public Entity
 {
 public:
-	Entity_Fluid(bool visibleInsides, float internalVolume, float size) : Entity(visibleInsides, internalVolume, size)
+	Entity_Fluid() {
+		typeID = "Entity_Fluid";
+	};
+	Entity_Fluid(int id, bool visibleInsides, float internalVolume, float size) : Entity(id, visibleInsides, internalVolume, size)
 	{
-		this->coutable = false;
+		typeID = "Entity_Fluid";
+		this->countable = false;
 	};
 	virtual ~Entity_Fluid() {};
 
 	virtual Entity_Fluid* Clone() {
 		return new Entity_Fluid(*this);
 	}
+
+	virtual void WriteData(std::fstream* output) {
+		Entity::WriteData(output);
+		output->write((char*)&hydration, sizeof(float));
+		output->write((char*)&swallowable, sizeof(bool));
+
+	};
+	virtual void ReadData(std::fstream* input) {
+		Entity::ReadData(input);
+		input->read((char*)&hydration, sizeof(float));
+		input->read((char*)&swallowable, sizeof(bool));
+	};
+	
+
 	virtual void Tick() override;
 	virtual void Rotate(Rotation r) override;
 

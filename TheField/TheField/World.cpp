@@ -13,8 +13,12 @@
 #include "Entity_Mechanisim.h"
 #include "Entity_Clip.h"
 #include "Entity_Firearm.h"
+#include "Entity_Room.h"
 #include "ObservationManager.h"
 #include "Task.h"
+#include <iostream>
+#include <fstream>
+#include <iosfwd>
 World::World()
 {
 }
@@ -33,6 +37,12 @@ void World::RemoveEntity(Entity* e)
 	delete e;
 }
 
+int World::GetUniqueID()
+{
+	uniqueID++;
+	return uniqueID;
+}
+
 void World::Tick()
 {
 	for (int i = 0; i < entities.size(); i++) {
@@ -43,38 +53,37 @@ void World::Tick()
 
 void World::Setup()
 {
-
-	Entity* Ground = new Entity_GroundTile(false, 0.0f, 60000.0f);
+	Entity* Ground = new Entity_GroundTile(GetUniqueID(),false, 0.0f, 60000.0f);
 	Ground->names = {"dirt","ground","grass"};
 	entities.push_back(Ground);
 
-	playerEntity = new Entity_Player(false, 0.0f, 3783.0f);
+	playerEntity = new Entity_Player(GetUniqueID(), false, 0.0f, 3783.0f);
 	playerEntity->names = { "you" };
 	playerEntity->SetParent(On, Ground);
 	entities.push_back(playerEntity);
 
-	Entity_Container* backPack = new Entity_Container(true, 1220.47f, 1221.0f);
+	Entity_Container* backPack = new Entity_Container(GetUniqueID(), true, 1220.47f, 1221.0f);
 	backPack->names = { "backpack" };
 	backPack->SetParent(Back, playerEntity);
 	backPack->AddAdjective(Visual, "leather");
 	backPack->permiability = 4.5f;
 	entities.push_back(backPack);
 
-	Entity_Firearm* handGun = new Entity_Firearm(14.5f,Entity_Clip::Pistol);
+	Entity_Firearm* handGun = new Entity_Firearm(GetUniqueID(), 14.5f,Entity_Clip::Pistol);
 	handGun->names = { "handgun", "gun" };
 	handGun->SetParent(RightHand, playerEntity);
 	entities.push_back(handGun);
 
-	Entity_Clip* handGunAmmo = new Entity_Clip(7.f,7, Entity_Clip::Pistol);
+	Entity_Clip* handGunAmmo = new Entity_Clip(GetUniqueID(), 7.f,7, Entity_Clip::Pistol);
 	handGunAmmo->names = { "clip"};
 	entities.push_back(handGunAmmo);
 
 	handGun->Reload(handGunAmmo);
 
-	Entity_Mechanisim* club = new Entity_Mechanisim(true, 0.0f, 14.5f);
+	Entity_Mechanisim* club = new Entity_Mechanisim(GetUniqueID(), true, 0.0f, 14.5f);
 	club->names = { "club" };
 	std::vector<Task*> tasks3 = {
-		new Task_LogText("You swing the club"),
+		new Task_LogText(club,"You swing the club"),
 		new Task_AttackEntity(club,Entity_Living::Blunt,0.4f,2),
 	};
 	club->AddBehavior(std::make_pair("swing", tasks3));
@@ -82,8 +91,7 @@ void World::Setup()
 	entities.push_back(club);
 
 
-
-	Entity_Event* EnterFarmEvent = new Entity_Event();
+	Entity_Event* EnterFarmEvent = new Entity_Event(GetUniqueID());
 	EnterFarmEvent->setObservationConsumptionList({
 		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
 		});
@@ -92,7 +100,7 @@ void World::Setup()
 	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
 	entities.push_back(EnterFarmEvent);
 
-	Entity_Interior* House = new Entity_Interior(false, 47520.0f, 47520.0f);
+	Entity_Interior* House = new Entity_Interior(GetUniqueID(), false, 47520.0f, 47520.0f);
 	House->names = { "house","home"};
 	House->SetParent(On, Ground, 0, true, false);
 	House->AddAdjective(Visual, "brick");
@@ -103,7 +111,7 @@ void World::Setup()
 	entities.push_back(House);
 
 
-	Entity_Npc* NPC = new Entity_Npc(false, 0.0f, 3783.0f);
+	Entity_Npc* NPC = new Entity_Npc(GetUniqueID(), false, 0.0f, 3783.0f);
 	NPC->names = {"person"};
 	NPC->SetParent(OnFloor, House, 0, false,false);
 
@@ -125,7 +133,7 @@ void World::Setup()
 	NPC->dialogTree = tree;
 	entities.push_back(NPC);
 
-	Entity_Event* EnterHouseEvent = new Entity_Event();
+	Entity_Event* EnterHouseEvent = new Entity_Event(GetUniqueID());
 	EnterHouseEvent->setObservationConsumptionList({
 		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
 		});
@@ -133,43 +141,42 @@ void World::Setup()
 	EnterHouseEvent->SetParent(OnFloor, House, 0, false, false);
 	entities.push_back(EnterHouseEvent);
 
-	Entity* Toilet = new Entity_Container(true, 369.6f, 1728.0f);
+	Entity* Toilet = new Entity_Container(GetUniqueID(), true, 369.6f, 1728.0f);
 	Toilet->names = { "toilet" };
 	Toilet->SetParent(OnFloor, House, 2 ,true, false);
 	entities.push_back(Toilet);
 
-	Entity_Fluid* ToiletWater = new Entity_Fluid(true, 0.0f, 200.0f);
+	Entity_Fluid* ToiletWater = new Entity_Fluid(GetUniqueID(), true, 0.0f, 200.0f);
 	ToiletWater->names = { "water" };
 	ToiletWater->hydration = 10.0f;
 	ToiletWater->SetParent(Inside, Toilet);
 	entities.push_back(ToiletWater);
 
 
-	Entity* Bed = new Entity(true, 0.0f, 50.0f);
+	Entity* Bed = new Entity(GetUniqueID(), true, 0.0f, 50.0f);
 	Bed->names = { "bed" };
 	Bed->SetParent(OnFloor, House, 1, false, false);
 	entities.push_back(Bed);
 
 
-
-	Entity* Table = new Entity(true, 0.0f, 1728.0f);
+	Entity* Table = new Entity(GetUniqueID(), true, 0.0f, 1728.0f);
 	Table->names = { "table" };
 	Table->SetParent(OnFloor, House,0, false, false);
 	entities.push_back(Table);
 
 
 
-	Entity_Mechanisim* UselessButton = new Entity_Mechanisim(true, 0.0f, 1728.0f);
+	Entity_Mechanisim* UselessButton = new Entity_Mechanisim(GetUniqueID(), true, 0.0f, 1728.0f);
 	UselessButton->names = { "button" };
 	UselessButton->SetParent(On, Table);
 	std::vector<Task*> UselessButtontasks = {
-		new Task_LogText("You press the button. It suddenly disappears"),
+		new Task_LogText(UselessButton,"You press the button. It suddenly disappears"),
 		new Task_DestroySelf(UselessButton),
 	};
 	UselessButton->AddBehavior(std::make_pair("press", UselessButtontasks));
 	entities.push_back(UselessButton);
 
-	Entity_Food* Potato = new Entity_Food(true, 14.44f, 14.50f);
+	Entity_Food* Potato = new Entity_Food(GetUniqueID(), true, 14.44f, 14.50f);
 	Potato->names = { "potato" };
 	Potato->lookInfo = "It's a cooked potato, still warm";
 	Potato->nutritionalValue = 35.0f;
@@ -177,14 +184,14 @@ void World::Setup()
 	entities.push_back(Potato);
 
 
-	Entity_Container* Cup = new Entity_Container(true, 14.44f, 14.50f);
+	Entity_Container* Cup = new Entity_Container(GetUniqueID(), true, 14.44f, 14.50f);
 	Cup->names = { "cup" };
 	Cup->SetParent(On, Table);
 	Cup->AddAdjective(Visual, "wooden");
 	entities.push_back(Cup);
 
 
-	Entity_Fluid* Tea = new Entity_Fluid(true, 0.0f, 7.0f);
+	Entity_Fluid* Tea = new Entity_Fluid(GetUniqueID(), true, 0.0f, 7.0f);
 	Tea->names = { "tea" };
 	Tea->SetParent(Inside, Cup);
 	Tea->AddAdjective(Taste, "bitter");
@@ -192,7 +199,7 @@ void World::Setup()
 	Tea->hydration = 45.0f;
 	entities.push_back(Tea);
 
-	Entity_Fluid* Tea2 = new Entity_Fluid(true, 0.0f, 7.0f);
+	Entity_Fluid* Tea2 = new Entity_Fluid(GetUniqueID(), true, 0.0f, 7.0f);
 	Tea2->names = { "tea" };
 	Tea2->SetParent(Inside, Cup);
 	Tea2->AddAdjective(Taste, "bitter");
@@ -200,20 +207,20 @@ void World::Setup()
 	Tea2->hydration = 35.0f;
 	entities.push_back(Tea2);
 
-	Entity* Cup2 = new Entity_Container(true, 14.44f, 14.50f);
+	Entity* Cup2 = new Entity_Container(GetUniqueID(), true, 14.44f, 14.50f);
 	Cup2->names = { "cup", "container" };
 	Cup2->SetParent(On, Table);
 	Cup2->AddAdjective(Visual, "ugly");
 	Cup2->AddAdjective(NameExtension, "liquid");
 	entities.push_back(Cup2);
 
-	Entity* Cup3 = new Entity_Container(true, 14.44f, 14.50f);
+	Entity* Cup3 = new Entity_Container(GetUniqueID(), true, 14.44f, 14.50f);
 	Cup3->names = { "cup" };
 	Cup3->SetParent(OnFloor, House, 0, false, false);
 	Cup3->AddAdjective(Visual, "glass");
 	entities.push_back(Cup3);
 
-	Entity_Fluid* Tea3 = new Entity_Fluid(true, 0.0f, 0.0f);
+	Entity_Fluid* Tea3 = new Entity_Fluid(GetUniqueID(), true, 0.0f, 0.0f);
 	Tea3->names = { "tea" };
 	Tea3->SetParent(Inside, Cup3);
 	Tea3->AddAdjective(Taste, "smooth");
@@ -221,11 +228,136 @@ void World::Setup()
 	Tea3->hydration = 35.0f;
 	entities.push_back(Tea3);
 	
-	Entity_Readable* Note = new Entity_Readable(true, 0.0f, 0.0f);
+	Entity_Readable* Note = new Entity_Readable(GetUniqueID(), true, 0.0f, 0.0f);
 	Note->requiredLanguage = English;
 	Note->text = "This is a note";
 	Note->names = { "note" };
 	Note->SetParent(On, Table);
 	entities.push_back(Note);
 
+}
+
+Entity* World::GetEntityByID(int id)
+{
+	for (int i = 0; i < entities.size(); i++) {
+		if (entities[i]->uniqueEntityID == id) {
+			return entities[i];
+		}
+	}
+	return nullptr;
+}
+
+void World::SaveTile(std::string filename) {
+	std::fstream file(filename, std::ios::out | std::ios::binary);
+	if (!file) {
+		std::cout << "ERROR";
+	}
+	else {
+		file.clear();
+		int numEntities = entities.size();
+		file.write((char*)&numEntities, sizeof(int));
+		for (int i = 0; i < numEntities; i++) {
+			entities[i]->WriteData(&file);
+		}
+		file.flush();
+		file.close();
+		if (!file.good()) {
+			std::cout << "Error occurred at writing time!" << std::endl;
+		}
+	}
+}
+
+void World::LoadTile(std::string filename)
+{
+	std::fstream file(filename, std::ios::in | std::ios::binary);
+	if (!file) {
+		std::cout << "ERROR";
+	}
+	else {
+		int entitiesArrSize;
+		file.read((char*)&entitiesArrSize, sizeof(int));
+		for (int i = 0; i < entitiesArrSize; i++) {
+
+			std::string entityObjType;
+			size_t namelen;
+			file.read((char*)&namelen, sizeof(size_t));
+			char* temp = new char[namelen + 1];
+			file.read(temp, namelen);
+			temp[namelen] = '\0';
+			entityObjType = temp;
+			delete[] temp;
+
+			Entity* e;
+			if (entityObjType == "Entity_Clip") {
+				e = new Entity_Clip();
+			}
+			else if (entityObjType == "Entity_Constructed") {
+				e = new Entity_Constructed();
+			}
+			else if (entityObjType == "Entity_Container") {
+				e = new Entity_Container();
+			}
+			else if (entityObjType == "Entity_Event") {
+				e = new Entity_Event();
+			}
+			else if (entityObjType == "Entity_Firearm") {
+				e = new Entity_Firearm();
+			}
+			else if (entityObjType == "Entity_Fluid") {
+				e = new Entity_Fluid();
+			}
+			else if (entityObjType == "Entity_Food") {
+				e = new Entity_Food();
+			}
+			else if (entityObjType == "Entity_GroundTile") {
+				e = new Entity_GroundTile();
+			}
+			else if (entityObjType == "Entity_Interior") {
+				e = new Entity_Interior();
+			}
+			else if (entityObjType == "Entity_Living") {
+				e = new Entity_Living();
+			}
+			else if (entityObjType == "Entity_Mechanisim") {
+				e = new Entity_Mechanisim();
+			}
+			else if (entityObjType == "Entity_Npc") {
+				e = new Entity_Npc();
+			}
+			else if (entityObjType == "Entity_Player") {
+				Entity_Player* newplayerEntity = new Entity_Player();
+				this->playerEntity = newplayerEntity;
+				e = newplayerEntity;
+			}
+			else if (entityObjType == "Entity_Readable") {
+				e = new Entity_Readable();
+			}
+			else if (entityObjType == "Entity_Room") {
+				e = new Entity_Room();
+			}
+			else {
+				if (entityObjType != "Entity") {
+					ObservationManager::Observation o = ObservationManager::Observation();
+					o.sense = ObservationManager::SENSE_Look;
+					o.type = ObservationManager::TYPE_Direct;
+					o.information = "ERROR: "+ entityObjType+" not defined";
+					ObservationManager::Instance().MakeObservation(o);
+				}
+				e = new Entity();
+			}
+			e->ReadData(&file);
+			entities.push_back(e);
+		}
+
+		//Set parents
+		for (int i = 0; i < entities.size(); i++) {
+			if (entities[i]->parentEntityID != -1) {
+				entities[i]->SetParent((Position)entities[i]->parentEntityDir,GetEntityByID(entities[i]->parentEntityID));
+			}
+		}
+
+
+
+		file.close();
+	}
 }

@@ -44,13 +44,13 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 		}
 		InputError inputError = AttemptPlayerCommand(player);
 		if (inputError == NeedsSubject) {
-			textdisplay->addLog(TextDisplay::Log("Specify a subject", sf::Color::Red));
+			textdisplay->addLog(TextDisplay::Log("Specify a proper subject", sf::Color::Red));
 		}
 		else if (inputError == NeedsPredicate) {
-			textdisplay->addLog(TextDisplay::Log("Specify a target", sf::Color::Red));
+			textdisplay->addLog(TextDisplay::Log("Specify a proper target", sf::Color::Red));
 		}
 		else if (inputError == NeedsSubjectPredicate) {
-			textdisplay->addLog(TextDisplay::Log("Specify a subject and target", sf::Color::Red));
+			textdisplay->addLog(TextDisplay::Log("Specify a proper subject and target", sf::Color::Red));
 		}
 		else if (inputError == Impossible) {
 			textdisplay->addLog(TextDisplay::Log("That isn't currently possible", sf::Color::Red));

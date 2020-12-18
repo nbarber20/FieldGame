@@ -7,8 +7,12 @@
 class Entity_Player : public Entity_Living
 {
 public:
-	Entity_Player(bool visibleInsides, float internalVolume, float size) :Entity_Living(visibleInsides, internalVolume, size)
+	Entity_Player() {
+		typeID = "Entity_Player";
+	};
+	Entity_Player(int id, bool visibleInsides, float internalVolume, float size) :Entity_Living(id, visibleInsides, internalVolume, size)
 	{
+		typeID = "Entity_Player";
 		individualName = "You";
 		spokenLanguage.push_back(English);
 		readingLanguage.push_back(English);

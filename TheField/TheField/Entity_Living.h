@@ -27,11 +27,77 @@ public:
 		Burn,
 		Cold,
 	};
-
-	Entity_Living(bool visibleInsides, float internalVolume, float size) :Entity(visibleInsides, internalVolume, size) {};
+	Entity_Living() {
+		typeID = "Entity_Living";
+	};
+	Entity_Living(int id, bool visibleInsides, float internalVolume, float size) :Entity(id, visibleInsides, internalVolume, size) {
+		typeID = "Entity_Living";
+	};
 	virtual ~Entity_Living() {};
-	std::vector<Languages> spokenLanguage;
-	std::vector<Languages> readingLanguage;
+
+	virtual void WriteData(std::fstream* output) {
+		Entity::WriteData(output);
+
+		int spokenLanguageLen = spokenLanguage.size();
+		output->write((char*)&spokenLanguageLen, sizeof(int));
+		for (int i = 0; i < spokenLanguageLen; i++) {
+			output->write((char*)&(spokenLanguage[i]), sizeof(int));
+		}
+
+		int readingLanguageLen = readingLanguage.size();
+		output->write((char*)&readingLanguageLen, sizeof(int));
+		for (int j = 0; j < readingLanguageLen; j++) {
+			output->write((char*)&(readingLanguage[j]), sizeof(int));
+		}
+
+		output->write((char*)&healthStatus, sizeof(int));
+		output->write((char*)&nourishment, sizeof(float));
+		output->write((char*)&hydration, sizeof(float));
+		output->write((char*)&maxNourishment, sizeof(float));
+		output->write((char*)&maxHydration, sizeof(float));
+		output->write((char*)&bleedSpeed, sizeof(float));
+		output->write((char*)&bloodLevel, sizeof(float));
+		output->write((char*)&maxBloodLevel, sizeof(float));
+		output->write((char*)&unconsciousCounter, sizeof(int));
+		output->write((char*)&damageThreshold, sizeof(float));
+		output->write((char*)&resistance, sizeof(float));
+		output->write((char*)&unconscious, sizeof(bool));
+		output->write((char*)&dead, sizeof(bool));
+	};
+	virtual void ReadData(std::fstream* input) {
+		Entity::ReadData(input);
+		int spokenLanguageLen;
+		input->read((char*)&spokenLanguageLen, sizeof(int));
+		for (int i = 0; i < spokenLanguageLen; i++) {
+			int spokenLang;
+			input->read((char*)&(spokenLang), sizeof(int));
+			spokenLanguage.push_back((Languages)spokenLang);
+		}
+
+		int readingLanguageLen;
+		input->read((char*)&readingLanguageLen, sizeof(int));
+		for (int j = 0; j < readingLanguageLen; j++) {
+			int readLang;
+			input->read((char*)&readLang, sizeof(int));
+			readingLanguage.push_back((Languages)readLang);
+		}
+
+		input->read((char*)&healthStatus, sizeof(int));
+		input->read((char*)&nourishment, sizeof(float));
+		input->read((char*)&hydration, sizeof(float));
+		input->read((char*)&maxNourishment, sizeof(float));
+		input->read((char*)&maxHydration, sizeof(float));
+		input->read((char*)&bleedSpeed, sizeof(float));
+		input->read((char*)&bloodLevel, sizeof(float));
+		input->read((char*)&maxBloodLevel, sizeof(float));
+		input->read((char*)&unconsciousCounter, sizeof(int));
+		input->read((char*)&damageThreshold, sizeof(float));
+		input->read((char*)&resistance, sizeof(float));
+		input->read((char*)&unconscious, sizeof(bool));
+		input->read((char*)&dead, sizeof(bool));
+	};
+
+
 	virtual void Tick() override;
 	
 	void AddNourishment(float delta);
@@ -39,6 +105,9 @@ public:
 	void TakeDamage(DamageType type, float multiplier, int lethalityLevel);
 	std::string GetHealthStatusString(HealthStatus s);
 
+
+	std::vector<Languages> spokenLanguage;
+	std::vector<Languages> readingLanguage;
 	HealthStatus healthStatus = Healthy;
 	float nourishment = 50;
 	float hydration = 50;
@@ -55,6 +124,6 @@ public:
 	bool unconscious = false;
 	bool dead = false;
 
-	std::vector<float> healthThresholds = { 0.35f,0.5f,1.0f,0.5f,0.5f,0.3f, 0.0f};
+	std::vector<float> healthThresholds = { 0.35f,0.5f,1.0f,0.5f,0.5f,0.3f, 0.0f };
 };
 

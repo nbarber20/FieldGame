@@ -6,9 +6,24 @@ class ObservationManager;
 class Entity_Readable : public Entity_Constructed
 {
 public:
-	Entity_Readable(bool visibleInsides, float internalVolume, float size) : Entity_Constructed(visibleInsides, internalVolume, size){};
+	Entity_Readable() {
+		typeID = "Entity_Readable";
+	};
+	Entity_Readable(int id, bool visibleInsides, float internalVolume, float size) : Entity_Constructed(id, visibleInsides, internalVolume, size){
+		typeID = "Entity_Readable";
+	};
 	virtual ~Entity_Readable() {};
 	void Read(Entity_Living* humanRef);
+	virtual void WriteData(std::fstream* output) {
+		Entity::WriteData(output);
+		output->write((char*)&requiredLanguage, sizeof(int));
+		WriteStringData(text, output);
+	};
+	virtual void ReadData(std::fstream* input) {
+		Entity::ReadData(input);
+		input->read((char*)&requiredLanguage, sizeof(int));
+		text = ReadStringData(input);
+	};
 	Languages requiredLanguage;
 	std::string text;
 };

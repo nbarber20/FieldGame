@@ -33,7 +33,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 					if (observations[j].displayed == false) {
 						if (o.sense == observations[j].sense && o.type == observations[j].type &&  observations[j].referenceEntity != nullptr) {
 							if (observations[j].referenceEntity != e) {
-								if (e->parent == observations[j].referenceEntity->parent && e->coutable == true)
+								if (e->parent == observations[j].referenceEntity->parent && e->countable == true)
 								{
 									if (e->CheckforNameMatch(observations[j].referenceEntity))
 									{
@@ -52,7 +52,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 				if (ADJ == " ")ADJ = "";
 				defrefName = "the " + e->names[0];
 				defrefNameADJ = "the " + ADJ + e->names[0];
-				if (e->coutable&& plural == false) {
+				if (e->countable&& plural == false) {
 					indefdefrefName = "a " + e->names[0];
 					indefdefrefNameADJ = "a " + ADJ + e->names[0];
 				}

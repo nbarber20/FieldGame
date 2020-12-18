@@ -9,10 +9,13 @@ public:
 		sf::Vector2i position;
 		bool hasExteriorDoor; 
 	};
-
-	Entity_Interior(bool visibleInsides, float internalVolume, float size) : Entity_Constructed(visibleInsides, internalVolume, size)
+	Entity_Interior() {
+		typeID = "Entity_Interior";
+	};
+	Entity_Interior(int id, bool visibleInsides, float internalVolume, float size) : Entity_Constructed(id, visibleInsides, internalVolume, size)
 	{
-		this->coutable = false;
+		typeID = "Entity_Interior";
+		this->countable = false;
 	}
 	virtual ~Entity_Interior() {
 		for (auto room : rooms)
@@ -21,6 +24,16 @@ public:
 		}
 		rooms.clear();
 	}
+
+	virtual void WriteData(std::fstream* output) {
+		Entity_Constructed::WriteData(output);
+		//TODO: how to reconnect rooms
+
+	};
+	virtual void ReadData(std::fstream* input) {
+		Entity_Constructed::ReadData(input);
+		//TODO: how to reconnect rooms
+	};
 
 	void AddRoom(std::string roomName, sf::Vector2i position,bool hasExterior);
 	int GetRoom(sf::Vector2i position);

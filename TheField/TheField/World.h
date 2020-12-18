@@ -13,10 +13,15 @@ public:
 	World();
 	void AddEntity(Entity* e);
 	void RemoveEntity(Entity* e);
+	int GetUniqueID();
 	void Tick();
 	void Setup();
+	Entity* GetEntityByID(int id);
+	void SaveTile(std::string filename);
+	void LoadTile(std::string filename);
 	Entity_Player* playerEntity;
 private:
 	std::vector< Entity*> entities;
+	int uniqueID = 0;
 };
 

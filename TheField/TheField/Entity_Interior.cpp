@@ -7,7 +7,7 @@
 void Entity_Interior::AddRoom(std::string roomName, sf::Vector2i position, bool hasExterior)
 {
 	Room* newRoom = new Room;
-	Entity_Room* RoomEntity = new Entity_Room(false, 47520.0f, 47520.0f);
+	Entity_Room* RoomEntity = new Entity_Room(World::Instance().GetUniqueID(),false, 47520.0f, 47520.0f);
 	RoomEntity->names = { roomName,"room","floor" };
 	RoomEntity->parent = std::make_pair(OnFloor, this);
 	children.push_back(std::pair<Position, std::vector<Entity*>>(OnFloor, { RoomEntity }));
