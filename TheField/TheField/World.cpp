@@ -39,8 +39,7 @@ void World::RemoveEntity(Entity* e)
 
 int World::GetUniqueID()
 {
-	uniqueID++;
-	return uniqueID;
+	return uniqueID++;
 }
 
 void World::Tick()
@@ -53,9 +52,13 @@ void World::Tick()
 
 void World::Setup()
 {
-	Entity* Ground = new Entity_GroundTile(GetUniqueID(),false, 0.0f, 60000.0f);
+	Entity_GroundTile* Ground = new Entity_GroundTile(GetUniqueID(),false, 0.0f, 60000.0f);
 	Ground->names = {"dirt","ground","grass"};
+	Ground->worldPos = "000";
+	currentTile = "000";
+	Ground->toSouth = std::make_pair("There is farmhouse to the south", "010");
 	entities.push_back(Ground);
+	
 
 	playerEntity = new Entity_Player(GetUniqueID(), false, 0.0f, 3783.0f);
 	playerEntity->names = { "you" };
@@ -90,7 +93,7 @@ void World::Setup()
 	club->SetParent(LeftHand, playerEntity);
 	entities.push_back(club);
 
-
+	/*
 	Entity_Event* EnterFarmEvent = new Entity_Event(GetUniqueID());
 	EnterFarmEvent->setObservationConsumptionList({
 		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
@@ -234,7 +237,7 @@ void World::Setup()
 	Note->names = { "note" };
 	Note->SetParent(On, Table);
 	entities.push_back(Note);
-
+	*/
 }
 
 Entity* World::GetEntityByID(int id)
@@ -247,17 +250,71 @@ Entity* World::GetEntityByID(int id)
 	return nullptr;
 }
 
-void World::SaveTile(std::string filename) {
-	std::fstream file(filename, std::ios::out | std::ios::binary);
+void World::MoveToTile(std::string tileName)
+{
+	//Save
+	SavePlayer();
+	SaveTile("Data/LevelData/" + currentTile + ".bin");
+	for (int i = 0; i < entities.size(); i++) {
+		delete entities[i];
+	}
+	entities.clear();
+	
+	//Load
+	LoadFile("Data/LevelData/Player.bin",true);
+	currentTile = tileName;
+	LoadFile("Data/LevelData/" + currentTile + ".bin",false);
+	playerEntity->SetParentOverride(On, currentGroundTile);
+	RedestributeUniqueIDs();
+}
+
+void World::SaveAll()
+{
+	SavePlayer();
+	SaveTile("Data/LevelData/" + currentTile + ".bin");
+}
+
+void World::LoadAll()
+{
+	LoadFile("Data/LevelData/Player.bin", true);
+	LoadFile("Data/LevelData/"+currentTile+".bin",false);
+	playerEntity->SetParentOverride(On, currentGroundTile);
+	RedestributeUniqueIDs();
+}
+
+void World::SavePlayer()
+{
+	std::fstream file("Data/LevelData/Player.bin", std::ios::out | std::ios::binary);
 	if (!file) {
 		std::cout << "ERROR";
 	}
 	else {
 		file.clear();
-		int numEntities = entities.size();
-		file.write((char*)&numEntities, sizeof(int));
-		for (int i = 0; i < numEntities; i++) {
-			entities[i]->WriteData(&file);
+
+		size_t len = currentTile.size();
+		file.write((char*) & (len), sizeof(size_t));
+		file.write(currentTile.c_str(), len);
+
+		int numEntities = 0;
+		for (int i = 0; i < entities.size(); i++) {
+			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
+			if (p) {
+				numEntities++;
+			}
+			else if (entities[i]->IsChildOf(playerEntity) == true) {
+				numEntities++;
+			}
+		}
+
+		file.write((char*)& numEntities, sizeof(int));
+		for (int i = 0; i < entities.size(); i++) {
+			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
+			if (p) {
+				entities[i]->WriteData(&file);
+			}
+			else if (entities[i]->IsChildOf(playerEntity) == true) {
+				entities[i]->WriteData(&file);
+			}
 		}
 		file.flush();
 		file.close();
@@ -267,13 +324,56 @@ void World::SaveTile(std::string filename) {
 	}
 }
 
-void World::LoadTile(std::string filename)
+void World::SaveTile(std::string filename) {
+	std::fstream file(filename, std::ios::out | std::ios::binary);
+	if (!file) {
+		std::cout << "ERROR";
+	}
+	else {
+		file.clear();
+		int numEntities = 0;
+		for (int i = 0; i < entities.size(); i++) {
+			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
+			if (p == NULL) {
+				if (entities[i]->IsChildOf(playerEntity) == false) {
+					numEntities++;
+				}
+			}
+		}
+		file.write((char*)&numEntities, sizeof(int));
+		for (int i = 0; i < entities.size(); i++) {
+			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
+			if (p == NULL) {
+				if (entities[i]->IsChildOf(playerEntity) == false) {
+					entities[i]->WriteData(&file);
+				}
+			}
+		}
+		file.flush();
+		file.close();
+		if (!file.good()) {
+			std::cout << "Error occurred at writing time!" << std::endl;
+		}
+	}
+}
+
+void World::LoadFile(std::string filename, bool loadCurrentTile)
 {
 	std::fstream file(filename, std::ios::in | std::ios::binary);
 	if (!file) {
 		std::cout << "ERROR";
 	}
 	else {
+		if (loadCurrentTile) {
+
+			size_t namelen;
+			file.read((char*)& namelen, sizeof(size_t));
+			char* temp = new char[namelen + 1];
+			file.read(temp, namelen);
+			temp[namelen] = '\0';
+			currentTile = temp;
+			delete[] temp;
+		}
 		int entitiesArrSize;
 		file.read((char*)&entitiesArrSize, sizeof(int));
 		for (int i = 0; i < entitiesArrSize; i++) {
@@ -310,7 +410,9 @@ void World::LoadTile(std::string filename)
 				e = new Entity_Food();
 			}
 			else if (entityObjType == "Entity_GroundTile") {
-				e = new Entity_GroundTile();
+				Entity_GroundTile* eg = new Entity_GroundTile();
+				currentGroundTile = eg;
+				e = eg;
 			}
 			else if (entityObjType == "Entity_Interior") {
 				e = new Entity_Interior();
@@ -325,9 +427,9 @@ void World::LoadTile(std::string filename)
 				e = new Entity_Npc();
 			}
 			else if (entityObjType == "Entity_Player") {
-				Entity_Player* newplayerEntity = new Entity_Player();
-				this->playerEntity = newplayerEntity;
-				e = newplayerEntity;
+				Entity_Player* ep = new Entity_Player();
+				playerEntity = ep;
+				e = ep;
 			}
 			else if (entityObjType == "Entity_Readable") {
 				e = new Entity_Readable();
@@ -351,13 +453,24 @@ void World::LoadTile(std::string filename)
 
 		//Set parents
 		for (int i = 0; i < entities.size(); i++) {
-			if (entities[i]->parentEntityID != -1) {
-				entities[i]->SetParent((Position)entities[i]->parentEntityDir,GetEntityByID(entities[i]->parentEntityID));
+			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
+			if (p == NULL) {
+				if (entities[i]->parentEntityID != -1) {
+					entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID));
+				}
 			}
 		}
 
 
 
 		file.close();
+	}
+}
+
+void World::RedestributeUniqueIDs()
+{
+	uniqueID = 0;
+	for (int i = 0; i < entities.size(); i++) {
+		entities[i]->uniqueEntityID = GetUniqueID();
 	}
 }

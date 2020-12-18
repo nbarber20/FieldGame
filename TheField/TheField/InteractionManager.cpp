@@ -7,6 +7,7 @@
 #include "Entity_Interior.h"
 #include "Entity_Npc.h"
 #include "Entity_Mechanisim.h"
+#include "Entity_GroundTile.h"
 #include "Entity_Firearm.h"
 
 void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
@@ -57,9 +58,9 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 		}
 
 
-		player->CheckForEvents();
+		World::Instance().playerEntity->CheckForEvents();
 		World::Instance().Tick();
-		ObservationManager::Instance().CompileObservations(player, textdisplay);
+		ObservationManager::Instance().CompileObservations(World::Instance().playerEntity, textdisplay);
 		ObservationManager::Instance().ClearObservations();
 		textdisplay->addLog(TextDisplay::Log("", sf::Color::Red));
 	}
@@ -156,6 +157,39 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 				}
 			}
 		}
+
+		Entity_GroundTile* groundTest = dynamic_cast<Entity_GroundTile*>(player->parent.second);
+		if (groundTest) {
+			if (std::find(particles.begin(), particles.end(), "north") != particles.end()) {
+				if (groundTest->toNorth.second != "") {
+					World::Instance().MoveToTile(groundTest->toNorth.second);
+					World::Instance().playerEntity->Look();
+					return Success;
+				}
+			}
+			else if (std::find(particles.begin(), particles.end(), "south") != particles.end()) {
+				if (groundTest->toSouth.second != "") {
+					World::Instance().MoveToTile(groundTest->toSouth.second);
+					World::Instance().playerEntity->Look();
+					return Success;
+				}
+			}
+			else if (std::find(particles.begin(), particles.end(), "east") != particles.end()) {
+				if (groundTest->toEast.second != "") {
+					World::Instance().MoveToTile(groundTest->toEast.second);
+					World::Instance().playerEntity->Look();
+					return Success;
+				}
+			}
+			else if (std::find(particles.begin(), particles.end(), "west") != particles.end()) {
+				if (groundTest->toWest.second != "") {
+					World::Instance().MoveToTile(groundTest->toWest.second);
+					World::Instance().playerEntity->Look();
+					return Success;
+				}
+			}
+		}
+		
 		return Impossible;
 	}
 	else if (verb == "enter") {
