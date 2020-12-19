@@ -7,6 +7,7 @@
 #include "Entity_Interior.h"
 #include "Entity_Food.h"
 #include "Entity_Event.h"
+#include "Entity_GroundTile.h"
 #include "World.h"
 
 void Entity_Player::Tick()
@@ -63,47 +64,50 @@ void Entity_Player::Tick()
 	}
 }
 
-std::vector<Entity*> Entity_Player::getVisibleEntities(bool getParent)
+std::vector<Entity*> Entity_Player::getVisibleEntities(bool getsurrounding,bool getParent, bool getSelf)
 {
 	std::vector<Entity*> visible;
-	std::vector<Entity*> onPerson = GetInventory();
-	for (int i = 0; i < onPerson.size(); i++) {
-		if (onPerson[i] != this) {
-			visible.push_back(onPerson[i]);
-			if (onPerson[i]->visibleInsides) {
-				std::vector<Entity*> subEntity = onPerson[i]->GetInventory();
-				for (int j = 0; j < subEntity.size(); j++) {
-					visible.push_back(subEntity[j]);
-					if (subEntity[j]->visibleInsides) {
-						std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
-						for (int k = 0; k < subEntity2.size(); k++) {
-							visible.push_back(subEntity2[k]);
+
+	if (getSelf) {
+		std::vector<Entity*> onPerson = GetInventory();
+		for (int i = 0; i < onPerson.size(); i++) {
+			if (onPerson[i] != this) {
+				visible.push_back(onPerson[i]);
+				if (onPerson[i]->visibleInsides) {
+					std::vector<Entity*> subEntity = onPerson[i]->GetInventory();
+					for (int j = 0; j < subEntity.size(); j++) {
+						visible.push_back(subEntity[j]);
+						if (subEntity[j]->visibleInsides) {
+							std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
+							for (int k = 0; k < subEntity2.size(); k++) {
+								visible.push_back(subEntity2[k]);
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-
-	std::vector<Entity*> withintile = (parent.second)->GetInventory();
-	for (int i = 0; i < withintile.size(); i++) {
-		if (withintile[i] != this) {
-			visible.push_back(withintile[i]);
-			if (withintile[i]->visibleInsides) {
-				std::vector<Entity*> subEntity = withintile[i]->GetInventory();
-				for (int j = 0; j < subEntity.size(); j++) {
-					visible.push_back(subEntity[j]);
-					if (subEntity[j]->visibleInsides) {
-						std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
-						for (int k = 0; k < subEntity2.size(); k++) {
-							visible.push_back(subEntity2[k]);
+	if (getsurrounding) {
+		std::vector<Entity*> withintile = (parent.second)->GetInventory();
+		for (int i = 0; i < withintile.size(); i++) {
+			if (withintile[i] != this) {
+				visible.push_back(withintile[i]);
+				if (withintile[i]->visibleInsides) {
+					std::vector<Entity*> subEntity = withintile[i]->GetInventory();
+					for (int j = 0; j < subEntity.size(); j++) {
+						visible.push_back(subEntity[j]);
+						if (subEntity[j]->visibleInsides) {
+							std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
+							for (int k = 0; k < subEntity2.size(); k++) {
+								visible.push_back(subEntity2[k]);
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-
 	if (getParent) {
 		Entity_Room* parentRoomTest = dynamic_cast<Entity_Room*>(parent.second);
 		if (parentRoomTest) {
@@ -118,7 +122,7 @@ std::vector<Entity*> Entity_Player::getVisibleEntities(bool getParent)
 void Entity_Player::CheckForEvents()
 {
 
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(false);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,false,false);
 	for (int i = 0; i < nearbyEntities.size();i++) {
 		Entity_Event* checkEvent = dynamic_cast<Entity_Event*>(nearbyEntities[i]);
 		if (checkEvent) {
@@ -131,7 +135,7 @@ void Entity_Player::CheckForEvents()
 
 void Entity_Player::Look()
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(false);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,false, false);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		if (nearbyEntities[i]->names.size() > 0) {
 			ObservationManager::Observation o = ObservationManager::Observation();
@@ -161,7 +165,43 @@ void Entity_Player::Look()
 			}
 		}
 	}
+	Entity_GroundTile* groundTest = dynamic_cast<Entity_GroundTile*>(parent.second);
+	if (groundTest) {
 
+		if (groundTest->toNorth.second != -1)
+		{
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Notice;
+			o.information = groundTest->toNorth.first;
+			ObservationManager::Instance().MakeObservation(o);
+		}
+		if (groundTest->toEast.second != -1)
+		{
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Notice;
+			o.information = groundTest->toEast.first;
+			ObservationManager::Instance().MakeObservation(o);
+		}
+		if (groundTest->toSouth.second != -1)
+		{
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Notice;
+			o.information = groundTest->toSouth.first;
+			ObservationManager::Instance().MakeObservation(o);
+		}
+		if (groundTest->toWest.second != -1)
+		{
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Notice;
+			o.information = groundTest->toWest.first;
+			ObservationManager::Instance().MakeObservation(o);
+		}
+		
+	}
 
 }
 
@@ -186,9 +226,23 @@ void Entity_Player::Look(Entity* subject)
 	}
 }
 
+void Entity_Player::LookSelf()
+{
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(false,false, true);
+	for (int i = 0; i < nearbyEntities.size(); i++) {
+		if (nearbyEntities[i]->names.size() > 0) {
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Notice;
+			o.referenceEntity = nearbyEntities[i];
+			ObservationManager::Instance().MakeObservation(o);
+		}
+	}
+}
+
 Entity* Entity_Player::FindEntityByName(std::string entityName)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,true, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -200,7 +254,7 @@ Entity* Entity_Player::FindEntityByName(std::string entityName)
 }
 Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adjective)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,true,true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -219,7 +273,7 @@ Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adje
 
 Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adjective, std::vector<Position> positionBlacklist)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,true,true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -239,7 +293,7 @@ Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adje
 Entity* Entity_Player::FindEntityByName(std::string entityName, Position realitivePosition, std::string realitiveEntityName)
 {
 	
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,true,true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {

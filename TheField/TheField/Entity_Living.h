@@ -125,10 +125,10 @@ public:
 	std::vector<Languages> spokenLanguage;
 	std::vector<Languages> readingLanguage;
 	HealthStatus healthStatus = Healthy;
-	float nourishment = 50;
-	float hydration = 50;
-	float maxNourishment = 50;
-	float maxHydration = 50;
+	float nourishment = 150;
+	float hydration = 150;
+	float maxNourishment = 150;
+	float maxHydration = 150;
 	float bleedSpeed = 0.0f;
 	float bloodLevel = 192.0f;
 	float maxBloodLevel = 192.0f;

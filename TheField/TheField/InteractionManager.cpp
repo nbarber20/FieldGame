@@ -201,6 +201,15 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_Player* player)
 {
 	if (verb == "look") {
+		if (std::find(particles.begin(), particles.end(), "all") != particles.end()) {
+			player->Look();
+			player->LookSelf();
+			return Success;
+		}
+		if (std::find(particles.begin(), particles.end(), "self") != particles.end()) {
+			player->LookSelf();
+			return Success;
+		}
 		if (subject) {
 			player->Look(subject);
 			return Success;

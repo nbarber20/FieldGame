@@ -23,9 +23,10 @@ public:
 	virtual Entity_Player* Clone() {
 		return new Entity_Player(*this);
 	}
-	virtual std::vector<Entity*>  getVisibleEntities(bool getParent);
+	virtual std::vector<Entity*>  getVisibleEntities(bool getsurrounding, bool getParent, bool getSelf);
 	virtual void CheckForEvents();
 	virtual void Look();
+	virtual void LookSelf();
 	virtual void Look(Entity* subject);
 	virtual Entity* FindEntityByName(std::string entityName);
 	virtual Entity* FindEntityByName(std::string entityName, std::string adjective);

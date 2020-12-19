@@ -79,6 +79,7 @@ private:
 		"east",
 		"west",
 		"all",
+		"self",
 	};
 };
 

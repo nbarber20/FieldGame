@@ -272,6 +272,7 @@ Entity* World::GetEntityByID(int id, int worldID)
 	//If this tile is unloaded, load it now. Likely used due to an entity moving
 	if (std::find(loadedTiles.begin(), loadedTiles.end(), worldID) == loadedTiles.end()) {
 		LoadTile(worldID);
+		setupParents();
 	}
 	for (int i = 0; i < entities.size(); i++) {
 		if (entities[i]->uniqueEntityID == id && entities[i]->worldID == worldID) {
@@ -305,15 +306,16 @@ void World::MoveToTile(int tileName)
 	loadedTiles = newTiles;
 	entities.clear();
 	
+	loadedTiles.push_back(tileName);
 	//Load
 	LoadPlayer(false);
+	playerEntity->worldID = tileName;
 
-	loadedTiles.push_back(tileName);
 	currentPlayerTile = tileName;
 	for (int i = 0; i < loadedTiles.size(); i++) {
 		LoadTile(loadedTiles[i]);
 	}
-	playerEntity->SetParentOverride(On, currentGroundTile);
+	setupParents();
 }
 
 void World::SaveAll()
@@ -337,7 +339,7 @@ bool World::LoadAll(std::string filename)
 		for (int i = 0; i < loadedTiles.size(); i++) {
 			LoadTile(loadedTiles[i]);
 		}
-		playerEntity->SetParentOverride(On, currentGroundTile);
+		setupParents();
 	}
 	return true;
 }
@@ -386,7 +388,7 @@ void World::SavePlayer()
 		for (int i = 0; i < entities.size(); i++) {
 			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
 			if (p) {
-				entities[i]->worldID = -1;
+				entities[i]->worldID = currentPlayerTile;
 				entities[i]->WriteData(&file);
 			}
 			else if (entities[i]->IsChildOf(playerEntity) == true) {
@@ -463,7 +465,6 @@ void World::LoadPlayer(bool getLoadedTiles)
 			e->ReadData(&file);
 			entities.push_back(e);
 		}
-		setupParents();
 		file.close();
 	}
 }
@@ -552,7 +553,6 @@ void World::LoadTile(int tileID)
 			}			
 			entities.push_back(e);
 		}
-		setupParents();
 		file.close();
 	}
 }
@@ -567,6 +567,7 @@ bool World::CreateNewFile(std::string filename)
 	CopyFile("Data/WorldData/Player.bin", "Data/Saves/"+ currentFilename +"/Player.bin");
 	LoadPlayer(true);
 	LoadTile(0);
+	setupParents();
 	playerEntity->SetParentOverride(On, currentGroundTile);
 	return true;
 }
@@ -669,17 +670,11 @@ void World::setupParents()
 {
 	//Set parents
 	for (int i = 0; i < entities.size(); i++) {
-		Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
-		if (p == NULL) {
-			if (entities[i]->parentEntityID != -1) {
-				Entity_Room* room = dynamic_cast<Entity_Room*>(entities[i]);
-				if (room) {
-					entities[i]->SetParent((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
-				}
-				else {
-					entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
-				}
-			}
+		if (entities[i]->worldID != -1) {
+			entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
+		}
+		else {
+			entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, playerEntity);
 		}
 	}
 }
