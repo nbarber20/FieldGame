@@ -81,6 +81,7 @@ public:
 
 	virtual void WriteData(std::fstream* output) {
 		WriteStringData(typeID, output);
+		output->write((char*)&worldID, sizeof(int));
 		output->write((char*)&uniqueEntityID, sizeof(int));
 		int nameSize = names.size();
 		output->write((char*)&nameSize, sizeof(int));
@@ -108,6 +109,7 @@ public:
 		output->write((char*)&(parent.first), sizeof(int));
 	};
 	virtual void ReadData(std::fstream* input) {
+		input->read((char*)&worldID, sizeof(int));
 		input->read((char*)&uniqueEntityID, sizeof(int));
 		int nameSize;
 		input->read((char*)&nameSize, sizeof(int));
@@ -173,6 +175,7 @@ public:
 	int parentEntityDir = 0;
 
 
+	int worldID = 0;
 	int uniqueEntityID = 0;
 	std::vector <std::string> names;
 	std::string individualName;

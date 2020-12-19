@@ -15,37 +15,39 @@ public:
 	}
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);
-		WriteStringData(worldPos, output);
+		output->write((char*)&worldPos, sizeof(int));
+
 		WriteStringData(toNorth.first, output);
-		WriteStringData(toNorth.second, output);
+		output->write((char*)&(toNorth.second), sizeof(int));
 		WriteStringData(toEast.first, output);
-		WriteStringData(toEast.second, output);
+		output->write((char*)&(toEast.second), sizeof(int));
 		WriteStringData(toSouth.first, output);
-		WriteStringData(toSouth.second, output);
+		output->write((char*)&(toSouth.second), sizeof(int));
 		WriteStringData(toWest.first, output);
-		WriteStringData(toWest.second, output);
+		output->write((char*)&(toWest.second), sizeof(int));
 	};
 	virtual void ReadData(std::fstream* input) {
 		Entity::ReadData(input);
-		worldPos = ReadStringData(input);
-		std::string f, s;
+		input->read((char*)&worldPos, sizeof(int));
+		std::string f;
+		int s;
 		f = ReadStringData(input);
-		s = ReadStringData(input);
+		input->read((char*)&s, sizeof(int));
 		toNorth = std::make_pair(f, s);
 		f = ReadStringData(input);
-		s = ReadStringData(input);
+		input->read((char*)&s, sizeof(int));
 		toEast = std::make_pair(f, s);
 		f = ReadStringData(input);
-		s = ReadStringData(input);
+		input->read((char*)&s, sizeof(int));
 		toSouth = std::make_pair(f, s);
 		f = ReadStringData(input);
-		s = ReadStringData(input);
+		input->read((char*)&s, sizeof(int));
 		toWest = std::make_pair(f, s);
 	};
-	std::pair<std::string, std::string> toNorth;
-	std::pair<std::string, std::string> toEast;
-	std::pair<std::string, std::string> toSouth;
-	std::pair<std::string, std::string> toWest;
-	std::string worldPos = "000";
+	std::pair<std::string, int> toNorth = std::make_pair("",-1);
+	std::pair<std::string, int> toEast = std::make_pair("", -1);
+	std::pair<std::string, int> toSouth = std::make_pair("", -1);
+	std::pair<std::string, int> toWest = std::make_pair("", -1);
+	int worldPos = 0;
 };
 

@@ -161,28 +161,28 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		Entity_GroundTile* groundTest = dynamic_cast<Entity_GroundTile*>(player->parent.second);
 		if (groundTest) {
 			if (std::find(particles.begin(), particles.end(), "north") != particles.end()) {
-				if (groundTest->toNorth.second != "") {
+				if (groundTest->toNorth.second != -1) {
 					World::Instance().MoveToTile(groundTest->toNorth.second);
 					World::Instance().playerEntity->Look();
 					return Success;
 				}
 			}
 			else if (std::find(particles.begin(), particles.end(), "south") != particles.end()) {
-				if (groundTest->toSouth.second != "") {
+				if (groundTest->toSouth.second != -1) {
 					World::Instance().MoveToTile(groundTest->toSouth.second);
 					World::Instance().playerEntity->Look();
 					return Success;
 				}
 			}
 			else if (std::find(particles.begin(), particles.end(), "east") != particles.end()) {
-				if (groundTest->toEast.second != "") {
+				if (groundTest->toEast.second != -1) {
 					World::Instance().MoveToTile(groundTest->toEast.second);
 					World::Instance().playerEntity->Look();
 					return Success;
 				}
 			}
 			else if (std::find(particles.begin(), particles.end(), "west") != particles.end()) {
-				if (groundTest->toWest.second != "") {
+				if (groundTest->toWest.second != -1) {
 					World::Instance().MoveToTile(groundTest->toWest.second);
 					World::Instance().playerEntity->Look();
 					return Success;

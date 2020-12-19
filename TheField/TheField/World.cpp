@@ -52,38 +52,38 @@ void World::Tick()
 
 void World::Setup()
 {
+	
 	Entity_GroundTile* Ground = new Entity_GroundTile(GetUniqueID(),false, 0.0f, 60000.0f);
-	Ground->names = {"dirt","ground","grass"};
-	Ground->worldPos = "000";
-	currentTile = "000";
-	Ground->toSouth = std::make_pair("There is farmhouse to the south", "010");
+	Ground->names = { "dirt","ground","grass" };
+	currentTile = 1;
+	Ground->worldPos = 1;
+	Ground->toSouth = std::make_pair("There is a empty field to the south", 0);
 	entities.push_back(Ground);
 	
-
-	playerEntity = new Entity_Player(GetUniqueID(), false, 0.0f, 3783.0f);
+	playerEntity = new Entity_Player(GetUniqueID(),  false, 0.0f, 3783.0f);
 	playerEntity->names = { "you" };
-	playerEntity->SetParent(On, Ground);
+	playerEntity->SetParent(On, nullptr);
 	entities.push_back(playerEntity);
 
-	Entity_Container* backPack = new Entity_Container(GetUniqueID(), true, 1220.47f, 1221.0f);
+	Entity_Container* backPack = new Entity_Container(GetUniqueID(),  true, 1220.47f, 1221.0f);
 	backPack->names = { "backpack" };
 	backPack->SetParent(Back, playerEntity);
 	backPack->AddAdjective(Visual, "leather");
 	backPack->permiability = 4.5f;
 	entities.push_back(backPack);
 
-	Entity_Firearm* handGun = new Entity_Firearm(GetUniqueID(), 14.5f,Entity_Clip::Pistol);
+	Entity_Firearm* handGun = new Entity_Firearm(GetUniqueID(),  14.5f,Entity_Clip::Pistol);
 	handGun->names = { "handgun", "gun" };
 	handGun->SetParent(RightHand, playerEntity);
 	entities.push_back(handGun);
 
-	Entity_Clip* handGunAmmo = new Entity_Clip(GetUniqueID(), 7.f,7, Entity_Clip::Pistol);
+	Entity_Clip* handGunAmmo = new Entity_Clip(GetUniqueID(),  7.f,7, Entity_Clip::Pistol);
 	handGunAmmo->names = { "clip"};
 	entities.push_back(handGunAmmo);
 
 	handGun->Reload(handGunAmmo);
 
-	Entity_Mechanisim* club = new Entity_Mechanisim(GetUniqueID(), true, 0.0f, 14.5f);
+	Entity_Mechanisim* club = new Entity_Mechanisim(GetUniqueID(),  true, 0.0f, 14.5f);
 	club->names = { "club" };
 	std::vector<Task*> tasks3 = {
 		new Task_LogText(club,"You swing the club"),
@@ -93,7 +93,7 @@ void World::Setup()
 	club->SetParent(LeftHand, playerEntity);
 	entities.push_back(club);
 
-	/*
+	
 	Entity_Event* EnterFarmEvent = new Entity_Event(GetUniqueID());
 	EnterFarmEvent->setObservationConsumptionList({
 		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
@@ -103,7 +103,7 @@ void World::Setup()
 	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
 	entities.push_back(EnterFarmEvent);
 
-	Entity_Interior* House = new Entity_Interior(GetUniqueID(), false, 47520.0f, 47520.0f);
+	Entity_Interior* House = new Entity_Interior(GetUniqueID(),  false, 47520.0f, 47520.0f);
 	House->names = { "house","home"};
 	House->SetParent(On, Ground, 0, true, false);
 	House->AddAdjective(Visual, "brick");
@@ -114,7 +114,7 @@ void World::Setup()
 	entities.push_back(House);
 
 
-	Entity_Npc* NPC = new Entity_Npc(GetUniqueID(), false, 0.0f, 3783.0f);
+	Entity_Npc* NPC = new Entity_Npc(GetUniqueID(),  false, 0.0f, 3783.0f);
 	NPC->names = {"person"};
 	NPC->SetParent(OnFloor, House, 0, false,false);
 
@@ -144,32 +144,32 @@ void World::Setup()
 	EnterHouseEvent->SetParent(OnFloor, House, 0, false, false);
 	entities.push_back(EnterHouseEvent);
 
-	Entity* Toilet = new Entity_Container(GetUniqueID(), true, 369.6f, 1728.0f);
+	Entity* Toilet = new Entity_Container(GetUniqueID(),  true, 369.6f, 1728.0f);
 	Toilet->names = { "toilet" };
 	Toilet->SetParent(OnFloor, House, 2 ,true, false);
 	entities.push_back(Toilet);
 
-	Entity_Fluid* ToiletWater = new Entity_Fluid(GetUniqueID(), true, 0.0f, 200.0f);
+	Entity_Fluid* ToiletWater = new Entity_Fluid(GetUniqueID(),  true, 0.0f, 200.0f);
 	ToiletWater->names = { "water" };
 	ToiletWater->hydration = 10.0f;
 	ToiletWater->SetParent(Inside, Toilet);
 	entities.push_back(ToiletWater);
 
 
-	Entity* Bed = new Entity(GetUniqueID(), true, 0.0f, 50.0f);
+	Entity* Bed = new Entity(GetUniqueID(),  true, 0.0f, 50.0f);
 	Bed->names = { "bed" };
 	Bed->SetParent(OnFloor, House, 1, false, false);
 	entities.push_back(Bed);
 
 
-	Entity* Table = new Entity(GetUniqueID(), true, 0.0f, 1728.0f);
+	Entity* Table = new Entity(GetUniqueID(),  true, 0.0f, 1728.0f);
 	Table->names = { "table" };
 	Table->SetParent(OnFloor, House,0, false, false);
 	entities.push_back(Table);
 
 
 
-	Entity_Mechanisim* UselessButton = new Entity_Mechanisim(GetUniqueID(), true, 0.0f, 1728.0f);
+	Entity_Mechanisim* UselessButton = new Entity_Mechanisim(GetUniqueID(),  true, 0.0f, 1728.0f);
 	UselessButton->names = { "button" };
 	UselessButton->SetParent(On, Table);
 	std::vector<Task*> UselessButtontasks = {
@@ -179,7 +179,7 @@ void World::Setup()
 	UselessButton->AddBehavior(std::make_pair("press", UselessButtontasks));
 	entities.push_back(UselessButton);
 
-	Entity_Food* Potato = new Entity_Food(GetUniqueID(), true, 14.44f, 14.50f);
+	Entity_Food* Potato = new Entity_Food(GetUniqueID(),  true, 14.44f, 14.50f);
 	Potato->names = { "potato" };
 	Potato->lookInfo = "It's a cooked potato, still warm";
 	Potato->nutritionalValue = 35.0f;
@@ -187,14 +187,14 @@ void World::Setup()
 	entities.push_back(Potato);
 
 
-	Entity_Container* Cup = new Entity_Container(GetUniqueID(), true, 14.44f, 14.50f);
+	Entity_Container* Cup = new Entity_Container(GetUniqueID(),  true, 14.44f, 14.50f);
 	Cup->names = { "cup" };
 	Cup->SetParent(On, Table);
 	Cup->AddAdjective(Visual, "wooden");
 	entities.push_back(Cup);
 
 
-	Entity_Fluid* Tea = new Entity_Fluid(GetUniqueID(), true, 0.0f, 7.0f);
+	Entity_Fluid* Tea = new Entity_Fluid(GetUniqueID(),  true, 0.0f, 7.0f);
 	Tea->names = { "tea" };
 	Tea->SetParent(Inside, Cup);
 	Tea->AddAdjective(Taste, "bitter");
@@ -202,7 +202,7 @@ void World::Setup()
 	Tea->hydration = 45.0f;
 	entities.push_back(Tea);
 
-	Entity_Fluid* Tea2 = new Entity_Fluid(GetUniqueID(), true, 0.0f, 7.0f);
+	Entity_Fluid* Tea2 = new Entity_Fluid(GetUniqueID(),  true, 0.0f, 7.0f);
 	Tea2->names = { "tea" };
 	Tea2->SetParent(Inside, Cup);
 	Tea2->AddAdjective(Taste, "bitter");
@@ -210,20 +210,20 @@ void World::Setup()
 	Tea2->hydration = 35.0f;
 	entities.push_back(Tea2);
 
-	Entity* Cup2 = new Entity_Container(GetUniqueID(), true, 14.44f, 14.50f);
+	Entity* Cup2 = new Entity_Container(GetUniqueID(),  true, 14.44f, 14.50f);
 	Cup2->names = { "cup", "container" };
 	Cup2->SetParent(On, Table);
 	Cup2->AddAdjective(Visual, "ugly");
 	Cup2->AddAdjective(NameExtension, "liquid");
 	entities.push_back(Cup2);
 
-	Entity* Cup3 = new Entity_Container(GetUniqueID(), true, 14.44f, 14.50f);
+	Entity* Cup3 = new Entity_Container(GetUniqueID(),  true, 14.44f, 14.50f);
 	Cup3->names = { "cup" };
 	Cup3->SetParent(OnFloor, House, 0, false, false);
 	Cup3->AddAdjective(Visual, "glass");
 	entities.push_back(Cup3);
 
-	Entity_Fluid* Tea3 = new Entity_Fluid(GetUniqueID(), true, 0.0f, 0.0f);
+	Entity_Fluid* Tea3 = new Entity_Fluid(GetUniqueID(),  true, 0.0f, 0.0f);
 	Tea3->names = { "tea" };
 	Tea3->SetParent(Inside, Cup3);
 	Tea3->AddAdjective(Taste, "smooth");
@@ -231,30 +231,30 @@ void World::Setup()
 	Tea3->hydration = 35.0f;
 	entities.push_back(Tea3);
 	
-	Entity_Readable* Note = new Entity_Readable(GetUniqueID(), true, 0.0f, 0.0f);
+	Entity_Readable* Note = new Entity_Readable(GetUniqueID(),  true, 0.0f, 0.0f);
 	Note->requiredLanguage = English;
 	Note->text = "This is a note";
 	Note->names = { "note" };
 	Note->SetParent(On, Table);
 	entities.push_back(Note);
-	*/
+	
 }
 
-Entity* World::GetEntityByID(int id)
+Entity* World::GetEntityByID(int id, int worldID)
 {
 	for (int i = 0; i < entities.size(); i++) {
-		if (entities[i]->uniqueEntityID == id) {
+		if (entities[i]->uniqueEntityID == id && entities[i]->worldID == worldID) {
 			return entities[i];
 		}
 	}
 	return nullptr;
 }
 
-void World::MoveToTile(std::string tileName)
+void World::MoveToTile(int tileName)
 {
 	//Save
 	SavePlayer();
-	SaveTile("Data/LevelData/" + currentTile + ".bin");
+	SaveTile("Data/LevelData/" + std::to_string(currentTile) + ".bin", currentTile);
 	for (int i = 0; i < entities.size(); i++) {
 		delete entities[i];
 	}
@@ -263,23 +263,21 @@ void World::MoveToTile(std::string tileName)
 	//Load
 	LoadFile("Data/LevelData/Player.bin",true);
 	currentTile = tileName;
-	LoadFile("Data/LevelData/" + currentTile + ".bin",false);
+	LoadFile("Data/LevelData/" + std::to_string(currentTile) + ".bin",false);
 	playerEntity->SetParentOverride(On, currentGroundTile);
-	RedestributeUniqueIDs();
 }
 
 void World::SaveAll()
 {
 	SavePlayer();
-	SaveTile("Data/LevelData/" + currentTile + ".bin");
+	SaveTile("Data/LevelData/" + std::to_string(currentTile) + ".bin", currentTile);
 }
 
 void World::LoadAll()
 {
 	LoadFile("Data/LevelData/Player.bin", true);
-	LoadFile("Data/LevelData/"+currentTile+".bin",false);
+	LoadFile("Data/LevelData/"+ std::to_string(currentTile) +".bin",false);
 	playerEntity->SetParentOverride(On, currentGroundTile);
-	RedestributeUniqueIDs();
 }
 
 void World::SavePlayer()
@@ -291,9 +289,7 @@ void World::SavePlayer()
 	else {
 		file.clear();
 
-		size_t len = currentTile.size();
-		file.write((char*) & (len), sizeof(size_t));
-		file.write(currentTile.c_str(), len);
+		file.write((char*) & (currentTile), sizeof(int));
 
 		int numEntities = 0;
 		for (int i = 0; i < entities.size(); i++) {
@@ -310,9 +306,11 @@ void World::SavePlayer()
 		for (int i = 0; i < entities.size(); i++) {
 			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
 			if (p) {
+				entities[i]->worldID = -1;
 				entities[i]->WriteData(&file);
 			}
 			else if (entities[i]->IsChildOf(playerEntity) == true) {
+				entities[i]->worldID = -1;
 				entities[i]->WriteData(&file);
 			}
 		}
@@ -324,7 +322,7 @@ void World::SavePlayer()
 	}
 }
 
-void World::SaveTile(std::string filename) {
+void World::SaveTile(std::string filename, int worldID) {
 	std::fstream file(filename, std::ios::out | std::ios::binary);
 	if (!file) {
 		std::cout << "ERROR";
@@ -345,6 +343,7 @@ void World::SaveTile(std::string filename) {
 			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
 			if (p == NULL) {
 				if (entities[i]->IsChildOf(playerEntity) == false) {
+					entities[i]->worldID = worldID;
 					entities[i]->WriteData(&file);
 				}
 			}
@@ -365,14 +364,7 @@ void World::LoadFile(std::string filename, bool loadCurrentTile)
 	}
 	else {
 		if (loadCurrentTile) {
-
-			size_t namelen;
-			file.read((char*)& namelen, sizeof(size_t));
-			char* temp = new char[namelen + 1];
-			file.read(temp, namelen);
-			temp[namelen] = '\0';
-			currentTile = temp;
-			delete[] temp;
+			file.read((char*)& currentTile, sizeof(int));
 		}
 		int entitiesArrSize;
 		file.read((char*)&entitiesArrSize, sizeof(int));
@@ -456,7 +448,13 @@ void World::LoadFile(std::string filename, bool loadCurrentTile)
 			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
 			if (p == NULL) {
 				if (entities[i]->parentEntityID != -1) {
-					entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID));
+					Entity_Room* room = dynamic_cast<Entity_Room*>(entities[i]);
+					if (room) {
+						entities[i]->SetParent((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
+					}
+					else {
+						entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
+					}
 				}
 			}
 		}
@@ -464,13 +462,5 @@ void World::LoadFile(std::string filename, bool loadCurrentTile)
 
 
 		file.close();
-	}
-}
-
-void World::RedestributeUniqueIDs()
-{
-	uniqueID = 0;
-	for (int i = 0; i < entities.size(); i++) {
-		entities[i]->uniqueEntityID = GetUniqueID();
 	}
 }
