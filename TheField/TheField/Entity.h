@@ -82,7 +82,8 @@ public:
 	virtual void WriteData(std::fstream* output) {
 		WriteStringData(typeID, output);
 		output->write((char*)&worldID, sizeof(int));
-		output->write((char*)&uniqueEntityID, sizeof(int));
+		output->write((char*)& uniqueEntityID, sizeof(int));
+		output->write((char*)& worldActive, sizeof(bool));
 		int nameSize = names.size();
 		output->write((char*)&nameSize, sizeof(int));
 		for (int i = 0; i < nameSize; i++) {
@@ -110,7 +111,8 @@ public:
 	};
 	virtual void ReadData(std::fstream* input) {
 		input->read((char*)&worldID, sizeof(int));
-		input->read((char*)&uniqueEntityID, sizeof(int));
+		input->read((char*)& uniqueEntityID, sizeof(int));
+		input->read((char*)& worldActive, sizeof(bool));
 		int nameSize;
 		input->read((char*)&nameSize, sizeof(int));
 		for (int i = 0; i < nameSize; i++) {
@@ -173,6 +175,7 @@ public:
 	//UsedForLoading
 	int parentEntityID = -1;
 	int parentEntityDir = 0;
+	bool worldActive = false;
 
 
 	int worldID = 0;

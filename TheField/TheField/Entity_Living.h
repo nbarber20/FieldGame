@@ -29,9 +29,11 @@ public:
 	};
 	Entity_Living() {
 		typeID = "Entity_Living";
+		worldActive = true;
 	};
 	Entity_Living(int id, bool visibleInsides, float internalVolume, float size) :Entity(id, visibleInsides, internalVolume, size) {
 		typeID = "Entity_Living";
+		worldActive = true;
 	};
 	virtual ~Entity_Living() {};
 
@@ -49,6 +51,10 @@ public:
 		for (int j = 0; j < readingLanguageLen; j++) {
 			output->write((char*)&(readingLanguage[j]), sizeof(int));
 		}
+
+		output->write((char*)& homeID, sizeof(int));
+		output->write((char*)& homePosition, sizeof(int));
+		output->write((char*)& homeWorldID, sizeof(int));
 
 		output->write((char*)&healthStatus, sizeof(int));
 		output->write((char*)&nourishment, sizeof(float));
@@ -82,6 +88,10 @@ public:
 			readingLanguage.push_back((Languages)readLang);
 		}
 
+		input->read((char*)& homeID, sizeof(int));
+		input->read((char*)& homePosition, sizeof(int));
+		input->read((char*)& homeWorldID, sizeof(int));
+
 		input->read((char*)&healthStatus, sizeof(int));
 		input->read((char*)&nourishment, sizeof(float));
 		input->read((char*)&hydration, sizeof(float));
@@ -99,12 +109,18 @@ public:
 
 
 	virtual void Tick() override;
+
+	void SetHome(Position p, Entity* home);
+	void ReturnHome();
 	
 	void AddNourishment(float delta);
 	void AddHydration(float delta);
 	void TakeDamage(DamageType type, float multiplier, int lethalityLevel);
 	std::string GetHealthStatusString(HealthStatus s);
 
+	int homeID = -2;
+	Position homePosition = Inside;
+	int homeWorldID = -2;
 
 	std::vector<Languages> spokenLanguage;
 	std::vector<Languages> readingLanguage;

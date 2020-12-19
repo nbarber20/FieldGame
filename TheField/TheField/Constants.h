@@ -8,6 +8,7 @@ public:
 	const float mouthSize = 7.5f;
 	const float drinkableWaterThreshold = 231;
 	const bool godMode = true;
+	const float daySpeed = 3.0f;
 	sf::Color pallette1 = sf::Color(8,20,30);
 	sf::Color pallette2 = sf::Color(246, 214, 189);
 	sf::Color pallette3 = sf::Color(90, 185, 168);

@@ -8,8 +8,7 @@ Entity_Interior::~Entity_Interior()
 {
 	for (auto room : rooms)
 	{
-		Entity* e = World::Instance().GetEntityByID(room->roomEntityID, worldID);
-		World::Instance().RemoveEntity(e);
+		delete room;
 	}
 	rooms.clear();
 }
@@ -23,12 +22,14 @@ void Entity_Interior::AddRoom(std::string roomName, sf::Vector2i position, bool 
 	RoomEntity->parent = std::make_pair(OnFloor, this);
 	RoomEntity->parentEntityDir = (int)OnFloor;
 	RoomEntity->parentEntityID = this->uniqueEntityID;
+	RoomEntity->attachedToParent = true;
+	RoomEntity->worldID = this->worldID;
 	children.push_back(std::pair<Position, std::vector<Entity*>>(OnFloor, { RoomEntity }));
 	World::Instance().AddEntity(RoomEntity);
-	RoomEntity->attachedToParent = true;
 	newRoom->hasExteriorDoor = hasExterior;
 	newRoom->position = position;
 	newRoom->roomEntityID = RoomEntity->uniqueEntityID;
+	
 	rooms.push_back(newRoom);
 }
 

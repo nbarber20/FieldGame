@@ -9,22 +9,103 @@
 #include "Entity_Mechanisim.h"
 #include "Entity_GroundTile.h"
 #include "Entity_Firearm.h"
-
+#include <filesystem>
 void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 {
 	Entity_Player* player = World::Instance().playerEntity;
+	if (currentInteractionState == MainMenu) {
 
-	if (currentInteractionState == Intro) {
-		introStage++;
-		if (introStage == 1) {
-			textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("How did you die?", sf::Color::Yellow));
+		if (mainMenuStage == 0) {
+			if (input == "new") {
+				mainMenuStage = 1;
+				textdisplay->addLog(TextDisplay::Log("what is your name?", sf::Color::Yellow));
+				return;
+			}
+			else if (input == "load") {
+
+				int numfiles = 0;
+				for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
+					if (p.is_directory())numfiles++;
+				}
+				if (numfiles == 0) {
+					textdisplay->addLog(TextDisplay::Log("there are no files to load....", sf::Color::Yellow));
+					textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+					return;
+				}
+
+				mainMenuStage = 2;
+				textdisplay->addLog(TextDisplay::Log("which file?", sf::Color::Yellow));
+				for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
+					if (p.is_directory())textdisplay->addLog(TextDisplay::Log("     -"+p.path().filename().string(), sf::Color::Yellow));
+				}
+				return;
+			}
+			else if (input == "delete") {
+				int numfiles = 0;
+				for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
+					if (p.is_directory())numfiles++;
+				}
+				if (numfiles == 0) {
+					textdisplay->addLog(TextDisplay::Log("there are no files to delete....", sf::Color::Yellow));
+					textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+					return;
+				}
+
+				mainMenuStage = 3;
+				textdisplay->addLog(TextDisplay::Log("which file?", sf::Color::Yellow));
+					for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
+						if (p.is_directory())textdisplay->addLog(TextDisplay::Log("     -" + p.path().filename().string(), sf::Color::Yellow));
+					}
+				return;
+			}
+			else {
+				textdisplay->addLog(TextDisplay::Log("use new, load, or delete", sf::Color::Yellow));
+			}
 		}
-		else if (introStage == 2) {
+		else if (mainMenuStage == 1) {
+			if (World::Instance().CreateNewFile(input)) {
+				currentInteractionState = Intro;
+				textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
+				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				textdisplay->addLog(TextDisplay::Log("How did you die?", sf::Color::Yellow));
+			}
+			else {
+				textdisplay->addLog(TextDisplay::Log("error: cannot create save file", sf::Color::Yellow));
+				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				mainMenuStage = 0;
+			}
+		}
+		else if (mainMenuStage ==2) {
+			if (World::Instance().LoadAll(input)) {
+				textdisplay->addLog(TextDisplay::Log("... world loaded", sf::Color::Yellow));
+				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				currentInteractionState = WorldInteraction;
+			}
+			else {
+				textdisplay->addLog(TextDisplay::Log("error: cannot load file", sf::Color::Yellow));
+				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				mainMenuStage = 0;
+			}
+		}
+		else if (mainMenuStage == 3) {
+			if (World::Instance().DeleteFile(input)) {
+				textdisplay->addLog(TextDisplay::Log("File deleted...", sf::Color::Yellow));
+				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				mainMenuStage = 0;
+			}
+			else {
+				textdisplay->addLog(TextDisplay::Log("error cannot delete file", sf::Color::Yellow));
+				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				mainMenuStage = 0;
+			}
+		}
+
+	}
+	else if (currentInteractionState == Intro) {
+		if (introStage == 0) {
 			textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
 			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
-			textdisplay->addImage("Data/Field_Start.png");
+			textdisplay->addImage("Data/Art/Start.png");
 			textdisplay->addLog(TextDisplay::Log("You find yourself laying in a large grassy field. Its nearly sunset", sf::Color::Yellow));
 			textdisplay->addLog(TextDisplay::Log("Perhaps this is a dream", sf::Color::Yellow));
 			textdisplay->addLog(TextDisplay::Log("Perhaps this is a the afterlife", sf::Color::Yellow));
@@ -32,7 +113,11 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
 			currentInteractionState = WorldInteraction;
 		}
-
+		else {
+			//error state
+			introStage = 0;
+		}
+		introStage++;
 	}
 	else if (currentInteractionState == WorldInteraction) {
 		if (input == "again")

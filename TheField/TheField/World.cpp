@@ -18,6 +18,7 @@
 #include "Task.h"
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <iosfwd>
 World::World()
 {
@@ -47,17 +48,41 @@ void World::Tick()
 	for (int i = 0; i < entities.size(); i++) {
 		entities[i]->Tick();
 	}
+	worldTime+=constants.daySpeed;
+	if (worldTime > 75.f) {
+		if (sunSet == false) {
+			sunSet = true;
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Direct;
+			o.information = "The sun sets";
+			ObservationManager::Instance().MakeObservation(o);
+		}
+	}
+	if (worldTime > 100.f) {
+		sunSet = false;
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Look;
+		o.type = ObservationManager::TYPE_Direct;
+		o.information = "The sun rises";
+		ObservationManager::Instance().MakeObservation(o);
+		worldTime = 0;
+		day++;
+	}
 }
 
 
 void World::Setup()
 {
-	
+	currentFilename = "Development";
+	std::filesystem::create_directory("Data/Saves/" + currentFilename);
+	int worldID = 1;
+
 	Entity_GroundTile* Ground = new Entity_GroundTile(GetUniqueID(),false, 0.0f, 60000.0f);
 	Ground->names = { "dirt","ground","grass" };
-	currentTile = 1;
-	Ground->worldPos = 1;
-	Ground->toSouth = std::make_pair("There is a empty field to the south", 0);
+	loadedTiles = { worldID };
+	Ground->worldPos = worldID;
+	Ground->toNorth = std::make_pair("There is a empty field to the south", 0);
 	entities.push_back(Ground);
 	
 	playerEntity = new Entity_Player(GetUniqueID(),  false, 0.0f, 3783.0f);
@@ -94,11 +119,12 @@ void World::Setup()
 	entities.push_back(club);
 
 	
+	
 	Entity_Event* EnterFarmEvent = new Entity_Event(GetUniqueID());
 	EnterFarmEvent->setObservationConsumptionList({
 		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
 		});
-	EnterFarmEvent->EventImageFile = "Data/Farmhouse.png";
+	EnterFarmEvent->EventImageFile = "Data/Art/Farmhouse.png";
 	EnterFarmEvent->EventText = "You happen upon a farmhouse";
 	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
 	entities.push_back(EnterFarmEvent);
@@ -108,6 +134,7 @@ void World::Setup()
 	House->SetParent(On, Ground, 0, true, false);
 	House->AddAdjective(Visual, "brick");
 	House->AddAdjective(Inside, "cozy");
+	House->worldID = worldID;
 	House->AddRoom("living room", sf::Vector2i(0, 0), true);
 	House->AddRoom("bedroom", sf::Vector2i(0, 1), true);
 	House->AddRoom("bathroom", sf::Vector2i(1, 0), true);
@@ -242,6 +269,10 @@ void World::Setup()
 
 Entity* World::GetEntityByID(int id, int worldID)
 {
+	//If this tile is unloaded, load it now. Likely used due to an entity moving
+	if (std::find(loadedTiles.begin(), loadedTiles.end(), worldID) == loadedTiles.end()) {
+		LoadTile(worldID);
+	}
 	for (int i = 0; i < entities.size(); i++) {
 		if (entities[i]->uniqueEntityID == id && entities[i]->worldID == worldID) {
 			return entities[i];
@@ -254,42 +285,91 @@ void World::MoveToTile(int tileName)
 {
 	//Save
 	SavePlayer();
-	SaveTile("Data/LevelData/" + std::to_string(currentTile) + ".bin", currentTile);
+
+
+	for (int i = 0; i < loadedTiles.size(); i++) {
+		SaveTile(loadedTiles[i]);
+	}
+	std::vector<int> newTiles;
 	for (int i = 0; i < entities.size(); i++) {
+		Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
+		if (p == NULL) {
+			if (entities[i]->worldActive == true) {
+				if (std::find(loadedTiles.begin(), loadedTiles.end(), entities[i]->worldID) == loadedTiles.end()) {
+					newTiles.push_back(entities[i]->worldID);
+				}
+			}
+		}
 		delete entities[i];
 	}
+	loadedTiles = newTiles;
 	entities.clear();
 	
 	//Load
-	LoadFile("Data/LevelData/Player.bin",true);
-	currentTile = tileName;
-	LoadFile("Data/LevelData/" + std::to_string(currentTile) + ".bin",false);
+	LoadPlayer(false);
+
+	loadedTiles.push_back(tileName);
+	currentPlayerTile = tileName;
+	for (int i = 0; i < loadedTiles.size(); i++) {
+		LoadTile(loadedTiles[i]);
+	}
 	playerEntity->SetParentOverride(On, currentGroundTile);
 }
 
 void World::SaveAll()
 {
 	SavePlayer();
-	SaveTile("Data/LevelData/" + std::to_string(currentTile) + ".bin", currentTile);
+	for (int i = 0; i < loadedTiles.size(); i++) {
+		SaveTile(loadedTiles[i]);
+	}
 }
 
-void World::LoadAll()
+bool World::LoadAll(std::string filename)
 {
-	LoadFile("Data/LevelData/Player.bin", true);
-	LoadFile("Data/LevelData/"+ std::to_string(currentTile) +".bin",false);
-	playerEntity->SetParentOverride(On, currentGroundTile);
+	currentFilename = filename;
+
+	std::fstream file("Data/Saves/" + currentFilename + "/Player.bin", std::ios::in | std::ios::binary);
+	if (!file) {
+		return false;
+	}
+	else {
+		LoadPlayer(true);
+		for (int i = 0; i < loadedTiles.size(); i++) {
+			LoadTile(loadedTiles[i]);
+		}
+		playerEntity->SetParentOverride(On, currentGroundTile);
+	}
+	return true;
 }
 
 void World::SavePlayer()
 {
-	std::fstream file("Data/LevelData/Player.bin", std::ios::out | std::ios::binary);
+	std::fstream file("Data/Saves/"+ currentFilename +"/Player.bin", std::ios::out | std::ios::binary);
 	if (!file) {
-		std::cout << "ERROR";
+		errorCount++;
+		if (errorCount > 3) {
+			ThrowFileError("Error saving player");
+		}
+		else {
+			CopyFile("Data/WorldData/Player.bin", "Data/Saves/"+ currentFilename +"/Player.bin");
+			SavePlayer();
+			return;
+		}
 	}
 	else {
+		errorCount = 0;
 		file.clear();
 
-		file.write((char*) & (currentTile), sizeof(int));
+		file.write((char*)&day, sizeof(int));
+		file.write((char*)&worldTime, sizeof(float));
+		file.write((char*)& currentPlayerTile, sizeof(int));
+		int loadedTilesLen = loadedTiles.size();
+		file.write((char*)& loadedTilesLen, sizeof(int));
+		for (int j = 0; j < loadedTilesLen; j++) {
+			int loaded = loadedTiles[j];
+			file.write((char*)& loaded, sizeof(int));
+		}
+
 
 		int numEntities = 0;
 		for (int i = 0; i < entities.size(); i++) {
@@ -322,12 +402,87 @@ void World::SavePlayer()
 	}
 }
 
-void World::SaveTile(std::string filename, int worldID) {
-	std::fstream file(filename, std::ios::out | std::ios::binary);
+void World::LoadPlayer(bool getLoadedTiles)
+{
+	std::fstream file("Data/Saves/"+ currentFilename +"/Player.bin", std::ios::in | std::ios::binary);
 	if (!file) {
-		std::cout << "ERROR";
+		errorCount++;
+		if (errorCount > 3) {
+			ThrowFileError("Error loading player");
+		}
+		else {
+			CopyFile("Data/WorldData/Player.bin", "Data/Saves/"+ currentFilename +"/Player.bin");
+			LoadPlayer(getLoadedTiles);
+			return;
+		}
 	}
 	else {
+		errorCount = 0;
+		//Get loadedTiles from player
+
+
+		file.read((char*)&day, sizeof(int));
+		file.read((char*)&worldTime, sizeof(float));
+		if (getLoadedTiles) {
+
+			file.read((char*)&currentPlayerTile, sizeof(int));
+			loadedTiles.clear();
+			int loadedTilesLen;
+			file.read((char*)& loadedTilesLen, sizeof(int));
+			for (int j = 0; j < loadedTilesLen; j++) {
+				int loaded;
+				file.read((char*)& loaded, sizeof(int));
+				loadedTiles.push_back(loaded);
+			}
+		}
+		else {
+			int t;
+			file.read((char*)& t, sizeof(int));
+			int len;
+			file.read((char*)& len, sizeof(int));
+			for (int j = 0; j < len; j++) {
+				int loaded;
+				file.read((char*)& loaded, sizeof(int));
+			}
+		}
+
+		int entitiesArrSize;
+		file.read((char*)& entitiesArrSize, sizeof(int));
+		for (int i = 0; i < entitiesArrSize; i++) {
+
+			std::string entityObjType;
+			size_t namelen;
+			file.read((char*)& namelen, sizeof(size_t));
+			char* temp = new char[namelen + 1];
+			file.read(temp, namelen);
+			temp[namelen] = '\0';
+			entityObjType = temp;
+			delete[] temp;
+
+			Entity* e = genEntity(entityObjType);
+			e->ReadData(&file);
+			entities.push_back(e);
+		}
+		setupParents();
+		file.close();
+	}
+}
+
+void  World::SaveTile(int tileID){
+	std::fstream file("Data/Saves/"+ currentFilename +"/" + std::to_string(tileID) + ".bin", std::ios::out | std::ios::binary);
+	if (!file) {
+		errorCount++;
+		if (errorCount > 3) {
+			ThrowFileError("Error saving tile data");
+		}
+		else {
+			CopyFile("Data/WorldData/" + std::to_string(tileID) + ".bin", "Data/Saves/"+ currentFilename +"/" + std::to_string(tileID) + ".bin");
+			SaveTile(tileID);
+			return;
+		}
+	}
+	else {
+		errorCount = 0;
 		file.clear();
 		int numEntities = 0;
 		for (int i = 0; i < entities.size(); i++) {
@@ -343,7 +498,7 @@ void World::SaveTile(std::string filename, int worldID) {
 			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
 			if (p == NULL) {
 				if (entities[i]->IsChildOf(playerEntity) == false) {
-					entities[i]->worldID = worldID;
+					entities[i]->worldID = tileID;
 					entities[i]->WriteData(&file);
 				}
 			}
@@ -356,16 +511,23 @@ void World::SaveTile(std::string filename, int worldID) {
 	}
 }
 
-void World::LoadFile(std::string filename, bool loadCurrentTile)
+void World::LoadTile(int tileID)
 {
-	std::fstream file(filename, std::ios::in | std::ios::binary);
+	if (tileID < 0)return;
+	std::fstream file("Data/Saves/"+ currentFilename +"/" + std::to_string(tileID) + ".bin", std::ios::in | std::ios::binary);
 	if (!file) {
-		std::cout << "ERROR";
+		errorCount++;
+		if (errorCount > 3) {
+			ThrowFileError("Error loading tile data");
+		}
+		else {
+			CopyFile("Data/WorldData/" + std::to_string(tileID) + ".bin", "Data/Saves/"+ currentFilename +"/" + std::to_string(tileID) + ".bin");
+			LoadTile(tileID);
+			return;
+		}
 	}
 	else {
-		if (loadCurrentTile) {
-			file.read((char*)& currentTile, sizeof(int));
-		}
+		errorCount = 0;
 		int entitiesArrSize;
 		file.read((char*)&entitiesArrSize, sizeof(int));
 		for (int i = 0; i < entitiesArrSize; i++) {
@@ -379,88 +541,145 @@ void World::LoadFile(std::string filename, bool loadCurrentTile)
 			entityObjType = temp;
 			delete[] temp;
 
-			Entity* e;
-			if (entityObjType == "Entity_Clip") {
-				e = new Entity_Clip();
-			}
-			else if (entityObjType == "Entity_Constructed") {
-				e = new Entity_Constructed();
-			}
-			else if (entityObjType == "Entity_Container") {
-				e = new Entity_Container();
-			}
-			else if (entityObjType == "Entity_Event") {
-				e = new Entity_Event();
-			}
-			else if (entityObjType == "Entity_Firearm") {
-				e = new Entity_Firearm();
-			}
-			else if (entityObjType == "Entity_Fluid") {
-				e = new Entity_Fluid();
-			}
-			else if (entityObjType == "Entity_Food") {
-				e = new Entity_Food();
-			}
-			else if (entityObjType == "Entity_GroundTile") {
-				Entity_GroundTile* eg = new Entity_GroundTile();
-				currentGroundTile = eg;
-				e = eg;
-			}
-			else if (entityObjType == "Entity_Interior") {
-				e = new Entity_Interior();
-			}
-			else if (entityObjType == "Entity_Living") {
-				e = new Entity_Living();
-			}
-			else if (entityObjType == "Entity_Mechanisim") {
-				e = new Entity_Mechanisim();
-			}
-			else if (entityObjType == "Entity_Npc") {
-				e = new Entity_Npc();
-			}
-			else if (entityObjType == "Entity_Player") {
-				Entity_Player* ep = new Entity_Player();
-				playerEntity = ep;
-				e = ep;
-			}
-			else if (entityObjType == "Entity_Readable") {
-				e = new Entity_Readable();
-			}
-			else if (entityObjType == "Entity_Room") {
-				e = new Entity_Room();
-			}
-			else {
-				if (entityObjType != "Entity") {
-					ObservationManager::Observation o = ObservationManager::Observation();
-					o.sense = ObservationManager::SENSE_Look;
-					o.type = ObservationManager::TYPE_Direct;
-					o.information = "ERROR: "+ entityObjType+" not defined";
-					ObservationManager::Instance().MakeObservation(o);
-				}
-				e = new Entity();
-			}
+			Entity* e = genEntity(entityObjType);
 			e->ReadData(&file);
+			//Get the ground tile to put the player on TODO: maybe a better way of finding where to parent player
+			Entity_GroundTile* groundTile = dynamic_cast<Entity_GroundTile*>(e);
+			if (groundTile) {
+				if (groundTile->worldID == currentPlayerTile) {
+					currentGroundTile = groundTile;
+				}
+			}			
 			entities.push_back(e);
 		}
+		setupParents();
+		file.close();
+	}
+}
 
-		//Set parents
-		for (int i = 0; i < entities.size(); i++) {
-			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
-			if (p == NULL) {
-				if (entities[i]->parentEntityID != -1) {
-					Entity_Room* room = dynamic_cast<Entity_Room*>(entities[i]);
-					if (room) {
-						entities[i]->SetParent((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
-					}
-					else {
-						entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
-					}
+bool World::CreateNewFile(std::string filename)
+{
+	if (std::filesystem::create_directory("Data/Saves/" + filename) == false)
+	{
+		return false;
+	}
+	currentFilename = filename;
+	CopyFile("Data/WorldData/Player.bin", "Data/Saves/"+ currentFilename +"/Player.bin");
+	LoadPlayer(true);
+	LoadTile(0);
+	playerEntity->SetParentOverride(On, currentGroundTile);
+	return true;
+}
+
+bool World::DeleteFile(std::string filename)
+{
+	if (std::filesystem::remove_all("Data/Saves/" + filename) == false)
+	{
+		return false;
+	}
+	return true;
+}
+
+void World::CopyFile(std::string from, std::string to)
+{
+	std::ifstream src;
+	std::ofstream dst;
+
+	src.open(from, std::ios::in | std::ios::binary);
+	if (src) {
+		dst.open(to, std::ios::out | std::ios::binary);
+		dst << src.rdbuf();
+
+		src.close();
+		dst.close();
+	}
+}
+
+void World::ThrowFileError(std::string error)
+{
+	errorCount = 0;
+	ObservationManager::Observation o = ObservationManager::Observation();
+	o.sense = ObservationManager::SENSE_Look;
+	o.type = ObservationManager::TYPE_Direct;
+	o.information = error;
+	ObservationManager::Instance().MakeObservation(o);
+}
+
+Entity* World::genEntity(std::string entityObjType)
+{
+	if (entityObjType == "Entity_Clip") {
+		return new Entity_Clip();
+	}
+	else if (entityObjType == "Entity_Constructed") {
+		return new Entity_Constructed();
+	}
+	else if (entityObjType == "Entity_Container") {
+		return new Entity_Container();
+	}
+	else if (entityObjType == "Entity_Event") {
+		return new Entity_Event();
+	}
+	else if (entityObjType == "Entity_Firearm") {
+		return new Entity_Firearm();
+	}
+	else if (entityObjType == "Entity_Fluid") {
+		return new Entity_Fluid();
+	}
+	else if (entityObjType == "Entity_Food") {
+		return new Entity_Food();
+	}
+	else if (entityObjType == "Entity_GroundTile") {
+		return new Entity_GroundTile();
+	}
+	else if (entityObjType == "Entity_Interior") {
+		return new Entity_Interior();
+	}
+	else if (entityObjType == "Entity_Living") {
+		return new Entity_Living();
+	}
+	else if (entityObjType == "Entity_Mechanisim") {
+		return new Entity_Mechanisim();
+	}
+	else if (entityObjType == "Entity_Npc") {
+		return new Entity_Npc();
+	}
+	else if (entityObjType == "Entity_Player") {
+		Entity_Player* ep = new Entity_Player();
+		playerEntity = ep;
+		return ep;
+	}
+	else if (entityObjType == "Entity_Readable") {
+		return new Entity_Readable();
+	}
+	else if (entityObjType == "Entity_Room") {
+		return new Entity_Room();
+	}
+
+	if (entityObjType != "Entity") {
+		ObservationManager::Observation o = ObservationManager::Observation();
+		o.sense = ObservationManager::SENSE_Look;
+		o.type = ObservationManager::TYPE_Direct;
+		o.information = "ERROR: " + entityObjType + " not defined";
+		ObservationManager::Instance().MakeObservation(o);
+	}
+	return new Entity();
+}
+
+void World::setupParents()
+{
+	//Set parents
+	for (int i = 0; i < entities.size(); i++) {
+		Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
+		if (p == NULL) {
+			if (entities[i]->parentEntityID != -1) {
+				Entity_Room* room = dynamic_cast<Entity_Room*>(entities[i]);
+				if (room) {
+					entities[i]->SetParent((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
+				}
+				else {
+					entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
 				}
 			}
 		}
-
-
-
-		file.close();
 	}
 }

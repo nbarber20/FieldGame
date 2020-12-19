@@ -13,6 +13,7 @@ private:
 	
 	enum InteractionState
 	{
+		MainMenu,
 		Intro,
 		WorldInteraction,
 		Dialog,
@@ -41,8 +42,9 @@ public:
 	void LogDialog();
 	bool FindParticleInput(std::string toFind);
 private:
-	InteractionState currentInteractionState = Intro;
+	InteractionState currentInteractionState = MainMenu;
 	int introStage = 0;
+	int mainMenuStage = 0;
 	Constants constants;
 	
 	std::string lastInput;

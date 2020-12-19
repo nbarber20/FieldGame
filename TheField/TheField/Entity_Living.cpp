@@ -1,9 +1,15 @@
 #include "pch.h"
 #include "Entity_Living.h"
 #include "ObservationManager.h"
+#include "World.h"
 void Entity_Living::Tick()
 {
 	Entity::Tick();
+
+	if (homeID == -2) { //No home, set it here
+		SetHome(this->parent.first, this->parent.second);
+	}
+
 	if (dead == false) {
 		nourishment -= 0.5f;
 		hydration--;
@@ -69,6 +75,26 @@ void Entity_Living::Tick()
 			}
 		}
 	}	
+}
+
+void Entity_Living::SetHome(Position p, Entity* home)
+{
+	if (home == nullptr) {
+		homeID = -1;
+		homeWorldID = this->worldID;
+		homePosition = p;
+	}
+	else {
+		homeID = home->uniqueEntityID;
+		homeWorldID = home->worldID;
+		homePosition = p;
+	}
+}
+
+void Entity_Living::ReturnHome()
+{
+	Entity* homeEntity = World::Instance().GetEntityByID(homeID, homeWorldID);
+	SetParent(homePosition,homeEntity);
 }
 
 void Entity_Living::TakeDamage(DamageType type, float multiplier, int lethalityLevel) {
