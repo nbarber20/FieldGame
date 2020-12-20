@@ -35,7 +35,7 @@ public:
 				displayTex->setPosition(0, scrollPos + yOffset);
 				displayTex->setString(logs[i].logText);
 				window->draw(*displayTex);
-				yOffset += 16;
+				yOffset += 20;
 			}
 		}
 	}

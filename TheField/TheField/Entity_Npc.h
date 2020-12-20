@@ -12,6 +12,7 @@ public:
 		typeID = "Entity_Npc";
 		spokenLanguage.push_back(English);
 		readingLanguage.push_back(English);
+		countable = false;
 	}
 	virtual ~Entity_Npc() {
 		delete dialogTree;

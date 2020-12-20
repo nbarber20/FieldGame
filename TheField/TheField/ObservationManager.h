@@ -50,6 +50,7 @@ public:
 		std::string lastState;
 		std::string information;
 		std::string imageFile;
+		int depth;
 		bool displayed = false;
 	};
 	ObservationManager() {};

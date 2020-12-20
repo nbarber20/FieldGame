@@ -16,6 +16,7 @@ public:
 	{
 		typeID = "Entity_Interior";
 		this->countable = false;
+		this->visibleInsides = false;
 	}
 	virtual ~Entity_Interior();
 

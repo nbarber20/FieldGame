@@ -170,6 +170,7 @@ public:
 	std::string GetRandomAdjective(Position p);
 	bool CheckforNameMatch(Entity* toCompare);
 	bool IsChildOf(Entity* toCompare);
+	int getChildDepth();
 
 
 	//UsedForLoading

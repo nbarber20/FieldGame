@@ -248,6 +248,19 @@ bool Entity::IsChildOf(Entity* toCompare)
 	return false;
 }
 
+int Entity::getChildDepth()
+{
+	int depth = 0;
+	Entity* parentCheck = this->parent.second;
+	do {
+		if (parentCheck != nullptr) {
+			parentCheck = parentCheck->parent.second;
+			depth++;
+		}
+	} while (parentCheck != nullptr&& depth<10);
+	return depth;
+}
+
 void Entity::AddChild(Position pos, Entity* toAdd, int roomIndex)
 {
 

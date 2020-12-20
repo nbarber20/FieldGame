@@ -10,6 +10,7 @@ public:
 	{
 		typeID = "Entity_Room";
 		this->countable = false;
+		this->visibleInsides = false;
 	};
 	virtual ~Entity_Room() {};
 	virtual void WriteData(std::fstream* output) {

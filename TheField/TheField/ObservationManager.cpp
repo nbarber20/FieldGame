@@ -25,6 +25,14 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 		bool prepositionNoun=false;
 		bool plural = false;
 		int pluralCount = 0;
+		std::string depthTab= "";
+
+		if (o.depth > 0) {
+			for (int i = 0; i < o.depth; i++) {
+				depthTab += "   ";
+			}
+			depthTab += "-";
+		}
 
 		if (e != nullptr) {
 			if (e->names.size() > 0) {
@@ -78,46 +86,33 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 			else {
 				if (e->parent.second == playerEntity) 
 				{
-					textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " your " + GetComponentName(e->parent.first), sf::Color::Yellow));
-				}
-				else if (e->parent == playerEntity->parent) {
-					if (e->size < constants.smallItemMaxThreshold) {
-						if (prepositionNoun) {
-							textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
-						}
-						else {
-							textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
-						}
-					}
-					else {
-						textDisplay->addLog(TextDisplay::Log("You see " + indefdefrefNameADJ, sf::Color::Yellow));
-					}
+					textDisplay->addLog(TextDisplay::Log(depthTab+"There is " + indefdefrefNameADJ + " " + preposition + " your " + GetComponentName(e->parent.first), sf::Color::Yellow));
 				}
 				else {
 					if (plural) {
 						if (e->size < constants.smallItemMaxThreshold) {
 							if (prepositionNoun) {
-								textDisplay->addLog(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition, sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log(depthTab + "There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition, sf::Color::Yellow));
 							}
 							else {
-								textDisplay->addLog(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log(depthTab + "There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 							}
 						}
 						else {
-							textDisplay->addLog(TextDisplay::Log("There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s here", sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log(depthTab + "There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s here", sf::Color::Yellow));
 						}
 					}
 					else {
 						if (e->size < constants.smallItemMaxThreshold) {
 							if (prepositionNoun) {
-								textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log(depthTab + "There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
 							}
 							else {
-								textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log(depthTab + "There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 							}
 						}
 						else {
-							textDisplay->addLog(TextDisplay::Log("There is " + indefdefrefNameADJ + " here", sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log(depthTab + "There is " + indefdefrefNameADJ + " here", sf::Color::Yellow));
 						}
 					}
 				}
