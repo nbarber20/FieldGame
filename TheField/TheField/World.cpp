@@ -20,6 +20,7 @@
 #include <fstream>
 #include <filesystem>
 #include <iosfwd>
+#include <windows.h>
 World::World()
 {
 }
@@ -353,7 +354,7 @@ void World::SavePlayer()
 			ThrowFileError("Error saving player");
 		}
 		else {
-			CopyFile("Data/WorldData/Player.bin", "Data/Saves/"+ currentFilename +"/Player.bin");
+			CopyGameFile("Data/WorldData/Player.bin", "Data/Saves/"+ currentFilename +"/Player.bin");
 			SavePlayer();
 			return;
 		}
@@ -413,7 +414,7 @@ void World::LoadPlayer(bool getLoadedTiles)
 			ThrowFileError("Error loading player");
 		}
 		else {
-			CopyFile("Data/WorldData/Player.bin", "Data/Saves/"+ currentFilename +"/Player.bin");
+			CopyGameFile("Data/WorldData/Player.bin", "Data/Saves/"+ currentFilename +"/Player.bin");
 			LoadPlayer(getLoadedTiles);
 			return;
 		}
@@ -477,7 +478,7 @@ void  World::SaveTile(int tileID){
 			ThrowFileError("Error saving tile data");
 		}
 		else {
-			CopyFile("Data/WorldData/" + std::to_string(tileID) + ".bin", "Data/Saves/"+ currentFilename +"/" + std::to_string(tileID) + ".bin");
+			CopyGameFile("Data/WorldData/" + std::to_string(tileID) + ".bin", "Data/Saves/"+ currentFilename +"/" + std::to_string(tileID) + ".bin");
 			SaveTile(tileID);
 			return;
 		}
@@ -522,7 +523,7 @@ void World::LoadTile(int tileID)
 			ThrowFileError("Error loading tile data");
 		}
 		else {
-			CopyFile("Data/WorldData/" + std::to_string(tileID) + ".bin", "Data/Saves/"+ currentFilename +"/" + std::to_string(tileID) + ".bin");
+			CopyGameFile("Data/WorldData/" + std::to_string(tileID) + ".bin", "Data/Saves/"+ currentFilename +"/" + std::to_string(tileID) + ".bin");
 			LoadTile(tileID);
 			return;
 		}
@@ -557,7 +558,7 @@ void World::LoadTile(int tileID)
 	}
 }
 
-bool World::CreateNewFile(std::string filename)
+bool World::CreateNewGameFile(std::string filename)
 {
 	std::filesystem::create_directory("Data/Saves/");
 	if (std::filesystem::create_directory("Data/Saves/" + filename) == false)
@@ -565,7 +566,7 @@ bool World::CreateNewFile(std::string filename)
 		return false;
 	}
 	currentFilename = filename;
-	CopyFile("Data/WorldData/Player.bin", "Data/Saves/"+ currentFilename +"/Player.bin");
+	CopyGameFile("Data/WorldData/Player.bin", "Data/Saves/"+ currentFilename +"/Player.bin");
 	LoadPlayer(true);
 	LoadTile(0);
 	setupParents();
@@ -573,7 +574,7 @@ bool World::CreateNewFile(std::string filename)
 	return true;
 }
 
-bool World::DeleteFile(std::string filename)
+bool World::DeleteGameFile(std::string filename)
 {
 	std::filesystem::create_directory("Data/Saves/");
 	if (std::filesystem::remove_all("Data/Saves/" + filename) == false)
@@ -583,7 +584,7 @@ bool World::DeleteFile(std::string filename)
 	return true;
 }
 
-void World::CopyFile(std::string from, std::string to)
+void World::CopyGameFile(std::string from, std::string to)
 {
 	std::ifstream src;
 	std::ofstream dst;
@@ -595,6 +596,11 @@ void World::CopyFile(std::string from, std::string to)
 
 		src.close();
 		dst.close();
+	}
+	else {
+		std::string s = "Important Game Data is Missing!(" + from + ")";
+		MessageBoxA(NULL, s.c_str(), "ERROR" , MB_OK);
+		exit(EXIT_FAILURE);
 	}
 }
 

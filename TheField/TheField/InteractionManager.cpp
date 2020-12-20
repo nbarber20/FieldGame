@@ -65,7 +65,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 			}
 		}
 		else if (mainMenuStage == 1) {
-			if (World::Instance().CreateNewFile(input)) {
+			if (World::Instance().CreateNewGameFile(input)) {
 				currentInteractionState = Intro;
 				textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
 				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
@@ -90,7 +90,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 			}
 		}
 		else if (mainMenuStage == 3) {
-			if (World::Instance().DeleteFile(input)) {
+			if (World::Instance().DeleteGameFile(input)) {
 				textdisplay->addLog(TextDisplay::Log("File deleted...", sf::Color::Yellow));
 				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
 				mainMenuStage = 0;

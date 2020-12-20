@@ -24,9 +24,9 @@ public:
 	void LoadPlayer(bool getLoadedTiles);
 	void SaveTile(int tileID);
 	void LoadTile(int tileID);
-	bool CreateNewFile(std::string filename);
-	bool DeleteFile(std::string filename);
-	void CopyFile(std::string from,std::string to);
+	bool CreateNewGameFile(std::string filename);
+	bool DeleteGameFile(std::string filename);
+	void CopyGameFile(std::string from,std::string to);
 	void ThrowFileError(std::string error);
 
 	Entity* genEntity(std::string entityObjType);
