@@ -559,6 +559,7 @@ void World::LoadTile(int tileID)
 
 bool World::CreateNewFile(std::string filename)
 {
+	std::filesystem::create_directory("Data/Saves/");
 	if (std::filesystem::create_directory("Data/Saves/" + filename) == false)
 	{
 		return false;
@@ -574,6 +575,7 @@ bool World::CreateNewFile(std::string filename)
 
 bool World::DeleteFile(std::string filename)
 {
+	std::filesystem::create_directory("Data/Saves/");
 	if (std::filesystem::remove_all("Data/Saves/" + filename) == false)
 	{
 		return false;

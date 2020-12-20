@@ -24,6 +24,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 			else if (input == "load") {
 
 				int numfiles = 0;
+				std::filesystem::create_directory("Data/Saves/");
 				for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
 					if (p.is_directory())numfiles++;
 				}
@@ -42,6 +43,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 			}
 			else if (input == "delete") {
 				int numfiles = 0;
+				std::filesystem::create_directory("Data/Saves/");
 				for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
 					if (p.is_directory())numfiles++;
 				}
