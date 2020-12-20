@@ -8,3 +8,4 @@ TheField/.vs/
 TheField/x64/
 TheField/TheField/TheField.vcxproj
 TheField/TheField/Data/Saves/
+!TheField/TheField/Data/Saves/Development/
