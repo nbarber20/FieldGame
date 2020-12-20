@@ -34,7 +34,6 @@ public:
 	Entity_Living(int id, bool visibleInsides, float internalVolume, float size) :Entity(id, visibleInsides, internalVolume, size) {
 		typeID = "Entity_Living";
 		worldActive = true;
-		countable = true;
 	};
 	virtual ~Entity_Living() {};
 

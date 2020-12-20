@@ -49,7 +49,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 					if (observations[j].displayed == false) {
 						if (o.sense == observations[j].sense && o.type == observations[j].type &&  observations[j].referenceEntity != nullptr) {
 							if (observations[j].referenceEntity != e) {
-								if (e->parent == observations[j].referenceEntity->parent && e->countable == true)
+								if (e->parent == observations[j].referenceEntity->parent && e->countable == true&& e->individualName =="")
 								{
 									if (e->CheckforNameMatch(observations[j].referenceEntity))
 									{
@@ -68,7 +68,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 				if (ADJ == " ")ADJ = "";
 				defrefName = "the " + e->names[0];
 				defrefNameADJ = "the " + ADJ + e->names[0];
-				if (e->countable&& plural == false) {
+				if (e->countable&& plural == false && e->individualName == "") {
 					indefdefrefName = "a " + e->names[0];
 					indefdefrefNameADJ = "a " + ADJ + e->names[0];
 				}
@@ -144,21 +144,21 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 				}
 				else {
 					if (prepositionNoun) {
-						textDisplay->addLog(TextDisplay::Log(defrefName + " is now " + preposition, sf::Color::Yellow));
+						textDisplay->addLog(TextDisplay::Log(defrefNameADJ+ " is now " + preposition, sf::Color::Yellow));
 					}
 					else {
 						if (e->parent.second != nullptr) {
-							textDisplay->addLog(TextDisplay::Log(defrefName + " is now " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log(defrefNameADJ + " is now " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 						}
 					}
 				}
 			}
 		}
 		if (o.type == TYPE_Rotation) {
-			textDisplay->addLog(TextDisplay::Log(defrefName + " is now " + RotationToString(e->rotation), sf::Color::Yellow));
+			textDisplay->addLog(TextDisplay::Log(defrefNameADJ + " is now " + RotationToString(e->rotation), sf::Color::Yellow));
 		}
 		if (o.type == TYPE_FacingDirection) {
-			textDisplay->addLog(TextDisplay::Log(defrefName + " is now facing " + FacingDirectionToString(e->facingDirection), sf::Color::Yellow));
+			textDisplay->addLog(TextDisplay::Log(defrefNameADJ + " is now facing " + FacingDirectionToString(e->facingDirection), sf::Color::Yellow));
 		}
 		lastType = o.type;
 	}

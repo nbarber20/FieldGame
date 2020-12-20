@@ -77,38 +77,65 @@ void World::Setup()
 {
 	currentFilename = "Development";
 	std::filesystem::create_directory("Data/Saves/" + currentFilename);
-	int worldID = 0;
+	int worldID = 3;
 
 	Entity_GroundTile* Ground = new Entity_GroundTile(GetUniqueID(), false, 0.0f, 60000.0f);
 	Ground->names = { "dirt","ground","grass" };
 	loadedTiles = { worldID };
 	Ground->worldPos = worldID;
-	Ground->toWest = std::make_pair("There is a people on horses to the west", 3);
-	Ground->toNorth = std::make_pair("There is a farmhouse to the north", 1);
+	Ground->toEast = std::make_pair("There is a empty field to the east", 0);
 	entities.push_back(Ground);
- 
-	playerEntity = new Entity_Player(GetUniqueID(), false, 0.0f, 3783.0f);
-	playerEntity->names = { "you" };
-	playerEntity->SetParent(On, Ground);
-	entities.push_back(playerEntity);
 
-	Entity_Container* backPack = new Entity_Container(GetUniqueID(), true, 1220.47f, 1221.0f);
-	backPack->names = { "backpack" };
-	backPack->SetParent(Back, playerEntity);
-	backPack->AddAdjective(Visual, "leather");
-	backPack->permiability = 4.5f;
-	entities.push_back(backPack);
+	Entity_Event* EnterFarmEvent = new Entity_Event(GetUniqueID());
+	EnterFarmEvent->setObservationConsumptionList({
+		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
+		});
+	EnterFarmEvent->EventImageFile = "Data/Art/Horses.png";
+	EnterFarmEvent->EventText = "There are two people in swat-like armor mounted on horses. ";
+	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
+	entities.push_back(EnterFarmEvent);
 
-	Entity_Firearm* handGun = new Entity_Firearm(GetUniqueID(), 14.5f, Entity_Clip::Pistol);
-	handGun->names = { "handgun", "gun" };
-	handGun->SetParent(RightHand, playerEntity);
-	entities.push_back(handGun);
+	Entity_Living* Horse = new Entity_Living(GetUniqueID(), false, 0.0f, 3783.0f);
+	Horse->names = { "horse" };
+	Horse->AddAdjective(Visual, "white");
+	Horse->SetParent(On, Ground);
+	entities.push_back(Horse);
 
-	Entity_Clip* handGunAmmo = new Entity_Clip(GetUniqueID(), 7.f, 7, Entity_Clip::Pistol);
-	handGunAmmo->names = { "clip" };
-	entities.push_back(handGunAmmo);
+	Entity_Npc* NPC = new Entity_Npc(GetUniqueID(), false, 0.0f, 3783.0f);
+	NPC->names = { "person" };
+	NPC->AddAdjective(Visual, "masked");
+	NPC->SetParent(On, Horse);
 
-	handGun->Reload(handGunAmmo);
+	DialogTree* tree = new DialogTree();
+	DialogTree::DialogNode node1;
+	node1.dialog = "The masked man shouts: \"anomaly research, stand back!\"";
+	tree->TreeNodes.push_back(node1);
+
+	//Finish npc setup
+	NPC->dialogTree = tree;
+	entities.push_back(NPC);
+
+
+	Entity_Living* Horse2 = new Entity_Living(GetUniqueID(), false, 0.0f, 3783.0f);
+	Horse2->names = { "horse" };
+	Horse2->AddAdjective(Visual, "brown");
+	Horse2->SetParent(On, Ground);
+	entities.push_back(Horse2);
+
+	Entity_Npc* NPC2 = new Entity_Npc(GetUniqueID(), false, 0.0f, 3783.0f);
+	NPC2->names = { "person" };
+	NPC2->AddAdjective(Visual, "armed");
+	NPC2->SetParent(On, Horse2);
+
+	DialogTree* tree2 = new DialogTree();
+	DialogTree::DialogNode node12;
+	node12.dialog = "The armed man shouts: \"anomaly research, stand back!\"";
+	tree2->TreeNodes.push_back(node12);
+
+	//Finish npc setup
+	NPC2->dialogTree = tree2;
+	entities.push_back(NPC2);
+
 }
 
 Entity* World::GetEntityByID(int id, int worldID)

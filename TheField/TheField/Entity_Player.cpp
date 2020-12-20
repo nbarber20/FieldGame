@@ -97,13 +97,13 @@ std::vector<Entity*> Entity_Player::getVisibleEntities(bool getsurrounding,bool 
 				visible.push_back(withintile[i]);
 				std::vector<Entity*> subEntity = withintile[i]->GetInventory();
 				for (int j = 0; j < subEntity.size(); j++) {
-					if (withintile[i]->visibleInsides == false && subEntity[j]->parent.first == Inside) {
+					if (withintile[i]->visibleInsides == false && (subEntity[j]->parent.first == Inside|| subEntity[j]->parent.first == OnFloor)) {
 						continue;
 					}
 					visible.push_back(subEntity[j]);
 					std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
 					for (int k = 0; k < subEntity2.size(); k++) {
-						if (subEntity[j]->visibleInsides == false && subEntity2[k]->parent.first == Inside) {
+						if (subEntity[j]->visibleInsides == false && (subEntity2[k]->parent.first == Inside || subEntity[j]->parent.first == OnFloor)) {
 							continue;
 						}
 						visible.push_back(subEntity2[k]);
@@ -131,8 +131,10 @@ void Entity_Player::CheckForEvents()
 	for (int i = 0; i < nearbyEntities.size();i++) {
 		Entity_Event* checkEvent = dynamic_cast<Entity_Event*>(nearbyEntities[i]);
 		if (checkEvent) {
-			checkEvent->AttemptTrigger();
-			return;
+			if (checkEvent->getChildDepth() == getChildDepth()) {
+				checkEvent->AttemptTrigger();
+				return;
+			}
 		}
 	}
 }
@@ -166,7 +168,7 @@ void Entity_Player::Look()
 					o.sense = ObservationManager::SENSE_Look;
 					o.type = ObservationManager::TYPE_Notice;
 					o.referenceEntity = room;
-					o.information = "There is a " + room->names[0] + " to the " + ObservationManager::Instance().FacingDirectionToString(dir);
+					o.information = "a " + room->names[0] + " to the " + ObservationManager::Instance().FacingDirectionToString(dir);
 					ObservationManager::Instance().MakeObservation(o);
 				}
 			}

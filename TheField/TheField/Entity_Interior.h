@@ -15,7 +15,6 @@ public:
 	Entity_Interior(int id, bool visibleInsides, float internalVolume, float size) : Entity_Constructed(id, visibleInsides, internalVolume, size)
 	{
 		typeID = "Entity_Interior";
-		this->countable = false;
 		this->visibleInsides = false;
 	}
 	virtual ~Entity_Interior();

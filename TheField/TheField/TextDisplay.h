@@ -53,20 +53,15 @@ public:
 		logs.push_back(newLog);
 	}
 	void addLog(Log newlog) {
-
-		//std::transform(newlog.logText.begin(), newlog.logText.end(), newlog.logText.begin(), std::tolower);
-
-
 		std::size_t found = newlog.logText.find_first_of(' ');
 		while (found != std::string::npos && found<charLength)
 		{
 			found = newlog.logText.find_first_of(' ', found + 1);
-		}
-		if (found != std::string::npos) {
+		}		
+		if (found != std::string::npos && found >charLength) {
 
 			Log firstLog = Log(newlog.logText.substr(0, found), newlog.logColor);
 			Log secondLog = Log(newlog.logText.substr(found +1, newlog.logText.length()-1), newlog.logColor);
-
 			logs.push_back(firstLog);
 			addLog(secondLog);
 		}
@@ -76,6 +71,6 @@ public:
 	}
 private:
 	std::vector<Log> logs;
-	int charLength = 100;
+	int charLength = 50;
 };
 

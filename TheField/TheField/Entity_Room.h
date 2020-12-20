@@ -9,7 +9,6 @@ public:
 	Entity_Room(int id, bool visibleInsides, float internalVolume, float size) :Entity(id, visibleInsides, internalVolume, size)
 	{
 		typeID = "Entity_Room";
-		this->countable = false;
 		this->visibleInsides = false;
 	};
 	virtual ~Entity_Room() {};
