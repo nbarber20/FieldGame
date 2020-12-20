@@ -1,11 +1,34 @@
-	currentFilename = "Development";
+currentFilename = "Development";
 	std::filesystem::create_directory("Data/Saves/" + currentFilename);
 	int worldID = 0;
 
-	Entity_GroundTile* Ground = new Entity_GroundTile(GetUniqueID(),false, 0.0f, 60000.0f);
+	Entity_GroundTile* Ground = new Entity_GroundTile(GetUniqueID(), false, 0.0f, 60000.0f);
 	Ground->names = { "dirt","ground","grass" };
 	loadedTiles = { worldID };
 	Ground->worldPos = worldID;
 	Ground->toWest = std::make_pair("There is a people on horses to the west", 3);
 	Ground->toNorth = std::make_pair("There is a farmhouse to the north", 1);
 	entities.push_back(Ground);
+ 
+	playerEntity = new Entity_Player(GetUniqueID(), false, 0.0f, 3783.0f);
+	playerEntity->names = { "you" };
+	playerEntity->SetParent(On, Ground);
+	entities.push_back(playerEntity);
+
+	Entity_Container* backPack = new Entity_Container(GetUniqueID(), true, 1220.47f, 1221.0f);
+	backPack->names = { "backpack" };
+	backPack->SetParent(Back, playerEntity);
+	backPack->AddAdjective(Visual, "leather");
+	backPack->permiability = 4.5f;
+	entities.push_back(backPack);
+
+	Entity_Firearm* handGun = new Entity_Firearm(GetUniqueID(), 14.5f, Entity_Clip::Pistol);
+	handGun->names = { "handgun", "gun" };
+	handGun->SetParent(RightHand, playerEntity);
+	entities.push_back(handGun);
+
+	Entity_Clip* handGunAmmo = new Entity_Clip(GetUniqueID(), 7.f, 7, Entity_Clip::Pistol);
+	handGunAmmo->names = { "clip" };
+	entities.push_back(handGunAmmo);
+
+	handGun->Reload(handGunAmmo);

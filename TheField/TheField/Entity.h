@@ -98,7 +98,6 @@ public:
 		output->write((char*)&attachedToParent, sizeof(bool));
 		output->write((char*)&rotation, sizeof(int));
 		output->write((char*)&facingDirection, sizeof(int));
-		//TODO adjectives
 		if (parent.second != nullptr) {
 			output->write((char*)&(parent.second->uniqueEntityID), sizeof(int));
 		}
@@ -108,6 +107,22 @@ public:
 			output->write((char*)&nullID, sizeof(int));
 		}
 		output->write((char*)&(parent.first), sizeof(int));
+		//TODO adjectives
+
+		int adjectivesCount = adjectives.size();
+		output->write((char*)&(adjectivesCount), sizeof(int));
+		for (int i = 0; i < adjectivesCount; i++) {
+			output->write((char*)&(adjectives[i].first), sizeof(int));
+
+			int subadjectivesCount = adjectives[i].second.size();
+			output->write((char*)&(subadjectivesCount), sizeof(int));
+			for (int j = 0; j < subadjectivesCount; j++) {
+				WriteStringData(adjectives[i].second[j],output);
+			}
+
+		}
+
+		
 	};
 	virtual void ReadData(std::fstream* input) {
 		input->read((char*)&worldID, sizeof(int));
@@ -131,6 +146,20 @@ public:
 		input->read((char*)&parentEntityDir, sizeof(int));
 
 		//TODO adjectives
+		int adjectivesCount;
+		input->read((char*)&(adjectivesCount), sizeof(int));
+		for (int i = 0; i < adjectivesCount; i++) {
+			Position p;
+			input->read((char*)&(p), sizeof(int));
+
+			std::vector<std::string> subAdjs;
+			int subadjectivesCount;;
+			input->read((char*)&(subadjectivesCount), sizeof(int));
+			for (int j = 0; j < subadjectivesCount; j++) {
+				subAdjs.push_back(ReadStringData(input));
+			}
+			adjectives.push_back(std::make_pair(p,subAdjs));
+		}
 	};
 
 	void WriteStringData(std::string s, std::fstream* output) {

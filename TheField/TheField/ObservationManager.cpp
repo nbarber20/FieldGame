@@ -8,14 +8,21 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 {
 	Constants constants;
 
-
+	ObservationType lastType = TYPE_All; 
 	for (int i = 0; i < observations.size(); i++) {
 		
 		Observation o = observations[i]; 
 		if (o.displayed == true)continue;
 		o.displayed = true;
-		Entity* e = o.referenceEntity;
 
+
+
+		if (o.type == TYPE_Notice && lastType != TYPE_Notice&& o.information == "") {
+			textDisplay->addLog(TextDisplay::Log("You see: ", sf::Color::Yellow));
+
+		}
+
+		Entity* e = o.referenceEntity;
 		std::string defrefName="";
 		std::string indefdefrefName = "";
 		std::string defrefNameADJ = "";
@@ -26,6 +33,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 		bool plural = false;
 		int pluralCount = 0;
 		std::string depthTab= "";
+
 
 		if (o.depth > 0) {
 			for (int i = 0; i < o.depth; i++) {
@@ -84,35 +92,34 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 				textDisplay->addLog(TextDisplay::Log(o.information, sf::Color::Yellow));
 			}
 			else {
-				if (e->parent.second == playerEntity) 
-				{
-					textDisplay->addLog(TextDisplay::Log(depthTab+"There is " + indefdefrefNameADJ + " " + preposition + " your " + GetComponentName(e->parent.first), sf::Color::Yellow));
+				if (e->parent.second == playerEntity){
+					textDisplay->addLog(TextDisplay::Log(depthTab+ indefdefrefNameADJ + " " + preposition + " your " + GetComponentName(e->parent.first), sf::Color::Yellow));
 				}
 				else {
 					if (plural) {
-						if (e->size < constants.smallItemMaxThreshold) {
+						if (e->size < constants.smallItemMaxThreshold && e->parent.second != playerEntity->parent.second) {
 							if (prepositionNoun) {
-								textDisplay->addLog(TextDisplay::Log(depthTab + "There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition, sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log(depthTab+ numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s " + preposition, sf::Color::Yellow));
 							}
 							else {
-								textDisplay->addLog(TextDisplay::Log(depthTab + "There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 							}
 						}
 						else {
-							textDisplay->addLog(TextDisplay::Log(depthTab + "There are " + numberStrings[pluralCount] + " " + indefdefrefName + "s here", sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s", sf::Color::Yellow));
 						}
 					}
 					else {
-						if (e->size < constants.smallItemMaxThreshold) {
+						if (e->size < constants.smallItemMaxThreshold && e->parent.second != playerEntity->parent.second) {
 							if (prepositionNoun) {
-								textDisplay->addLog(TextDisplay::Log(depthTab + "There is " + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
 							}
 							else {
-								textDisplay->addLog(TextDisplay::Log(depthTab + "There is " + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 							}
 						}
 						else {
-							textDisplay->addLog(TextDisplay::Log(depthTab + "There is " + indefdefrefNameADJ + " here", sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ, sf::Color::Yellow));
 						}
 					}
 				}
@@ -153,6 +160,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 		if (o.type == TYPE_FacingDirection) {
 			textDisplay->addLog(TextDisplay::Log(defrefName + " is now facing " + FacingDirectionToString(e->facingDirection), sf::Color::Yellow));
 		}
+		lastType = o.type;
 	}
 }
 
