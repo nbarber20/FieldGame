@@ -1,0 +1,11 @@
+	currentFilename = "Development";
+	std::filesystem::create_directory("Data/Saves/" + currentFilename);
+	int worldID = 0;
+
+	Entity_GroundTile* Ground = new Entity_GroundTile(GetUniqueID(),false, 0.0f, 60000.0f);
+	Ground->names = { "dirt","ground","grass" };
+	loadedTiles = { worldID };
+	Ground->worldPos = worldID;
+	Ground->toWest = std::make_pair("There is a people on horses to the west", 3);
+	Ground->toNorth = std::make_pair("There is a farmhouse to the north", 1);
+	entities.push_back(Ground);
