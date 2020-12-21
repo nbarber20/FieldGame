@@ -5,10 +5,6 @@ class Entity_Fluid : public Entity
 public:
 	Entity_Fluid() {
 		typeID = "Entity_Fluid";
-	};
-	Entity_Fluid(int id, bool visibleInsides, float internalVolume, float size) : Entity(id, visibleInsides, internalVolume, size)
-	{
-		typeID = "Entity_Fluid";
 		this->countable = false;
 	};
 	virtual ~Entity_Fluid() {};

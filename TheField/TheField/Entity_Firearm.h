@@ -7,7 +7,7 @@ public:
 	Entity_Firearm() {
 		typeID = "Entity_Firearm";
 	};
-	Entity_Firearm(int id, float size, Entity_Clip::ClipType type) : Entity(id, false, 0.0f, size)
+	Entity_Firearm(Entity_Clip::ClipType type)
 	{
 		typeID = "Entity_Firearm";
 		this->clipType = type;

@@ -65,14 +65,16 @@ class Entity
 {
 public:
 	Entity() {};
-	Entity(int id,bool visibleInsides, float internalVolume, float size) {
+	virtual ~Entity() {
+
+	}
+
+	virtual void SetEntityData(int id, bool visibleInsides, float internalVolume, float size, float weight) {
 		this->size = size;
 		this->internalVolume = internalVolume;
 		this->visibleInsides = visibleInsides;
 		this->uniqueEntityID = id;
-	}
-	virtual ~Entity() {
-
+		this->weight = weight;
 	}
 
 	virtual Entity* Clone() {
@@ -92,6 +94,7 @@ public:
 		WriteStringData(individualName, output);
 		WriteStringData(lookInfo, output);
 		output->write((char*)&size, sizeof(float));
+		output->write((char*)&weight, sizeof(float));
 		output->write((char*)&internalVolume, sizeof(float));
 		output->write((char*)&visibleInsides, sizeof(bool));
 		output->write((char*)&countable, sizeof(bool));
@@ -136,6 +139,7 @@ public:
 		individualName =ReadStringData(input);
 		lookInfo =ReadStringData(input);
 		input->read((char*)&size, sizeof(float));
+		input->read((char*)&weight, sizeof(float));
 		input->read((char*)&internalVolume, sizeof(float));
 		input->read((char*)&visibleInsides, sizeof(bool));
 		input->read((char*)&countable, sizeof(bool));
@@ -215,6 +219,7 @@ public:
 	std::string lookInfo;
 	std::vector<std::pair<Position, std::vector<std::string>>> adjectives;
 	float size = 0;
+	float weight = 0;
 	float internalVolume = 0;
 	bool visibleInsides = false;
 	bool countable = true;

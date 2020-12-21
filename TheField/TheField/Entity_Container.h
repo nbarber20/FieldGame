@@ -11,10 +11,6 @@ public:
 	Entity_Container() {
 		typeID = "Entity_Container";
 	};
-	Entity_Container(int id, bool visibleInsides, float internalVolume,float size) :Entity_Constructed(id, visibleInsides, internalVolume,size)
-	{
-		typeID = "Entity_Container";
-	}; 
 	virtual ~Entity_Container() {};
 	virtual Entity_Container* Clone() {
 		return new Entity_Container(*this);

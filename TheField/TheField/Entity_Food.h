@@ -6,9 +6,6 @@ public:
 	Entity_Food() {
 		typeID = "Entity_Food";
 	};
-	Entity_Food(int id, bool visibleInsides, float internalVolume, float size) : Entity(id, visibleInsides, internalVolume, size){
-		typeID = "Entity_Food";
-	};
 	virtual ~Entity_Food() {};
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);

@@ -5,10 +5,7 @@ class ObservationManager;
 class Entity_Constructed : public Entity
 {
 public:
-	Entity_Constructed() {
-		typeID = "Entity_Constructed";
-	};
-	Entity_Constructed(int id, bool visibleInsides, float internalVolume, float size) : Entity(id, visibleInsides, internalVolume, size)
+	Entity_Constructed()
 	{
 		typeID = "Entity_Constructed";
 	}

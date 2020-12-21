@@ -6,9 +6,6 @@ public:
 	Entity_Event() {
 		typeID = "Entity_Event";
 	};
-	Entity_Event(int id) : Entity(id, false, 0.0f, 0.0f){
-		typeID = "Entity_Event";
-	}
 	virtual ~Entity_Event() {
 		ObservationTypeSenseConsumptionList.clear();
 	};

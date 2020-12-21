@@ -11,12 +11,8 @@ public:
 	};
 	Entity_Interior() {
 		typeID = "Entity_Interior";
-	};
-	Entity_Interior(int id, bool visibleInsides, float internalVolume, float size) : Entity_Constructed(id, visibleInsides, internalVolume, size)
-	{
-		typeID = "Entity_Interior";
 		this->visibleInsides = false;
-	}
+	};
 	virtual ~Entity_Interior();
 
 	virtual void WriteData(std::fstream* output) {

@@ -8,9 +8,6 @@ public:
 	Entity_Mechanisim() {
 		typeID = "Entity_Mechanisim";
 	};
-	Entity_Mechanisim(int id, bool visibleInsides, float internalVolume, float size) : Entity(id, visibleInsides, internalVolume, size) {
-		typeID = "Entity_Mechanisim";
-	};
 	virtual ~Entity_Mechanisim();
 	virtual void WriteData(std::fstream* output);
 	virtual void ReadData(std::fstream* input);

@@ -11,7 +11,7 @@ public:
 	Entity_Clip() {
 		typeID = "Entity_Clip";
 	};
-	Entity_Clip(int id, float size, int clipSize, ClipType type) : Entity(id, false, 0.0f, size) {
+	Entity_Clip(int clipSize, ClipType type){
 		typeID = "Entity_Clip";
 		this->clipSize = clipSize;
 		this->bulletsInClip = clipSize;

@@ -329,6 +329,7 @@ bool Entity_Player::TryMove(Entity* e, Position toPos, Entity* toEntity)
 	if (toPos == Nowhere) return false;
 	if (toEntity == nullptr)return false;
 	if (e->attachedToParent == true)return false;
+	if (e->weight > strength&& e!=this)return false;
 	Entity_Room* roomTest = dynamic_cast<Entity_Room*>(toEntity);
 	if (roomTest) {
 		if (toPos == Inside)toPos = OnFloor;

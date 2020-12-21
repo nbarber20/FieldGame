@@ -9,9 +9,6 @@ public:
 	Entity_Readable() {
 		typeID = "Entity_Readable";
 	};
-	Entity_Readable(int id, bool visibleInsides, float internalVolume, float size) : Entity_Constructed(id, visibleInsides, internalVolume, size){
-		typeID = "Entity_Readable";
-	};
 	virtual ~Entity_Readable() {};
 	void Read(Entity_Living* humanRef);
 	virtual void WriteData(std::fstream* output) {

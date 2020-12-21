@@ -29,11 +29,7 @@ public:
 	};
 	Entity_Living() {
 		typeID = "Entity_Living";
-		worldActive = true;
-	};
-	Entity_Living(int id, bool visibleInsides, float internalVolume, float size) :Entity(id, visibleInsides, internalVolume, size) {
-		typeID = "Entity_Living";
-		worldActive = true;
+		worldActive = false;
 	};
 	virtual ~Entity_Living() {};
 
@@ -56,6 +52,7 @@ public:
 		output->write((char*)& homePosition, sizeof(int));
 		output->write((char*)& homeWorldID, sizeof(int));
 
+		output->write((char*)&strength, sizeof(float));
 		output->write((char*)&healthStatus, sizeof(int));
 		output->write((char*)&nourishment, sizeof(float));
 		output->write((char*)&hydration, sizeof(float));
@@ -92,6 +89,7 @@ public:
 		input->read((char*)& homePosition, sizeof(int));
 		input->read((char*)& homeWorldID, sizeof(int));
 
+		input->read((char*)&strength, sizeof(float));
 		input->read((char*)&healthStatus, sizeof(int));
 		input->read((char*)&nourishment, sizeof(float));
 		input->read((char*)&hydration, sizeof(float));
@@ -124,6 +122,9 @@ public:
 
 	std::vector<Languages> spokenLanguage;
 	std::vector<Languages> readingLanguage;
+
+	float strength = 65.f;
+
 	HealthStatus healthStatus = Healthy;
 	float nourishment = 150;
 	float hydration = 150;

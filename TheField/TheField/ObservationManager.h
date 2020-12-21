@@ -73,8 +73,7 @@ public:
 	std::string RotationToString(Rotation r);
 	std::string FacingDirectionToString(FacingDirection r);
 	std::string PositionToString(Position r, std::string individualName);
-	std::string GetComponentName(Position pos);
-	std::string getPreposition(Position pos, bool* containsNoun);
+	std::string getPreposition(Position pos, bool* containsNoun, bool isPlayer);
 
 private:
 	void RemoveObservation(int index);

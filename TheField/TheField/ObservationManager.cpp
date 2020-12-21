@@ -63,7 +63,10 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 					}
 				}
 
-				preposition = getPreposition(e->parent.first, &prepositionNoun);
+				preposition = getPreposition(e->parent.first, &prepositionNoun, e->IsChildOf(playerEntity));
+				if (prepositionNoun == false&& e->parent.second!=nullptr) {
+					preposition += " the " + e->parent.second->names[0];
+				}
 				ADJ = e->GetRandomAdjective(Visual) + " ";
 				if (ADJ == " ")ADJ = "";
 				defrefName = "the " + e->names[0];
@@ -103,7 +106,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 			}
 			else {
 				if (e->parent.second == playerEntity){
-					textDisplay->addLog(TextDisplay::Log(depthTab+ indefdefrefNameADJ + " " + preposition + " your " + GetComponentName(e->parent.first), sf::Color::Yellow));
+					textDisplay->addLog(TextDisplay::Log(depthTab+ indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
 				}
 				else {
 					if (plural) {
@@ -111,12 +114,8 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 							textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s", sf::Color::Yellow));							
 						}
 						else {
-							if (prepositionNoun) {
-								textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s " + preposition, sf::Color::Yellow));
-							}
-							else {
-								textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
-							}
+							textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s " + preposition, sf::Color::Yellow));
+							
 						}
 					}
 					else {
@@ -124,12 +123,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 							textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ, sf::Color::Yellow));
 						}
 						else {
-							if (prepositionNoun) {
-								textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
-							}
-							else {
-								textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
-							}
+							textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
 						}
 					}
 				}
@@ -145,7 +139,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 
 						}
 						else {
-							textDisplay->addLog(TextDisplay::Log("You are " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+							textDisplay->addLog(TextDisplay::Log("You are " + preposition, sf::Color::Yellow));
 						}
 					}
 					else {
@@ -153,14 +147,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 					}
 				}
 				else {
-					if (prepositionNoun) {
-						textDisplay->addLog(TextDisplay::Log(defrefNameADJ+ " is now " + preposition, sf::Color::Yellow));
-					}
-					else {
-						if (e->parent.second != nullptr) {
-							textDisplay->addLog(TextDisplay::Log(defrefNameADJ + " is now " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
-						}
-					}
+					textDisplay->addLog(TextDisplay::Log(defrefNameADJ + " is now " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 				}
 			}
 		}
@@ -310,55 +297,7 @@ std::string ObservationManager::PositionToString(Position r, std::string individ
 	return "ERROR";
 }
 
-std::string ObservationManager::GetComponentName(Position pos)
-{
-	switch (pos)
-	{
-	case InFront:
-		return "ERROR";
-	case Inside:
-		return "ERROR";
-	case Behind:
-		return "ERROR";
-	case On:
-		return "ERROR";
-	case Below:
-		return "ERROR";
-	case RightHand:
-		return "right hand";
-	case LeftHand:
-		return "left hand";
-	case Arms:
-		return "arms";
-	case Chest:
-		return "chest";
-	case Back:
-		return "back";
-	case Legs:
-		return "legs";
-	case Feet:
-		return "feet";
-	case Head:
-		return "head";
-	case Mouth:
-		return "mouth";
-	case OnWall:
-		return "wall";
-	case OnFloor:
-		return "floor";
-	case OnCieling:
-		return "ceiling";
-	case Visual:
-		return "ERROR";
-	case Taste:
-		return "ERROR";
-	case Smell:
-		return "ERROR";
-	}
-	return "ERROR";
-}
-
-std::string ObservationManager::getPreposition(Position pos, bool* containsNoun)
+std::string ObservationManager::getPreposition(Position pos, bool* containsNoun, bool isPlayer)
 {
 	*containsNoun = false;
 	switch (pos)
@@ -375,31 +314,76 @@ std::string ObservationManager::getPreposition(Position pos, bool* containsNoun)
 		return "below";
 	case RightHand:
 		*containsNoun = true;
-		return "in their right hand";
+		if (isPlayer) {
+			return "in your right hand";
+		}
+		else {
+			return "in their right hand";
+		}
 	case LeftHand:
 		*containsNoun = true;
-		return "in their left hand";
+		if (isPlayer) {
+			return "in your left hand";
+		}
+		else {
+			return "in their left hand";
+		}
 	case Arms:
 		*containsNoun = true;
-		return "on their arms";
+		if (isPlayer) {
+			return "on your arms";
+		}
+		else {
+			return "on their arms";
+		}
 	case Back:
 		*containsNoun = true;
-		return "on their back";
+		if (isPlayer) {
+			return "on your back";
+		}
+		else {
+			return "on their back";
+		}
 	case Chest:
 		*containsNoun = true;
-		return "on their chest";
+		if (isPlayer) {
+			return "on your chest";
+		}
+		else {
+			return "on their chest";
+		}
 	case Legs:
 		*containsNoun = true;
-		return "on their legs";
+		if (isPlayer) {
+			return "on your legs";
+		}
+		else {
+			return "on their legs";
+		}
 	case Feet:
 		*containsNoun = true;
-		return "on their feet";
+		if (isPlayer) {
+			return "on your feet";
+		}
+		else {
+			return "on their feet";
+		}
 	case Head:
 		*containsNoun = true;
-		return "on their head";
+		if (isPlayer) {
+			return "on your head";
+		}
+		else {
+			return "on their head";
+		}
 	case Mouth:
 		*containsNoun = true;
-		return "in their mouth";
+		if (isPlayer) {
+			return "in your mouth";
+		}
+		else {
+			return "in their mouth";
+		}
 	case OnWall:
 		*containsNoun = true;
 		return "on the wall";
