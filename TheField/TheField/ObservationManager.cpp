@@ -97,29 +97,29 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 				}
 				else {
 					if (plural) {
-						if (e->size < constants.smallItemMaxThreshold && e->parent.second != playerEntity->parent.second) {
+						if (e->size > constants.smallItemMaxThreshold && e->parent.second == playerEntity->parent.second) {
+							textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s", sf::Color::Yellow));							
+						}
+						else {
 							if (prepositionNoun) {
-								textDisplay->addLog(TextDisplay::Log(depthTab+ numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s " + preposition, sf::Color::Yellow));
+								textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s " + preposition, sf::Color::Yellow));
 							}
 							else {
 								textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 							}
 						}
-						else {
-							textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s", sf::Color::Yellow));
-						}
 					}
 					else {
-						if (e->size < constants.smallItemMaxThreshold && e->parent.second != playerEntity->parent.second) {
+						if (e->size > constants.smallItemMaxThreshold && e->parent.second == playerEntity->parent.second) {
+							textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ, sf::Color::Yellow));
+						}
+						else {
 							if (prepositionNoun) {
 								textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
 							}
 							else {
 								textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ + " " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
 							}
-						}
-						else {
-							textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ, sf::Color::Yellow));
 						}
 					}
 				}
