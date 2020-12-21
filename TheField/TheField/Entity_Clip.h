@@ -6,6 +6,7 @@ public:
 	enum ClipType
 	{
 		Pistol,
+		MachineGun,
 	};
 	Entity_Clip() {
 		typeID = "Entity_Clip";

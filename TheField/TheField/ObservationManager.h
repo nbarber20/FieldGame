@@ -68,6 +68,7 @@ public:
 	}
 	void ConsumeObservations(std::vector<std::pair<int, int>> toConsume);
 	void RemoveObservationForEntity(Entity* entity);
+	bool StartsWithVowel(std::string input);
 
 	std::string RotationToString(Rotation r);
 	std::string FacingDirectionToString(FacingDirection r);

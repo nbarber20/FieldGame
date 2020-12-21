@@ -136,6 +136,25 @@ void World::Setup()
 	NPC2->dialogTree = tree2;
 	entities.push_back(NPC2);
 
+	Entity_Firearm* Ak47 = new Entity_Firearm(GetUniqueID(), 14.5f, Entity_Clip::MachineGun);
+	Ak47->names = { "ak47", "gun" };
+	Ak47->SetParent(Back, NPC);
+	entities.push_back(Ak47);
+
+	Entity_Clip* Ak47Ammo = new Entity_Clip(GetUniqueID(), 7.f, 7, Entity_Clip::MachineGun);
+	Ak47Ammo->names = { "clip" };
+	entities.push_back(Ak47Ammo);
+	Ak47->Reload(Ak47Ammo);
+
+	Entity_Firearm* M16 = new Entity_Firearm(GetUniqueID(), 14.5f, Entity_Clip::MachineGun);
+	M16->names = { "m16", "gun" };
+	M16->SetParent(RightHand, NPC2);
+	entities.push_back(M16);
+
+	Entity_Clip* M16Ammo = new Entity_Clip(GetUniqueID(), 7.f, 7, Entity_Clip::MachineGun);
+	M16Ammo->names = { "clip" };
+	entities.push_back(M16Ammo);
+	M16->Reload(M16Ammo);
 }
 
 Entity* World::GetEntityByID(int id, int worldID)

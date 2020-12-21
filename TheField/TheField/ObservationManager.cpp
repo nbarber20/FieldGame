@@ -69,8 +69,18 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 				defrefName = "the " + e->names[0];
 				defrefNameADJ = "the " + ADJ + e->names[0];
 				if (e->countable&& plural == false && e->individualName == "") {
-					indefdefrefName = "a " + e->names[0];
-					indefdefrefNameADJ = "a " + ADJ + e->names[0];
+					if (StartsWithVowel(e->names[0])) {
+						indefdefrefName = "an " + e->names[0];
+					}
+					else {
+						indefdefrefName = "a " + e->names[0];
+					}
+					if (StartsWithVowel(ADJ)) {
+						indefdefrefNameADJ = "an " + ADJ + e->names[0];
+					}
+					else {
+						indefdefrefNameADJ = "a " + ADJ + e->names[0];
+					}
 				}
 				else {
 					indefdefrefName = e->names[0];
@@ -203,6 +213,18 @@ void ObservationManager::RemoveObservationForEntity(Entity* entity)
 			return;
 		}
 	}
+}
+
+bool ObservationManager::StartsWithVowel(std::string input)
+{
+	if (input.length() == 0) return false;
+	std::string vowels = "aeiou";
+	for (int i = 0; i < vowels.length(); i++) {
+		if (vowels.at(i) == input.at(0)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void ObservationManager::RemoveObservation(int index)
@@ -352,23 +374,32 @@ std::string ObservationManager::getPreposition(Position pos, bool* containsNoun)
 	case Below:
 		return "below";
 	case RightHand:
-		return "in";
+		*containsNoun = true;
+		return "in their right hand";
 	case LeftHand:
-		return "in";
+		*containsNoun = true;
+		return "in their left hand";
 	case Arms:
-		return "on";
+		*containsNoun = true;
+		return "on their arms";
 	case Back:
-		return "on";
+		*containsNoun = true;
+		return "on their back";
 	case Chest:
-		return "on";
+		*containsNoun = true;
+		return "on their chest";
 	case Legs:
-		return "on";
+		*containsNoun = true;
+		return "on their legs";
 	case Feet:
-		return "on";
+		*containsNoun = true;
+		return "on their feet";
 	case Head:
-		return "on";
+		*containsNoun = true;
+		return "on their head";
 	case Mouth:
-		return "in";
+		*containsNoun = true;
+		return "in their mouth";
 	case OnWall:
 		*containsNoun = true;
 		return "on the wall";

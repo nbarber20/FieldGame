@@ -2,13 +2,13 @@ currentFilename = "Development";
 	std::filesystem::create_directory("Data/Saves/" + currentFilename);
 	int worldID = 3;
 
-	Entity_GroundTile* Ground = new Entity_GroundTile(GetUniqueID(),false, 0.0f, 60000.0f);
+	Entity_GroundTile* Ground = new Entity_GroundTile(GetUniqueID(), false, 0.0f, 60000.0f);
 	Ground->names = { "dirt","ground","grass" };
 	loadedTiles = { worldID };
 	Ground->worldPos = worldID;
 	Ground->toEast = std::make_pair("There is a empty field to the east", 0);
 	entities.push_back(Ground);
-	
+
 	Entity_Event* EnterFarmEvent = new Entity_Event(GetUniqueID());
 	EnterFarmEvent->setObservationConsumptionList({
 		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
@@ -58,3 +58,23 @@ currentFilename = "Development";
 	//Finish npc setup
 	NPC2->dialogTree = tree2;
 	entities.push_back(NPC2);
+
+	Entity_Firearm* Ak47 = new Entity_Firearm(GetUniqueID(), 14.5f, Entity_Clip::MachineGun);
+	Ak47->names = { "ak47", "gun" };
+	Ak47->SetParent(Back, NPC);
+	entities.push_back(Ak47);
+
+	Entity_Clip* Ak47Ammo = new Entity_Clip(GetUniqueID(), 7.f, 7, Entity_Clip::MachineGun);
+	Ak47Ammo->names = { "clip" };
+	entities.push_back(Ak47Ammo);
+	Ak47->Reload(Ak47Ammo);
+
+	Entity_Firearm* M16 = new Entity_Firearm(GetUniqueID(), 14.5f, Entity_Clip::MachineGun);
+	M16->names = { "m16", "gun" };
+	M16->SetParent(RightHand, NPC2);
+	entities.push_back(M16);
+
+	Entity_Clip* M16Ammo = new Entity_Clip(GetUniqueID(), 7.f, 7, Entity_Clip::MachineGun);
+	M16Ammo->names = { "clip" };
+	entities.push_back(M16Ammo);
+	M16->Reload(M16Ammo);
