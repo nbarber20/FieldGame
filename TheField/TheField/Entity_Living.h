@@ -28,10 +28,12 @@ public:
 		Cold,
 	};
 	Entity_Living() {
-		typeID = "Entity_Living";
 		worldActive = false;
 	};
 	virtual ~Entity_Living() {};
+	virtual int GetClassHash() override {
+		return typeid(this).hash_code();
+	}
 
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);

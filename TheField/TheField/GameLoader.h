@@ -26,16 +26,16 @@ public:
 	bool DeleteGameFile(std::string filename);
 	void CopyGameFile(std::string from, std::string to);
 	void ThrowFileError(std::string error);
-	Entity* GenEntity(std::string entityObjType);
+	Entity* GenEntity(int hash);
 
 	std::vector<int> loadedTiles = { 0 };
 	int currentPlayerTile;
 	Entity* currentGroundTile;
+	std::string currentFilename = "null";
 
 private:
 
 	int uniqueID = 0;
-	std::string currentFilename = "null";
 	int errorCount = 0;
 };
 

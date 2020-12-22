@@ -19,10 +19,102 @@
 #include "Entity_Clip.h"
 #include "Entity_Firearm.h"
 #include "Entity_Room.h"
+#include "ObservationManager.h"
+
 
 void GameLoader::Setup()
 {
+	currentFilename = "Development";
+	std::filesystem::create_directory("Data/Saves/" + currentFilename);
+	int worldID = 3;
 
+	Entity_GroundTile* Ground = new Entity_GroundTile();
+	Ground->SetEntityData(GetUniqueID(), false, 0.0f, 60000.0f, 0.0f);
+	Ground->attachedToParent = true;
+	Ground->names = { "dirt","ground","grass" };
+	loadedTiles = { worldID };
+	Ground->worldPos = worldID;
+	Ground->toEast = std::make_pair("There is a empty field to the east", 0);
+	World::Instance().AddEntity(Ground);
+
+	Entity_Event* EnterFarmEvent = new Entity_Event();
+	EnterFarmEvent->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
+	EnterFarmEvent->setObservationConsumptionList({
+		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
+		});
+	EnterFarmEvent->EventImageFile = "Data/Art/Horses.png";
+	EnterFarmEvent->EventText = "There are two people in swat-like armor mounted on horses. ";
+	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
+	World::Instance().AddEntity(EnterFarmEvent);
+
+	Entity_Living* Horse = new Entity_Living();
+	Horse->SetEntityData(GetUniqueID(), false, 0.0f, 30511.9f, 1000.f);
+	Horse->names = { "horse" };
+	Horse->AddAdjective(Visual, "white");
+	Horse->SetParent(On, Ground);
+	World::Instance().AddEntity(Horse);
+
+	Entity_Npc* NPC = new Entity_Npc();
+	NPC->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 100.f);
+	NPC->names = { "person" };
+	NPC->AddAdjective(Visual, "masked");
+	NPC->SetParent(On, Horse);
+
+	DialogTree* tree = new DialogTree();
+	DialogTree::DialogNode node1;
+	node1.dialog = "The masked man shouts: \"anomaly research, stand back!\"";
+	tree->TreeNodes.push_back(node1);
+
+	//Finish npc setup
+	NPC->dialogTree = tree;
+	World::Instance().AddEntity(NPC);
+
+
+	Entity_Living* Horse2 = new Entity_Living();
+	Horse2->SetEntityData(GetUniqueID(), false, 0.0f, 30511.9f, 1000.f);
+	Horse2->names = { "horse" };
+	Horse2->AddAdjective(Visual, "brown");
+	Horse2->SetParent(On, Ground);
+	World::Instance().AddEntity(Horse2);
+
+	Entity_Npc* NPC2 = new Entity_Npc();
+	NPC2->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 100.f);
+	NPC2->names = { "person" };
+	NPC2->AddAdjective(Visual, "armed");
+	NPC2->SetParent(On, Horse2);
+
+	DialogTree* tree2 = new DialogTree();
+	DialogTree::DialogNode node12;
+	node12.dialog = "The armed man shouts: \"anomaly research, stand back!\"";
+	tree2->TreeNodes.push_back(node12);
+
+	//Finish npc setup
+	NPC2->dialogTree = tree2;
+	World::Instance().AddEntity(NPC2);
+
+	Entity_Firearm* Ak47 = new Entity_Firearm(Entity_Clip::MachineGun);
+	Ak47->SetEntityData(GetUniqueID(), false, 0.0, 1000.0f, 7.5f);
+	Ak47->names = { "ak47", "gun" };
+	Ak47->SetParent(Back, NPC);
+	World::Instance().AddEntity(Ak47);
+
+	Entity_Clip* Ak47Ammo = new Entity_Clip(7, Entity_Clip::MachineGun);
+	Ak47Ammo->SetEntityData(GetUniqueID(), false, 0.0, 7.f, 0.5f);
+	Ak47Ammo->names = { "clip" };
+	World::Instance().AddEntity(Ak47Ammo);
+	Ak47->Reload(Ak47Ammo);
+
+	Entity_Firearm* M16 = new Entity_Firearm(Entity_Clip::MachineGun);
+	M16->SetEntityData(GetUniqueID(), false, 0.0, 1000.0f, 7.5f);
+	M16->names = { "m16", "gun" };
+	M16->SetParent(RightHand, NPC2);
+	World::Instance().AddEntity(M16);
+
+	Entity_Clip* M16Ammo = new Entity_Clip(7, Entity_Clip::MachineGun);
+	Ak47Ammo->SetEntityData(GetUniqueID(), false, 0.0, 7.f, 0.5f);
+	M16Ammo->names = { "clip" };
+	World::Instance().AddEntity(M16Ammo);
+	M16->Reload(M16Ammo);
 }
 
 
@@ -136,10 +228,14 @@ void GameLoader::SavePlayer()
 			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
 			if (p) {
 				entities[i]->worldID = currentPlayerTile;
+				int hash = entities[i]->GetClassHash();
+				file.write((char*)&hash,sizeof(int));
 				entities[i]->WriteData(&file);
 			}
 			else if (entities[i]->IsChildOf(World::Instance().playerEntity) == true) {
 				entities[i]->worldID = -1;
+				int hash = entities[i]->GetClassHash();
+				file.write((char*)&hash, sizeof(int));
 				entities[i]->WriteData(&file);
 			}
 		}
@@ -201,17 +297,9 @@ void GameLoader::LoadPlayer(bool getLoadedTiles)
 		int entitiesArrSize;
 		file.read((char*)&entitiesArrSize, sizeof(int));
 		for (int i = 0; i < entitiesArrSize; i++) {
-
-			std::string entityObjType;
-			size_t namelen;
-			file.read((char*)&namelen, sizeof(size_t));
-			char* temp = new char[namelen + 1];
-			file.read(temp, namelen);
-			temp[namelen] = '\0';
-			entityObjType = temp;
-			delete[] temp;
-
-			Entity* e = GenEntity(entityObjType);
+			int hash;
+			file.read((char*)&hash, sizeof(int));
+			Entity* e = GenEntity(hash);
 			e->ReadData(&file);
 			World::Instance().AddEntity(e);
 		}
@@ -255,6 +343,8 @@ void  GameLoader::SaveTile(int tileID) {
 		for (int i = 0; i < entities.size(); i++) {
 			if (World::Instance().playerEntity == NULL) {
 				entities[i]->worldID = tileID;
+				int hash = entities[i]->GetClassHash();
+				file.write((char*)&hash, sizeof(int));
 				entities[i]->WriteData(&file);
 			}
 			else
@@ -263,6 +353,8 @@ void  GameLoader::SaveTile(int tileID) {
 				if (p == NULL) {
 					if (entities[i]->IsChildOf(World::Instance().playerEntity) == false) {
 						entities[i]->worldID = tileID;
+						int hash = entities[i]->GetClassHash();
+						file.write((char*)&hash, sizeof(int));
 						entities[i]->WriteData(&file);
 					}
 				}
@@ -297,16 +389,9 @@ void GameLoader::LoadTile(int tileID)
 		file.read((char*)&entitiesArrSize, sizeof(int));
 		for (int i = 0; i < entitiesArrSize; i++) {
 
-			std::string entityObjType;
-			size_t namelen;
-			file.read((char*)&namelen, sizeof(size_t));
-			char* temp = new char[namelen + 1];
-			file.read(temp, namelen);
-			temp[namelen] = '\0';
-			entityObjType = temp;
-			delete[] temp;
-
-			Entity* e = GenEntity(entityObjType);
+			int hash;
+			file.read((char*)&hash, sizeof(int));
+			Entity* e = GenEntity(hash);
 			e->ReadData(&file);
 			//Get the ground tile to put the player on TODO: maybe a better way of finding where to parent player
 			Entity_GroundTile* groundTile = dynamic_cast<Entity_GroundTile*>(e);
@@ -372,57 +457,57 @@ void GameLoader::ThrowFileError(std::string error)
 	errorCount = 0;
 }
 
-Entity* GameLoader::GenEntity(std::string entityObjType)
+Entity* GameLoader::GenEntity(int hash)
 {
-	if (entityObjType == "Entity_Clip") {
+	if (hash == typeid(Entity_Clip*).hash_code()) {
 		return new Entity_Clip();
 	}
-	else if (entityObjType == "Entity_Constructed") {
+	else if (hash == typeid(Entity_Constructed*).hash_code()) {
 		return new Entity_Constructed();
 	}
-	else if (entityObjType == "Entity_Container") {
+	else if (hash == typeid(Entity_Container*).hash_code()) {
 		return new Entity_Container();
 	}
-	else if (entityObjType == "Entity_Event") {
+	else if (hash == typeid(Entity_Event*).hash_code()) {
 		return new Entity_Event();
 	}
-	else if (entityObjType == "Entity_Firearm") {
-		return new Entity_Firearm();
+	else if (hash == typeid(Entity_Firearm*).hash_code()) {
+		return new Entity_Firearm(Entity_Clip::Pistol);
 	}
-	else if (entityObjType == "Entity_Fluid") {
+	else if (hash == typeid(Entity_Fluid*).hash_code()) {
 		return new Entity_Fluid();
 	}
-	else if (entityObjType == "Entity_Food") {
+	else if (hash == typeid(Entity_Food*).hash_code()) {
 		return new Entity_Food();
 	}
-	else if (entityObjType == "Entity_GroundTile") {
+	else if (hash == typeid(Entity_GroundTile*).hash_code()) {
 		return new Entity_GroundTile();
 	}
-	else if (entityObjType == "Entity_Interior") {
+	else if (hash == typeid(Entity_Interior*).hash_code()) {
 		return new Entity_Interior();
 	}
-	else if (entityObjType == "Entity_Living") {
+	else if (hash == typeid(Entity_Living*).hash_code()) {
 		return new Entity_Living();
 	}
-	else if (entityObjType == "Entity_Mechanisim") {
+	else if (hash == typeid(Entity_Mechanisim*).hash_code()) {
 		return new Entity_Mechanisim();
 	}
-	else if (entityObjType == "Entity_Npc") {
+	else if (hash == typeid(Entity_Npc*).hash_code()) {
 		return new Entity_Npc();
 	}
-	else if (entityObjType == "Entity_Player") {
+	else if (hash == typeid(Entity_Player*).hash_code()) {
 		Entity_Player* ep = new Entity_Player();
 		World::Instance().playerEntity = ep;
 		return ep;
 	}
-	else if (entityObjType == "Entity_Readable") {
+	else if (hash == typeid(Entity_Readable*).hash_code()) {
 		return new Entity_Readable();
 	}
-	else if (entityObjType == "Entity_Room") {
+	else if (hash == typeid(Entity_Room*).hash_code()) {
 		return new Entity_Room();
 	}
 
-	if (entityObjType != "Entity") {
+	else if (hash != typeid(Entity*).hash_code()) {
 		//Undefined hash
 	}
 	return new Entity();

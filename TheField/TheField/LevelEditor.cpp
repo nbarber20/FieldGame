@@ -27,7 +27,7 @@ void LevelEditor::LoadFromJSON()
 	const Value& entities = document["entities"];
 	assert(entities.IsArray());
 	for (int i = 0; i < entities.Size();i++) {
-		std::string b = document["entities"][i]["typeID"].GetString();
+		int b = document["entities"][i]["hash"].GetInt();
 		Entity* e = GameLoader::Instance().GenEntity(b);
 		e->ReadFromJson(document["entities"][i]);
 		World::Instance().AddEntity(e);
@@ -48,7 +48,7 @@ void LevelEditor::LoadPlayerFromJSON()
 	const Value& entities = document["entities"];
 	assert(entities.IsArray());
 	for (int i = 0; i < entities.Size(); i++) {
-		std::string b = document["entities"][i]["typeID"].GetString();
+		int b = document["entities"][i]["hash"].GetInt();
 		Entity* e = GameLoader::Instance().GenEntity(b);
 		e->ReadFromJson(document["entities"][i]);
 		World::Instance().AddEntity(e);
@@ -67,6 +67,10 @@ void LevelEditor::SaveToJSON()
 	writer.StartArray();
 	for (int i = 0; i < entities.size(); i++) {
 		writer.StartObject();
+
+		writer.Key("hash");
+		writer.Int(entities[i]->GetClassHash());
+
 		entities[i]->WriteToJson(&writer);
 		writer.EndObject();
 	}
@@ -93,12 +97,18 @@ void LevelEditor::SavePlayerToJSON()
 		Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
 		if (p) {
 			entities[i]->worldID = GameLoader::Instance().currentPlayerTile;
+
+			writer.Key("hash");
+			writer.Int(entities[i]->GetClassHash());
 			writer.StartObject();
 			entities[i]->WriteToJson(&writer);
 			writer.EndObject();
 		}
 		else if (entities[i]->IsChildOf(World::Instance().playerEntity) == true) {
 			entities[i]->worldID = -1;
+
+			writer.Key("hash");
+			writer.Int(entities[i]->GetClassHash());
 			writer.StartObject();
 			entities[i]->WriteToJson(&writer);
 			writer.EndObject();

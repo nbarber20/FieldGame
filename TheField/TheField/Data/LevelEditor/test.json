@@ -1,7 +1,7 @@
 {
     "entities": [
         {
-            "typeID": "Entity_GroundTile",
+            "hash": -1440163401,
             "parentEntityID": -1,
             "parentEntityDir": 0,
             "worldActive": false,
@@ -23,7 +23,7 @@
             "toWestS": 3
         },
         {
-            "typeID": "Entity_Player",
+            "hash": -300816595,
             "parentEntityID": 0,
             "parentEntityDir": 4,
             "worldActive": false,
@@ -33,13 +33,13 @@
             "names": [
                 "you"
             ],
-            "homeID": 0,
-            "homePosition": 4,
-            "homeWorldID": 0,
+            "homeID": -2,
+            "homePosition": 2,
+            "homeWorldID": -2,
             "strength": 65.0,
             "healthStatus": 0,
-            "nourishment": 149.5,
-            "hydration": 149.0,
+            "nourishment": 150.0,
+            "hydration": 150.0,
             "maxNourishment": 150.0,
             "maxHydration": 150.0,
             "bleedSpeed": 0.0,
@@ -52,11 +52,11 @@
             "dead": false
         },
         {
-            "typeID": "Entity_Container",
+            "hash": 1916227727,
             "parentEntityID": 1,
             "parentEntityDir": 13,
             "worldActive": false,
-            "worldID": 0,
+            "worldID": -1,
             "uniqueEntityID": 2,
             "worldActive": false,
             "names": [
@@ -65,11 +65,11 @@
             "permiability": 4.5
         },
         {
-            "typeID": "Entity_Firearm",
+            "hash": 119535150,
             "parentEntityID": 1,
             "parentEntityDir": 9,
             "worldActive": false,
-            "worldID": 0,
+            "worldID": -1,
             "uniqueEntityID": 4,
             "worldActive": false,
             "names": [
@@ -79,11 +79,11 @@
             "clipType": 0
         },
         {
-            "typeID": "Entity_Clip",
+            "hash": 1069609286,
             "parentEntityID": 4,
             "parentEntityDir": 2,
             "worldActive": false,
-            "worldID": 0,
+            "worldID": -1,
             "uniqueEntityID": 0,
             "worldActive": false,
             "names": [

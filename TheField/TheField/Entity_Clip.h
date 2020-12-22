@@ -9,16 +9,16 @@ public:
 		MachineGun,
 	};
 	Entity_Clip() {
-		typeID = "Entity_Clip";
 	};
 	Entity_Clip(int clipSize, ClipType type){
-		typeID = "Entity_Clip";
 		this->clipSize = clipSize;
 		this->bulletsInClip = clipSize;
 		this->clipType = type;
 	}
 	virtual ~Entity_Clip() {};
-
+	virtual int GetClassHash() override {
+		return typeid(this).hash_code();
+	}
 	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
 		Entity::WriteToJson(writer);
 		writer->Key("clipType");

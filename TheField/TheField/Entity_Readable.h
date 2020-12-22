@@ -6,10 +6,11 @@ class ObservationManager;
 class Entity_Readable : public Entity_Constructed
 {
 public:
-	Entity_Readable() {
-		typeID = "Entity_Readable";
-	};
+	Entity_Readable() {};
 	virtual ~Entity_Readable() {};
+	virtual int GetClassHash() override {
+		return typeid(this).hash_code();
+	}
 	void Read(Entity_Living* humanRef);
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);

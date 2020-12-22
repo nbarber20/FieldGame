@@ -4,14 +4,13 @@
 class Entity_Firearm : public Entity
 {
 public:
-	Entity_Firearm() {
-		typeID = "Entity_Firearm";
-	};
 	Entity_Firearm(Entity_Clip::ClipType type)
 	{
-		typeID = "Entity_Firearm";
 		this->clipType = type;
 	};
+	virtual int GetClassHash() override {
+		return typeid(this).hash_code();
+	}
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);
 		output->write((char*)&clipType, sizeof(int));

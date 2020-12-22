@@ -8,6 +8,7 @@
 #include <fstream>
 #include "rapidjson/document.h"     
 #include "rapidjson/prettywriter.h" 
+
 using namespace rapidjson;
 enum Languages
 {
@@ -83,14 +84,15 @@ public:
 		return new Entity(*this);
 	}
 
+	virtual int GetClassHash() {
+		return typeid(this).hash_code();
+	}
 	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
 		if (parent.second != nullptr) {
 			parentEntityID = parent.second->uniqueEntityID;
 		}
 		parentEntityDir = (int)parent.first;
 
-		writer->Key("typeID");
-		writer->String(typeID.c_str(), static_cast<SizeType>(typeID.length()));
 		writer->Key("parentEntityID");
 		writer->Int(parentEntityID);
 		writer->Key("parentEntityDir");
@@ -129,8 +131,6 @@ public:
 	}
 
 	virtual void WriteData(std::fstream* output) {
-		WriteStringData(typeID, output);
-
 		output->write((char*)&worldID, sizeof(int));
 		output->write((char*)& uniqueEntityID, sizeof(int));
 		output->write((char*)& worldActive, sizeof(bool));
@@ -277,7 +277,6 @@ public:
 	Rotation rotation = Upright;
 	FacingDirection facingDirection = North;
 protected:
-	std::string typeID = "Entity";
 	virtual void AddChild(Position pos, Entity* toAdd, int roomIndex);
 	virtual bool RemoveChild(Entity* toRemove);
 };

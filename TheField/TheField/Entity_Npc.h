@@ -5,12 +5,14 @@ class Entity_Npc : public Entity_Living
 {
 public:
 	Entity_Npc() {
-		typeID = "Entity_Npc";
 		spokenLanguage.push_back(English);
 		readingLanguage.push_back(English);
 	};
 	virtual ~Entity_Npc() {
 		delete dialogTree;
+	}
+	virtual int GetClassHash() override {
+		return typeid(this).hash_code();
 	}
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);

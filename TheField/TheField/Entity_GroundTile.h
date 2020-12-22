@@ -3,12 +3,13 @@
 class Entity_GroundTile : public Entity
 {
 public:
-	Entity_GroundTile() {
-		typeID = "Entity_GroundTile";
-	};
+	Entity_GroundTile() {};
 	virtual ~Entity_GroundTile() {};
 	virtual Entity_GroundTile* Clone() {
 		return new Entity_GroundTile(*this);
+	}
+	virtual int GetClassHash() override {
+		return typeid(this).hash_code();
 	}
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);

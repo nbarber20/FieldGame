@@ -5,12 +5,11 @@ class ObservationManager;
 class Entity_Constructed : public Entity
 {
 public:
-	Entity_Constructed()
-	{
-		typeID = "Entity_Constructed";
-	}
+	Entity_Constructed() {}
 	virtual ~Entity_Constructed() {};
-
+	virtual int GetClassHash() override {
+		return typeid(this).hash_code();
+	}
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);
 		output->write((char*)&broken, sizeof(bool));

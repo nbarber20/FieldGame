@@ -1,40 +1,40 @@
-	currentFilename = "Development";
+currentFilename = "Development";
 	std::filesystem::create_directory("Data/Saves/" + currentFilename);
 	int worldID = 0;
 
 	Entity_GroundTile* Ground = new Entity_GroundTile();
-	Ground->SetEntityData(GetUniqueID(), false, 0.0f, 60000.0f,0.0f);
+	Ground->SetEntityData(GetUniqueID(), false, 0.0f, 60000.0f, 0.0f);
 	Ground->attachedToParent = true;
 	Ground->names = { "dirt","ground","grass" };
 	loadedTiles = { worldID };
 	Ground->worldPos = worldID;
 	Ground->toWest = std::make_pair("There is a people on horses to the west", 3);
 	Ground->toNorth = std::make_pair("There is a farmhouse to the north", 1);
-	entities.push_back(Ground);
+	World::Instance().AddEntity(Ground);
 
-	playerEntity = new Entity_Player();
-	playerEntity->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 150.0f);
-	playerEntity->names = { "you" };
-	playerEntity->SetParent(On, Ground);
-	entities.push_back(playerEntity);
+	World::Instance().playerEntity = new Entity_Player();
+	World::Instance().playerEntity->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 150.0f);
+	World::Instance().playerEntity->names = { "you" };
+	World::Instance().playerEntity->SetParent(On, Ground);
+	World::Instance().AddEntity(World::Instance().playerEntity);
 
 	Entity_Container* backPack = new Entity_Container();
 	backPack->SetEntityData(GetUniqueID(), true, 1220.47f, 1221.0f, 1.0f);
 	backPack->names = { "backpack" };
-	backPack->SetParent(Back, playerEntity);
+	backPack->SetParent(Back, World::Instance().playerEntity);
 	backPack->AddAdjective(Visual, "leather");
 	backPack->permiability = 4.5f;
-	entities.push_back(backPack);
+	World::Instance().AddEntity(backPack);
 
 	Entity_Firearm* handGun = new Entity_Firearm(Entity_Clip::Pistol);
-	handGun->SetEntityData(GetUniqueID(),false,0.0f, 14.5f, 1.5f);
+	handGun->SetEntityData(GetUniqueID(), false, 0.0f, 14.5f, 1.5f);
 	handGun->names = { "handgun", "gun" };
-	handGun->SetParent(RightHand, playerEntity);
-	entities.push_back(handGun);
+	handGun->SetParent(RightHand, World::Instance().playerEntity);
+	World::Instance().AddEntity(handGun);
 
-	Entity_Clip* handGunAmmo = new Entity_Clip(7,Entity_Clip::Pistol);
+	Entity_Clip* handGunAmmo = new Entity_Clip(7, Entity_Clip::Pistol);
 	handGun->SetEntityData(GetUniqueID(), false, 0.0f, 7.f, 1.5f);
 	handGunAmmo->names = { "clip" };
-	entities.push_back(handGunAmmo);
+	World::Instance().AddEntity(handGunAmmo);
 
 	handGun->Reload(handGunAmmo);

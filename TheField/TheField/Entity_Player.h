@@ -8,7 +8,6 @@ class Entity_Player : public Entity_Living
 {
 public:
 	Entity_Player() {
-		typeID = "Entity_Player";
 		individualName = "You";
 		spokenLanguage.push_back(English);
 		readingLanguage.push_back(English);
@@ -16,6 +15,9 @@ public:
 	virtual ~Entity_Player() {};
 	virtual void Tick() override;
 
+	virtual int GetClassHash() override {
+		return typeid(this).hash_code();
+	}
 	virtual Entity_Player* Clone() {
 		return new Entity_Player(*this);
 	}
