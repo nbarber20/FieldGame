@@ -105,6 +105,68 @@ public:
 		input->read((char*)&dead, sizeof(bool));
 	};
 
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
+		Entity::WriteToJson(writer);
+
+		writer->Key("homeID");
+		writer->Int(homeID);
+		writer->Key("homePosition");
+		writer->Int((int)homePosition);
+		writer->Key("homeWorldID");
+		writer->Int((int)homeWorldID);
+		//TODO spoken
+		//TODO written
+		writer->Key("strength");
+		writer->Double(strength);
+		writer->Key("healthStatus");
+		writer->Int((int)healthStatus);
+		writer->Key("nourishment");
+		writer->Double(nourishment);
+		writer->Key("hydration");
+		writer->Double(hydration);
+		writer->Key("maxNourishment");
+		writer->Double(maxNourishment);
+		writer->Key("maxHydration");
+		writer->Double(maxHydration);
+		writer->Key("bleedSpeed");
+		writer->Double(bleedSpeed);
+		writer->Key("bloodLevel");
+		writer->Double(bloodLevel);
+		writer->Key("maxBloodLevel");
+		writer->Double(maxBloodLevel);
+		writer->Key("unconsciousCounter");
+		writer->Int(unconsciousCounter);
+		writer->Key("damageThreshold");
+		writer->Double(damageThreshold);
+		writer->Key("resistance");
+		writer->Double(resistance);
+		writer->Key("unconscious");
+		writer->Bool(unconscious);
+		writer->Key("dead");
+		writer->Bool(dead);
+	}
+
+	virtual void ReadFromJson(Value& v) {
+		Entity::ReadFromJson(v);
+		homeID = v["homeID"].GetInt();
+		homePosition = (Position)v["homePosition"].GetInt();
+		homeWorldID = v["homeWorldID"].GetInt();
+		//TODO spoken
+		//TODO written
+		strength = v["strength"].GetDouble();
+		healthStatus = (HealthStatus)v["strength"].GetInt();
+		nourishment = v["nourishment"].GetDouble();
+		hydration = v["hydration"].GetDouble();
+		maxNourishment = v["maxNourishment"].GetDouble();
+		maxHydration = v["maxHydration"].GetDouble();
+		bleedSpeed = v["bleedSpeed"].GetDouble();
+		bloodLevel = v["bloodLevel"].GetDouble();
+		maxBloodLevel = v["maxBloodLevel"].GetDouble();
+		unconsciousCounter = v["unconsciousCounter"].GetInt();
+		resistance = v["resistance"].GetDouble();
+		unconscious = v["unconscious"].GetBool();
+		dead = v["dead"].GetBool();
+	}
 
 	virtual void Tick() override;
 
@@ -136,7 +198,7 @@ public:
 	int unconsciousCounter = 0;
 
 	float damageThreshold = 0.0f;
-	float resistance = 0.1;
+	float resistance = 0.1f;
 
 	bool unconscious = false;
 	bool dead = false;

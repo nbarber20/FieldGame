@@ -18,6 +18,24 @@ public:
 		this->clipType = type;
 	}
 	virtual ~Entity_Clip() {};
+
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
+		Entity::WriteToJson(writer);
+		writer->Key("clipType");
+		writer->Int((int)clipType);
+		writer->Key("bulletsInClip");
+		writer->Int(bulletsInClip);
+		writer->Key("clipSize");
+		writer->Int(clipSize);
+	}
+
+	virtual void ReadFromJson(Value& v) {
+		Entity::ReadFromJson(v);
+		clipType = (ClipType)v["clipType"].GetInt();
+		bulletsInClip = v["bulletsInClip"].GetInt();
+		clipSize = v["clipSize"].GetInt();
+	}
+
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);
 		output->write((char*)&clipType, sizeof(int));

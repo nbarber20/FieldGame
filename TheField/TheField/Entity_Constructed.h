@@ -23,6 +23,19 @@ public:
 		input->read((char*)&resisitance, sizeof(int));
 	};
 
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
+		Entity::WriteToJson(writer);
+		writer->Key("broken");
+		writer->Bool(broken);
+		writer->Key("resisitance");
+		writer->Int(resisitance);
+	}
+	virtual void ReadFromJson(Value& v) {
+		Entity::ReadFromJson(v);
+		broken = v["broken"].GetBool();
+		resisitance = v["resisitance"].GetInt();
+	}
+
 	bool BreakConstructed(int inputStrength);
 	bool broken = false;
 	int resisitance = 0;

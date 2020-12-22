@@ -6,7 +6,9 @@
 #include "TextDisplay.h"
 #include <functional>
 #include <fstream>
-
+#include "rapidjson/document.h"     
+#include "rapidjson/prettywriter.h" 
+using namespace rapidjson;
 enum Languages
 {
 	English,
@@ -81,8 +83,54 @@ public:
 		return new Entity(*this);
 	}
 
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
+		if (parent.second != nullptr) {
+			parentEntityID = parent.second->uniqueEntityID;
+		}
+		parentEntityDir = (int)parent.first;
+
+		writer->Key("typeID");
+		writer->String(typeID.c_str(), static_cast<SizeType>(typeID.length()));
+		writer->Key("parentEntityID");
+		writer->Int(parentEntityID);
+		writer->Key("parentEntityDir");
+		writer->Int(parentEntityDir);
+		writer->Key("worldActive");
+		writer->Bool(worldActive);
+
+
+		writer->Key("worldID");
+		writer->Int(worldID);
+
+		writer->Key("uniqueEntityID");
+		writer->Int(uniqueEntityID);
+
+		writer->Key("worldActive");
+		writer->Bool(worldActive);
+
+		writer->Key("names");
+		writer->StartArray();
+		for (int i = 0; i < names.size(); i++) {
+			writer->String(names[i].c_str(), static_cast<SizeType>(names[i].length()));
+		}
+		writer->EndArray();
+	}
+
+	virtual void ReadFromJson(Value& v) {
+		worldID = v["worldID"].GetInt();
+		parentEntityID = v["parentEntityID"].GetInt();
+		parentEntityDir = v["parentEntityDir"].GetInt();
+		worldActive = v["worldActive"].GetBool();
+		uniqueEntityID = v["uniqueEntityID"].GetInt();
+		worldActive = v["worldActive"].GetBool();
+		for (int i = 0; i < v["names"].Size(); i++) {
+			names.push_back(v["names"][i].GetString());
+		}
+	}
+
 	virtual void WriteData(std::fstream* output) {
 		WriteStringData(typeID, output);
+
 		output->write((char*)&worldID, sizeof(int));
 		output->write((char*)& uniqueEntityID, sizeof(int));
 		output->write((char*)& worldActive, sizeof(bool));
@@ -102,7 +150,7 @@ public:
 		output->write((char*)&rotation, sizeof(int));
 		output->write((char*)&facingDirection, sizeof(int));
 		if (parent.second != nullptr) {
-			output->write((char*)&(parent.second->uniqueEntityID), sizeof(int));
+			output->write((char*)&(parent.second->uniqueEntityID), sizeof(int)); //Writing parent id
 		}
 		else
 		{

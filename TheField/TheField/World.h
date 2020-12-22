@@ -32,7 +32,7 @@ public:
 	Entity* genEntity(std::string entityObjType);
 	void setupParents();
 	
-
+	std::vector< Entity*> GetEntities();
 	Entity_Player* playerEntity;
 	std::vector<int> loadedTiles = {0};
 	int currentPlayerTile;

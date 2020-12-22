@@ -554,3 +554,8 @@ void World::setupParents()
 		}
 	}
 }
+
+std::vector< Entity*> World::GetEntities()
+{
+	return entities;
+}

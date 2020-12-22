@@ -18,6 +18,19 @@ public:
 		input->read((char*)&nutritionalValue, sizeof(float));
 		input->read((char*)&spoiled, sizeof(bool));
 	};
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
+		Entity::WriteToJson(writer);
+		writer->Key("nutritionalValue");
+		writer->Double(nutritionalValue);
+		writer->Key("spoiled");
+		writer->Bool(spoiled);
+	}
+
+	virtual void ReadFromJson(Value& v) {
+		Entity::ReadFromJson(v);
+		nutritionalValue = v["nutritionalValue"].GetDouble();
+		spoiled = v["spoiled"].GetBool();
+	}
 	float nutritionalValue;
 	bool spoiled = false;
 };

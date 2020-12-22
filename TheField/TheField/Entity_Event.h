@@ -37,6 +37,21 @@ public:
 		}
 	};
 
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
+		Entity::WriteToJson(writer);
+		writer->Key("EventImageFile");
+		writer->String(EventImageFile.c_str(), static_cast<SizeType>(EventImageFile.length()));
+		writer->Key("EventText");
+		writer->String(EventText.c_str(), static_cast<SizeType>(EventText.length()));
+	}
+
+	virtual void ReadFromJson(Value& v) {
+		Entity::ReadFromJson(v);
+		EventImageFile = v["EventImageFile"].GetString();
+		EventText = v["EventText"].GetString();
+	}
+
+
 	void setObservationConsumptionList(std::vector<std::pair<int, int>> newList);
 	bool AttemptTrigger();
 	std::string EventImageFile;

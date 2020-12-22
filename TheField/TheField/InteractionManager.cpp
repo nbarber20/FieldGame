@@ -107,10 +107,14 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 		if (introStage == 0) {
 			textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
 			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("Everyone has a special item they hold dearly.", sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("What do you bring with you?", sf::Color::Yellow));
+		}
+		else if (introStage == 1) {
+			textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
+			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
 			textdisplay->addImage("Data/Art/Start.png");
 			textdisplay->addLog(TextDisplay::Log("You find yourself laying in a large grassy field. Its nearly sunset", sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("Perhaps this is a dream", sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("Perhaps this is a the afterlife", sf::Color::Yellow));
 			textdisplay->addLog(TextDisplay::Log("What will you do next?", sf::Color::Yellow));
 			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
 			currentInteractionState = WorldInteraction;

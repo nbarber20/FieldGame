@@ -65,6 +65,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 
 				preposition = getPreposition(e->parent.first, &prepositionNoun, e->IsChildOf(playerEntity));
 				if (prepositionNoun == false&& e->parent.second!=nullptr) {
+					//TODO check if parent has name
 					preposition += " the " + e->parent.second->names[0];
 				}
 				ADJ = e->GetRandomAdjective(Visual) + " ";
@@ -147,7 +148,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 					}
 				}
 				else {
-					textDisplay->addLog(TextDisplay::Log(defrefNameADJ + " is now " + preposition + " the " + e->parent.second->names[0], sf::Color::Yellow));
+					textDisplay->addLog(TextDisplay::Log(defrefNameADJ + " is now " + preposition, sf::Color::Yellow));
 				}
 			}
 		}

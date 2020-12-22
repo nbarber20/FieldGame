@@ -1,0 +1,104 @@
+{
+    "entities": [
+        {
+            "typeID": "Entity_Player",
+            "parentEntityID": 0,
+            "parentEntityDir": 4,
+            "worldActive": false,
+            "worldID": 0,
+            "uniqueEntityID": 1,
+            "worldActive": false,
+            "names": [
+                "you"
+            ],
+            "homeID": 0,
+            "homePosition": 4,
+            "homeWorldID": 0,
+            "strength": 65.0,
+            "healthStatus": 0,
+            "nourishment": 149.5,
+            "hydration": 149.0,
+            "maxNourishment": 150.0,
+            "maxHydration": 150.0,
+            "bleedSpeed": 0.0,
+            "bloodLevel": 192.0,
+            "maxBloodLevel": 192.0,
+            "unconsciousCounter": 0,
+            "damageThreshold": 0.0,
+            "resistance": 0.10000000149011612,
+            "unconscious": false,
+            "dead": false
+        },
+        {
+            "typeID": "Entity_Container",
+            "parentEntityID": 1,
+            "parentEntityDir": 13,
+            "worldActive": false,
+            "worldID": -1,
+            "uniqueEntityID": 2,
+            "worldActive": false,
+            "names": [
+                "backpack"
+            ],
+            "permiability": 0.0
+        },
+        {
+            "typeID": "Entity_Firearm",
+            "parentEntityID": 1,
+            "parentEntityDir": 9,
+            "worldActive": false,
+            "worldID": -1,
+            "uniqueEntityID": 4,
+            "worldActive": false,
+            "names": [
+                "handgun",
+                "gun"
+            ],
+            "clipType": 0
+        },
+        {
+            "typeID": "Entity_Clip",
+            "parentEntityID": 4,
+            "parentEntityDir": 2,
+            "worldActive": false,
+            "worldID": -1,
+            "uniqueEntityID": 0,
+            "worldActive": false,
+            "names": [
+                "clip"
+            ],
+            "clipType": 0,
+            "bulletsInClip": 7,
+            "clipSize": 7
+        },
+        {
+            "typeID": "Entity_Player",
+            "parentEntityID": 0,
+            "parentEntityDir": 4,
+            "worldActive": false,
+            "worldID": 0,
+            "uniqueEntityID": 1,
+            "worldActive": false,
+            "names": [
+                "you"
+            ],
+            "homeID": 0,
+            "homePosition": 4,
+            "homeWorldID": 0,
+            "strength": 65.0,
+            "healthStatus": 0,
+            "nourishment": 149.5,
+            "hydration": 149.0,
+            "maxNourishment": 150.0,
+            "maxHydration": 150.0,
+            "bleedSpeed": 0.0,
+            "bloodLevel": 192.0,
+            "maxBloodLevel": 192.0,
+            "unconsciousCounter": 0,
+            "damageThreshold": 0.0,
+            "resistance": 0.10000000149011612,
+            "unconscious": false,
+            "dead": false
+        }
+    ]
+}

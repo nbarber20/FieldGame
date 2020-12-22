@@ -26,6 +26,16 @@ public:
 		input->read((char*)&permiability, sizeof(float));
 	};
 
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
+		Entity::WriteToJson(writer);
+		writer->Key("permiability");
+		writer->Double(permiability);
+	}
+	virtual void ReadFromJson(Value& v) {
+		Entity::ReadFromJson(v);
+		resisitance = v["permiability"].GetDouble();
+	}
+
 	virtual void Tick() override;
 	virtual bool PourInto(Entity* target);
 	float permiability = 0.0f;
