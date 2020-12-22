@@ -3,6 +3,7 @@
 #include "World.h"
 #include "Entity_Room.h"
 #include "ObservationManager.h"
+#include "GameLoader.h"
 
 Entity_Interior::~Entity_Interior()
 {
@@ -18,7 +19,7 @@ void Entity_Interior::AddRoom(std::string roomName, sf::Vector2i position, bool 
 {
 	Room* newRoom = new Room;
 	Entity_Room* RoomEntity = new Entity_Room();
-	RoomEntity->SetEntityData(World::Instance().GetUniqueID(), false, 47520.0f, 47520.0f, 80000.0f);
+	RoomEntity->SetEntityData(GameLoader::Instance().GetUniqueID(), false, 47520.0f, 47520.0f, 80000.0f);
 	RoomEntity->names = { roomName,"room","floor" };
 	RoomEntity->parent = std::make_pair(OnFloor, this);
 	RoomEntity->parentEntityDir = (int)OnFloor;

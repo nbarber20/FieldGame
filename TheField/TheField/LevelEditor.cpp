@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "LevelEditor.h"
 #include "World.h"
+#include "GameLoader.h"
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
@@ -27,7 +28,7 @@ void LevelEditor::LoadFromJSON()
 	assert(entities.IsArray());
 	for (int i = 0; i < entities.Size();i++) {
 		std::string b = document["entities"][i]["typeID"].GetString();
-		Entity* e = World::Instance().genEntity(b);
+		Entity* e = GameLoader::Instance().GenEntity(b);
 		e->ReadFromJson(document["entities"][i]);
 		World::Instance().AddEntity(e);
 	}
@@ -48,7 +49,7 @@ void LevelEditor::LoadPlayerFromJSON()
 	assert(entities.IsArray());
 	for (int i = 0; i < entities.Size(); i++) {
 		std::string b = document["entities"][i]["typeID"].GetString();
-		Entity* e = World::Instance().genEntity(b);
+		Entity* e = GameLoader::Instance().GenEntity(b);
 		e->ReadFromJson(document["entities"][i]);
 		World::Instance().AddEntity(e);
 	}
@@ -91,7 +92,7 @@ void LevelEditor::SavePlayerToJSON()
 	for (int i = 0; i < entities.size(); i++) {
 		Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
 		if (p) {
-			entities[i]->worldID = World::Instance().currentPlayerTile;
+			entities[i]->worldID = GameLoader::Instance().currentPlayerTile;
 			writer.StartObject();
 			entities[i]->WriteToJson(&writer);
 			writer.EndObject();
@@ -114,10 +115,8 @@ void LevelEditor::SavePlayerToJSON()
 void LevelEditor::SaveToFile(bool savePlayer)
 {
 	if (savePlayer) {
-		World::Instance().SavePlayer();
+		GameLoader::Instance().SavePlayer();
 	}
 	World::Instance().Tick();
-	for (int i = 0; i < World::Instance().loadedTiles[i]; i++) {
-		World::Instance().SaveTile(World::Instance().loadedTiles[i]);
-	}
+	GameLoader::Instance().UnloadTiles();
 }

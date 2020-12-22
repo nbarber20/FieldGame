@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "InteractionManager.h"
+#include "GameLoader.h"
 #include "Entity_Constructed.h"
 #include "Entity_Container.h"
 #include "Entity_Readable.h"
@@ -65,7 +66,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 			}
 		}
 		else if (mainMenuStage == 1) {
-			if (World::Instance().CreateNewGameFile(input)) {
+			if (GameLoader::Instance().CreateNewGameFile(input)) {
 				currentInteractionState = Intro;
 				textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
 				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
@@ -78,7 +79,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 			}
 		}
 		else if (mainMenuStage ==2) {
-			if (World::Instance().LoadAll(input)) {
+			if (GameLoader::Instance().LoadAll(input)) {
 				textdisplay->addLog(TextDisplay::Log("... world loaded", sf::Color::Yellow));
 				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
 				currentInteractionState = WorldInteraction;
@@ -90,7 +91,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 			}
 		}
 		else if (mainMenuStage == 3) {
-			if (World::Instance().DeleteGameFile(input)) {
+			if (GameLoader::Instance().DeleteGameFile(input)) {
 				textdisplay->addLog(TextDisplay::Log("File deleted...", sf::Color::Yellow));
 				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
 				mainMenuStage = 0;

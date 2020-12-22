@@ -10,41 +10,25 @@ public:
 		static World INSTANCE;
 		return INSTANCE;
 	}
-	World();
+	World() {};
+	void ClearEntities();
 	void AddEntity(Entity* e);
 	void RemoveEntity(Entity* e);
-	int GetUniqueID();
 	void Tick();
-	void Setup();
 	Entity* GetEntityByID(int id, int worldID);
 	void MoveToTile(int tileName);
-	void SaveAll();
-	bool LoadAll(std::string filename);
-	void SavePlayer();
-	void LoadPlayer(bool getLoadedTiles);
-	void SaveTile(int tileID);
-	void LoadTile(int tileID);
-	bool CreateNewGameFile(std::string filename);
-	bool DeleteGameFile(std::string filename);
-	void CopyGameFile(std::string from,std::string to);
-	void ThrowFileError(std::string error);
-
-	Entity* genEntity(std::string entityObjType);
 	void setupParents();
-	
 	std::vector< Entity*> GetEntities();
+	float GetWorldTime();
+	int GetWorldDay();
+	void SetWorldTime(float to);
+	void SetWorldDay(int to);
 	Entity_Player* playerEntity;
-	std::vector<int> loadedTiles = {0};
-	int currentPlayerTile;
 private:
+	std::vector< Entity*> entities;
 	float worldTime = 0;
 	int day = 0;
-	Entity* currentGroundTile;
-	std::vector< Entity*> entities;
-	int uniqueID = 0;
 	Constants constants;
 	bool sunSet = false;
-	std::string currentFilename = "null";
-	int errorCount = 0;
 };
 

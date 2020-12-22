@@ -81,9 +81,6 @@
     <ClInclude Include="Entity_Npc.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Task.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Entity_Mechanisim.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
@@ -93,7 +90,7 @@
     <ClInclude Include="Entity_Firearm.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="GameLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LevelEditor.h">
@@ -161,18 +158,11 @@
     <ClCompile Include="Entity_Firearm.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="GameLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="LevelEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="TheField.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="icon.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>
