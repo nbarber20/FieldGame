@@ -17,6 +17,8 @@ private:
 		Intro,
 		WorldInteraction,
 		Dialog,
+		SaveOverride,
+		LoadOverride,
 	};
 	enum InputError
 	{
@@ -42,7 +44,7 @@ public:
 	void LogDialog();
 	bool FindParticleInput(std::string toFind);
 private:
-	InteractionState currentInteractionState = MainMenu;
+	InteractionState currentInteractionState = SaveOverride;
 	int introStage = 0;
 	int mainMenuStage = 0;
 	Constants constants;

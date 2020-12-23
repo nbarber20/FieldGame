@@ -23,7 +23,9 @@ public:
 		Entity::ReadData(input);
 		dialogTree = new DialogTree();
 		dialogTree->ReadData(input);
+		dialogTree->LivingSource = this;
 	};
+	void NoticePickpocket(Entity* thief);
 	DialogTree* dialogTree;
 };
 

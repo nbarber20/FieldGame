@@ -14,7 +14,16 @@
 void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 {
 	Entity_Player* player = World::Instance().playerEntity;
-	if (currentInteractionState == MainMenu) {
+	
+	if (currentInteractionState == LoadOverride) {
+		GameLoader::Instance().LoadAll("Testing");
+		currentInteractionState = WorldInteraction;
+	}
+	else if (currentInteractionState == SaveOverride) {
+		GameLoader::Instance().Setup();
+		currentInteractionState = WorldInteraction;
+	}
+	else if (currentInteractionState == MainMenu) {
 
 		if (mainMenuStage == 0) {
 			if (input == "new") {
@@ -483,10 +492,26 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		if (subject&& predicate) {
 			Entity_Firearm* gun = dynamic_cast<Entity_Firearm*>(subject);
 			if (gun) {
-				gun->Fire(predicate);
+				gun->Attack(player,predicate);
 				return Success;
 			}
 			return Impossible;
+		}
+		return NeedsSubjectPredicate;
+	}
+	else if (verb == "attack") {
+		if (subject) {
+			player->target = subject;
+			player->AttackTarget(true);
+			return Success;
+		}
+		return NeedsSubjectPredicate;
+	}
+	else if (verb == "punch") {
+		if (subject) {
+			player->target = subject;
+			player->AttackTarget(false);
+			return Success;
 		}
 		return NeedsSubjectPredicate;
 	}
@@ -604,6 +629,12 @@ std::string InteractionManager::GetVerb(Entity_Player* player, int index)
 	}
 	if (splitInput[index] == "fire" || splitInput[index] == "shoot") {
 		return "fire";
+	}
+	if (splitInput[index] == "attack") {
+		return "attack";
+	}
+	if (splitInput[index] == "punch"||splitInput[index] == "melee") {
+		return "punch";
 	}
 	if (splitInput[index] == "wait") {
 		return "wait";

@@ -1,7 +1,7 @@
 #pragma once
 #include <string.h>
 #include "Entity.h"
-
+#include "BehaviorTree.h"
 class GameLoader
 {
 public:
@@ -18,6 +18,8 @@ public:
 
 	void UnloadTiles();
 	void LoadTiles();
+	BehaviorTree* LoadBehaviorTree(std::string filename);
+	void SaveBehaviorTree(BehaviorTree* tree);
 	void SavePlayer();
 	void LoadPlayer(bool getLoadedTiles);
 	void SaveTile(int tileID);
@@ -27,6 +29,7 @@ public:
 	void CopyGameFile(std::string from, std::string to);
 	void ThrowFileError(std::string error);
 	Entity* GenEntity(int hash);
+	BehaviorNode* GenBehaviorNode(int hash);
 
 	std::vector<int> loadedTiles = { 0 };
 	int currentPlayerTile;

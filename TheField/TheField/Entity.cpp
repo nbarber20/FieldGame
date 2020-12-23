@@ -248,6 +248,21 @@ bool Entity::IsChildOf(Entity* toCompare)
 	return false;
 }
 
+bool Entity::IsChildOf(int hash,Entity** foundEntity)
+{
+	Entity* parentCheck = this->parent.second;
+	do {
+		if (parentCheck->GetClassHash() == hash) {
+			*foundEntity = parentCheck;
+			return true;
+		}
+		if (parentCheck != nullptr) {
+			parentCheck = parentCheck->parent.second;
+		}
+	} while (parentCheck != nullptr);
+	return false;
+}
+
 int Entity::getChildDepth()
 {
 	int depth = 0;

@@ -1,11 +1,20 @@
 #include "pch.h"
 #include "Entity_Living.h"
+#include "Entity_Weapon.h"
+#include "Entity_Npc.h"
+#include "Entity_Player.h"
 #include "ObservationManager.h"
 #include "World.h"
 void Entity_Living::Tick()
 {
 	Entity::Tick();
-
+	for(int i =0;i<behaviorTrees.size();i++){
+		if (behaviorTrees[i]->Tick() == true)
+		{
+			//tree complete
+			behaviorTrees.erase(std::remove(behaviorTrees.begin(), behaviorTrees.end(), behaviorTrees[i]), behaviorTrees.end());
+		}
+	}
 	if (homeID == -2) { //No home, set it here
 		SetHome(this->parent.first, this->parent.second);
 	}
@@ -17,16 +26,16 @@ void Entity_Living::Tick()
 		if (damageThreshold <= 0) damageThreshold = 0;
 
 		if (nourishment <= 0) {
-			TakeDamage(Hunger, 1.0f, 1);
+			TakeDamage(this,Hunger, 1.0f, 1);
 		}
 		else if (nourishment <= 20) {
-			TakeDamage(Hunger, 0.35f, 1);
+			TakeDamage(this, Hunger, 0.35f, 1);
 		}
 		if (hydration <= 0) {
-			TakeDamage(Thirst, 1.0f, 1);
+			TakeDamage(this, Thirst, 1.0f, 1);
 		}
 		else if (hydration <= 20) {
-			TakeDamage(Thirst, 0.35f, 1);
+			TakeDamage(this, Thirst, 0.35f, 1);
 		}
 
 
@@ -60,7 +69,7 @@ void Entity_Living::Tick()
 				o.information = names[0] + " falls unconscious";
 				ObservationManager::Instance().MakeObservation(o);
 			}
-			TakeDamage(Bleed, 1, 1);
+			TakeDamage(this, Bleed, 1, 1);
 		}
 		if (unconscious == true) {
 			unconsciousCounter--;
@@ -75,6 +84,12 @@ void Entity_Living::Tick()
 			}
 		}
 	}	
+}
+
+void Entity_Living::AddBehavior(BehaviorTree* tree)
+{
+	tree->parentEntity = this;
+	behaviorTrees.push_back(tree);
 }
 
 void Entity_Living::SetHome(Position p, Entity* home)
@@ -97,11 +112,13 @@ void Entity_Living::ReturnHome()
 	SetParent(homePosition,homeEntity);
 }
 
-void Entity_Living::TakeDamage(DamageType type, float multiplier, int lethalityLevel) {
+void Entity_Living::TakeDamage(Entity* source, DamageType type, float multiplier, int lethalityLevel) {
 	//TODO resistances
 	damageThreshold += multiplier;
+	behaviorState = Defensive;
 	if (damageThreshold > healthThresholds[(int)healthStatus]) {
 
+		behaviorState = Enraged;
 
 		int offset = (int)healthStatus + lethalityLevel;
 		if (offset > 6)offset = 6;
@@ -129,6 +146,71 @@ void Entity_Living::TakeDamage(DamageType type, float multiplier, int lethalityL
 		o.type = ObservationManager::TYPE_Direct;
 		o.information = names[0] + " is " + GetHealthStatusString(healthStatus);
 		ObservationManager::Instance().MakeObservation(o);
+	}
+	if (source != this) {
+		Entity_Living* livingTest = dynamic_cast<Entity_Living*>(source);
+		if (livingTest) {
+			target = livingTest;
+			return;
+		}
+		else {
+			Entity* check = nullptr;
+			source->IsChildOf(typeid(Entity_Npc*).hash_code(), &check);
+			source->IsChildOf(typeid(Entity_Living*).hash_code(), &check);
+			source->IsChildOf(typeid(Entity_Player*).hash_code(), &check);
+			if (check != nullptr) {
+				target = check;
+				return;
+			}
+		}
+	}
+}
+
+void Entity_Living::AttackTarget(bool sourceWeapon)
+{
+	if (target == nullptr)return;
+	Entity_Living* livingTarget = dynamic_cast<Entity_Living*>(target);
+	if (livingTarget) {
+		if (sourceWeapon) {
+			std::vector<Entity*> items = GetInventory();
+			for (int i = 0; i < items.size(); i++) {
+				Entity_Weapon* weapon = dynamic_cast<Entity_Weapon*>(items[i]);
+				if (weapon) {
+					if (weapon->Attack(this,livingTarget)) {
+
+						if (livingTarget->dead) {
+							behaviorState = Idle;
+							target = nullptr;
+						}
+						return;
+					}
+				}
+			}
+
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Direct;
+			o.information = names[0] + " punches" + target->names[0];
+			ObservationManager::Instance().MakeObservation(o);
+			livingTarget->TakeDamage(this,unarmedDamageType, unarmedDamageMultiplier, unarmedDamageLethalityLevel); // punch
+		}
+		else {
+
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Direct;
+			o.information = names[0] + " attacks" + target->names[0];
+			ObservationManager::Instance().MakeObservation(o);
+			livingTarget->TakeDamage(this, unarmedDamageType, unarmedDamageMultiplier, unarmedDamageLethalityLevel);// punch
+		}
+
+		if (livingTarget->dead) {
+			behaviorState = Idle;
+			target = nullptr;
+		}
+	}
+	if (behaviorState == Defensive) {
+		target = nullptr;
 	}
 }
 

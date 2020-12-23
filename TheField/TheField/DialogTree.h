@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "BehaviorTree.h"
+#include "GameLoader.h"
 class DialogTree
 {
 public:
@@ -13,6 +15,7 @@ public:
 		std::string dialog;
 		DialogTreeEvent event = EVENT_NONE;
 		std::vector<std::pair<std::string, int>> responses;
+		std::string behaviorTree = "";
 	};
 
 	DialogTree() {};
@@ -31,6 +34,20 @@ public:
 			for (int j = 0; j < TreeNodeResponseSize; j++) {
 				WriteStringData(TreeNodes[i].responses[j].first, output);
 				output->write((char*)&(TreeNodes[i].responses[j].second), sizeof(int));
+			}
+
+			if (TreeNodes[i].behaviorTree != "") {
+
+				std::string name = TreeNodes[i].behaviorTree;
+				size_t len = name.size();
+				output->write((char*)&(len), sizeof(size_t));
+				output->write(name.c_str(), len);
+			}
+			else
+			{
+				std::string empty = "";
+				size_t len = empty.size();
+				output->write((char*)&(len), sizeof(size_t));
 			}
 		}
 	};
@@ -56,7 +73,18 @@ public:
 			node.dialog = d;
 			node.event = (DialogTreeEvent)evnt;
 			node.responses = responses;
+
+			size_t namelen;
+			input->read((char*)&namelen, sizeof(size_t));
+			char* temp = new char[namelen + 1];
+			input->read(temp, namelen);
+			temp[namelen] = '\0';
+			if (namelen > 0) {
+				node.behaviorTree = temp;
+			}
+
 			TreeNodes.push_back(node);
+
 		}
 	};
 	void WriteStringData(std::string s, std::fstream* output) {
@@ -73,9 +101,6 @@ public:
 		temp[namelen] = '\0';
 		return temp;
 	}
-	std::vector<DialogNode> TreeNodes;
-
-	int currentIndex = 0;
 
 	DialogTreeEvent Respond(int chosenResponse) {
 		if (chosenResponse < 0 || chosenResponse >= TreeNodes[currentIndex].responses.size()) {
@@ -83,12 +108,20 @@ public:
 			return EVENT_EXIT;
 		}
 		currentIndex = TreeNodes[currentIndex].responses[chosenResponse].second;
-
+		if (TreeNodes[currentIndex].behaviorTree != "") {
+			LivingSource->AddBehavior(GameLoader::Instance().LoadBehaviorTree(TreeNodes[currentIndex].behaviorTree));
+		}
 		if (TreeNodes[currentIndex].event == EVENT_EXIT) {
 			currentIndex = 0;
 		}
 
 		return TreeNodes[currentIndex].event;
 	}
+
+
+
+	std::vector<DialogTree::DialogNode> TreeNodes;
+	Entity_Living* LivingSource;
+	int currentIndex = 0;
 };
 

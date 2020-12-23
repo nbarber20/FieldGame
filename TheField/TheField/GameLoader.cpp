@@ -19,14 +19,16 @@
 #include "Entity_Clip.h"
 #include "Entity_Firearm.h"
 #include "Entity_Room.h"
+#include "BehaviorTree.h"
+#include "BehaviorNode.h"
 #include "ObservationManager.h"
 
 
 void GameLoader::Setup()
 {
-	currentFilename = "Development";
+	currentFilename = "Testing";
 	std::filesystem::create_directory("Data/Saves/" + currentFilename);
-	int worldID = 3;
+	int worldID = 0;
 
 	Entity_GroundTile* Ground = new Entity_GroundTile();
 	Ground->SetEntityData(GetUniqueID(), false, 0.0f, 60000.0f, 0.0f);
@@ -37,60 +39,74 @@ void GameLoader::Setup()
 	Ground->toEast = std::make_pair("There is a empty field to the east", 0);
 	World::Instance().AddEntity(Ground);
 
-	Entity_Event* EnterFarmEvent = new Entity_Event();
-	EnterFarmEvent->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
-	EnterFarmEvent->setObservationConsumptionList({
-		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
-		});
-	EnterFarmEvent->EventImageFile = "Data/Art/Horses.png";
-	EnterFarmEvent->EventText = "There are two people in swat-like armor mounted on horses. ";
-	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
-	World::Instance().AddEntity(EnterFarmEvent);
+	World::Instance().playerEntity = new Entity_Player();
+	World::Instance().playerEntity->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 150.0f);
+	World::Instance().playerEntity->names = { "you" };
+	World::Instance().playerEntity->SetParent(On, Ground);
+	World::Instance().AddEntity(World::Instance().playerEntity);
 
-	Entity_Living* Horse = new Entity_Living();
-	Horse->SetEntityData(GetUniqueID(), false, 0.0f, 30511.9f, 1000.f);
-	Horse->names = { "horse" };
-	Horse->AddAdjective(Visual, "white");
-	Horse->SetParent(On, Ground);
-	World::Instance().AddEntity(Horse);
+
+	BehaviorTree* RootHumanBehavior = new BehaviorTree("RootHumanBehavior", true);
+	BehaviorNode* RootHumanBehaviorstart = new BehaviorNode();
+	RootHumanBehavior->AddNode(RootHumanBehaviorstart, nullptr);
+
+	BehaviorNode_Sequence* RootHumanBehaviorseq = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(RootHumanBehaviorseq, RootHumanBehaviorstart);
+
+	BehaviorNode_Living_AttackTarget* RootHumanBehaviorattack = new BehaviorNode_Living_AttackTarget(true);
+	RootHumanBehavior->AddNode(RootHumanBehaviorattack, RootHumanBehaviorseq);
+
+
+	SaveBehaviorTree(RootHumanBehavior);
+
+
+	BehaviorTree* droneScanPlayer = new BehaviorTree("DroneScanPlayer", false);
+	BehaviorNode* start = new BehaviorNode();
+	droneScanPlayer->AddNode(start, nullptr);
+
+	BehaviorNode_Sequence* seq = new BehaviorNode_Sequence();
+	droneScanPlayer->AddNode(seq, start);
+
+	BehaviorNode_WaitTicks* wait = new BehaviorNode_WaitTicks(1);
+	droneScanPlayer->AddNode(wait, seq);
+
+
+	BehaviorNode_AddObservation* observer = new BehaviorNode_AddObservation("GoGOGadget droneScan");
+	droneScanPlayer->AddNode(observer, seq);
+
+	SaveBehaviorTree(droneScanPlayer);
+
+
 
 	Entity_Npc* NPC = new Entity_Npc();
-	NPC->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 100.f);
+	NPC->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 150.0f);
 	NPC->names = { "person" };
-	NPC->AddAdjective(Visual, "masked");
-	NPC->SetParent(On, Horse);
+	NPC->SetParent(On,Ground);
 
-	DialogTree* tree = new DialogTree();
+	//Make Tree
+	DialogTree* dialogtree = new DialogTree();
 	DialogTree::DialogNode node1;
-	node1.dialog = "The masked man shouts: \"anomaly research, stand back!\"";
-	tree->TreeNodes.push_back(node1);
+	node1.dialog = "What Business do you have?";
+	node1.responses.push_back(std::make_pair("Trading", 1));
+	DialogTree::DialogNode node2;
+	node2.dialog = "Drone active.";
+	node2.behaviorTree = droneScanPlayer->treeName;
+	dialogtree->TreeNodes.push_back(node1);
+	dialogtree->TreeNodes.push_back(node2);
 
 	//Finish npc setup
-	NPC->dialogTree = tree;
+	NPC->dialogTree = dialogtree;
+	dialogtree->LivingSource = NPC;
+	NPC->AddBehavior(RootHumanBehavior);
+
+
+
+
+
+
+
 	World::Instance().AddEntity(NPC);
 
-
-	Entity_Living* Horse2 = new Entity_Living();
-	Horse2->SetEntityData(GetUniqueID(), false, 0.0f, 30511.9f, 1000.f);
-	Horse2->names = { "horse" };
-	Horse2->AddAdjective(Visual, "brown");
-	Horse2->SetParent(On, Ground);
-	World::Instance().AddEntity(Horse2);
-
-	Entity_Npc* NPC2 = new Entity_Npc();
-	NPC2->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 100.f);
-	NPC2->names = { "person" };
-	NPC2->AddAdjective(Visual, "armed");
-	NPC2->SetParent(On, Horse2);
-
-	DialogTree* tree2 = new DialogTree();
-	DialogTree::DialogNode node12;
-	node12.dialog = "The armed man shouts: \"anomaly research, stand back!\"";
-	tree2->TreeNodes.push_back(node12);
-
-	//Finish npc setup
-	NPC2->dialogTree = tree2;
-	World::Instance().AddEntity(NPC2);
 
 	Entity_Firearm* Ak47 = new Entity_Firearm(Entity_Clip::MachineGun);
 	Ak47->SetEntityData(GetUniqueID(), false, 0.0, 1000.0f, 7.5f);
@@ -103,18 +119,6 @@ void GameLoader::Setup()
 	Ak47Ammo->names = { "clip" };
 	World::Instance().AddEntity(Ak47Ammo);
 	Ak47->Reload(Ak47Ammo);
-
-	Entity_Firearm* M16 = new Entity_Firearm(Entity_Clip::MachineGun);
-	M16->SetEntityData(GetUniqueID(), false, 0.0, 1000.0f, 7.5f);
-	M16->names = { "m16", "gun" };
-	M16->SetParent(RightHand, NPC2);
-	World::Instance().AddEntity(M16);
-
-	Entity_Clip* M16Ammo = new Entity_Clip(7, Entity_Clip::MachineGun);
-	Ak47Ammo->SetEntityData(GetUniqueID(), false, 0.0, 7.f, 0.5f);
-	M16Ammo->names = { "clip" };
-	World::Instance().AddEntity(M16Ammo);
-	M16->Reload(M16Ammo);
 }
 
 
@@ -178,6 +182,67 @@ void GameLoader::LoadTiles()
 {
 	for (int i = 0; i < loadedTiles.size(); i++) {
 		LoadTile(loadedTiles[i]);
+	}
+}
+
+BehaviorTree* GameLoader::LoadBehaviorTree(std::string filename)
+{
+	BehaviorTree* tree = new BehaviorTree(filename,false);
+	std::fstream file("Data/BehaviorData/" + filename + ".bin", std::ios::in | std::ios::binary);
+	if (!file) {
+		ThrowFileError("Error loading BehaviorTree");
+	}
+	else {
+
+		bool doLoop;
+		file.read((char*)&doLoop, sizeof(bool));
+		tree->loop = doLoop;
+		int nodeCount;
+		file.read((char*)&nodeCount, sizeof(int));
+		for (int i = 0; i < nodeCount; i++) {
+			int hash =0;
+			file.read((char*)&hash, sizeof(int));
+			BehaviorNode* newNode = GenBehaviorNode(hash);
+			newNode->ReadData(&file);
+			int parentIndex;
+			file.read((char*)&parentIndex, sizeof(int));
+			if (parentIndex >= 0) {
+				tree->AddNode(newNode, tree->nodes[parentIndex]);
+			}
+			else {
+				tree->AddNode(newNode, nullptr);
+			}
+		}
+	}
+	return tree;
+}
+
+void GameLoader::SaveBehaviorTree(BehaviorTree* tree)
+{
+	std::fstream file("Data/BehaviorData/" + tree->treeName + ".bin", std::ios::out | std::ios::binary);
+	if (!file) {
+		ThrowFileError("Error saving BehaviorTree");
+	}
+	else {
+		bool doLoop = tree->loop;
+		file.write((char*)&doLoop, sizeof(bool));
+		int nodeCount = tree->nodes.size();
+		file.write((char*)&nodeCount, sizeof(int));
+		for (int i = 0; i < nodeCount; i++) {
+			int hash = tree->nodes[i]->GetClassHash();
+			file.write((char*)&hash, sizeof(int));
+			tree->nodes[i]->WriteData(&file);
+			auto it = std::find(tree->nodes.begin(), tree->nodes.end(),tree->nodes[i]->nodeParent);
+			if (it != tree->nodes.end())
+			{
+				int index = it - tree->nodes.begin();
+				file.write((char*)&index, sizeof(int)); //writing parent node
+			}
+			else {
+				int badIndex = -1;
+				file.write((char*)&badIndex, sizeof(int)); //writing null parent node
+			}
+		}
 	}
 }
 
@@ -511,4 +576,23 @@ Entity* GameLoader::GenEntity(int hash)
 		//Undefined hash
 	}
 	return new Entity();
+}
+
+BehaviorNode* GameLoader::GenBehaviorNode(int hash)
+{
+	if (hash == typeid(BehaviorNode_Sequence*).hash_code()) {
+		return new BehaviorNode_Sequence();
+	}
+	else if (hash == typeid(BehaviorNode_WaitTicks*).hash_code()) {
+		return new BehaviorNode_WaitTicks();
+	}
+	else if (hash == typeid(BehaviorNode_AddObservation*).hash_code()) {
+		return new BehaviorNode_AddObservation();
+	}
+	else if (hash == typeid(BehaviorNode_RunSubTree*).hash_code()) {
+		return new BehaviorNode_RunSubTree();//might need special case
+	}
+	return new BehaviorNode();
+	
+		
 }

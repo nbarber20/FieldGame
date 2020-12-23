@@ -1,39 +1,39 @@
 #pragma once
-#include "Entity.h"
+#include "Entity_Weapon.h"
 #include "Entity_Clip.h"
-class Entity_Firearm : public Entity
+class Entity_Firearm : public Entity_Weapon
 {
 public:
 	Entity_Firearm(Entity_Clip::ClipType type)
 	{
 		this->clipType = type;
 	};
+	virtual ~Entity_Firearm() {};
 	virtual int GetClassHash() override {
 		return typeid(this).hash_code();
 	}
 	virtual void WriteData(std::fstream* output) {
-		Entity::WriteData(output);
+		Entity_Weapon::WriteData(output);
 		output->write((char*)&clipType, sizeof(int));
 
 	};
 	virtual void ReadData(std::fstream* input) {
-		Entity::ReadData(input);
+		Entity_Weapon::ReadData(input);
 		input->read((char*)&clipType, sizeof(int));
 	};
 
 	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
-		Entity::WriteToJson(writer);
+		Entity_Weapon::WriteToJson(writer);
 		writer->Key("clipType");
 		writer->Int((int)clipType);
 	}
 
 	virtual void ReadFromJson(Value& v) {
-		Entity::ReadFromJson(v);
+		Entity_Weapon::ReadFromJson(v);
 		clipType = (Entity_Clip::ClipType)v["clipType"].GetInt();
 	}
 
-	virtual ~Entity_Firearm() {};
-	void Fire(Entity* target);
+	virtual bool Attack(Entity* source, Entity* target) override;
 	void Reload(Entity* clip);
 	Entity_Clip::ClipType clipType;
 };

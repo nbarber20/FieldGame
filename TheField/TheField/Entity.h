@@ -251,6 +251,7 @@ public:
 	std::string GetRandomAdjective(Position p);
 	bool CheckforNameMatch(Entity* toCompare);
 	bool IsChildOf(Entity* toCompare);
+	bool IsChildOf(int hash, Entity** foundEntity);
 	int getChildDepth();
 
 

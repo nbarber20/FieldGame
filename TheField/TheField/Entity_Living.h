@@ -1,8 +1,17 @@
 #pragma once
 #include "Entity.h"
+#include "BehaviorTree.h"
+#include "GameLoader.h"
+
 class Entity_Living : public Entity
 {
 public:
+	enum BehaviorState
+	{
+		Idle, //Do nothing of note
+		Defensive, //Attack target once
+		Enraged, //Attack target until death
+	};
 	enum HealthStatus
 	{
 		Healthy,
@@ -30,7 +39,12 @@ public:
 	Entity_Living() {
 		worldActive = false;
 	};
-	virtual ~Entity_Living() {};
+	virtual ~Entity_Living() {
+		for (int i = 0; i < behaviorTrees.size(); i++) {
+			delete behaviorTrees[i];
+		}
+		behaviorTrees.clear();
+	};
 	virtual int GetClassHash() override {
 		return typeid(this).hash_code();
 	}
@@ -68,6 +82,12 @@ public:
 		output->write((char*)&resistance, sizeof(float));
 		output->write((char*)&unconscious, sizeof(bool));
 		output->write((char*)&dead, sizeof(bool));
+		int numTrees = behaviorTrees.size();
+		output->write((char*)&numTrees, sizeof(int));
+		for (int i = 0; i < numTrees; i++) {
+			WriteStringData(behaviorTrees[i]->treeName, output);
+			output->write((char*)&behaviorTrees[i]->waitReturnIndex, sizeof(int));
+		}
 	};
 	virtual void ReadData(std::fstream* input) {
 		Entity::ReadData(input);
@@ -105,6 +125,17 @@ public:
 		input->read((char*)&resistance, sizeof(float));
 		input->read((char*)&unconscious, sizeof(bool));
 		input->read((char*)&dead, sizeof(bool));
+
+		int numTrees;
+		input->read((char*)&numTrees, sizeof(int));
+		for (int i = 0; i < numTrees; i++) {
+			std::string s = ReadStringData(input);
+			BehaviorTree* tree = GameLoader::Instance().LoadBehaviorTree(s);
+			behaviorTrees.push_back(tree);
+			int waitReturnIndex;
+			input->read((char*)&waitReturnIndex, sizeof(int));
+			tree->waitReturnIndex = waitReturnIndex;
+		}
 	};
 
 	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
@@ -171,13 +202,13 @@ public:
 	}
 
 	virtual void Tick() override;
-
+	void AddBehavior(BehaviorTree* tree);
 	void SetHome(Position p, Entity* home);
-	void ReturnHome();
-	
+	void ReturnHome();	
 	void AddNourishment(float delta);
 	void AddHydration(float delta);
-	void TakeDamage(DamageType type, float multiplier, int lethalityLevel);
+	virtual void TakeDamage(Entity* source, DamageType type, float multiplier, int lethalityLevel);
+	void AttackTarget(bool sourceWeapon);
 	std::string GetHealthStatusString(HealthStatus s);
 
 	int homeID = -2;
@@ -204,7 +235,14 @@ public:
 
 	bool unconscious = false;
 	bool dead = false;
+	std::vector<BehaviorTree*> behaviorTrees;
 
-	std::vector<float> healthThresholds = { 0.35f,0.5f,1.0f,0.5f,0.5f,0.3f, 0.0f };
+	std::vector<float> healthThresholds = { 0.35f,0.5f,0.7f,0.5f,0.5f,0.3f, 0.0f };
+
+	DamageType unarmedDamageType = Blunt;
+	float unarmedDamageMultiplier = .8;
+	int unarmedDamageLethalityLevel = 1;
+	Entity* target;
+	BehaviorState behaviorState = Idle;
 };
 

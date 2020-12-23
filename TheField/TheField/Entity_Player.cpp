@@ -7,6 +7,7 @@
 #include "Entity_Interior.h"
 #include "Entity_Food.h"
 #include "Entity_Event.h"
+#include "Entity_Npc.h"
 #include "Entity_GroundTile.h"
 #include "World.h"
 
@@ -231,14 +232,14 @@ void Entity_Player::Look(Entity* subject)
 		o.type = ObservationManager::TYPE_Direct;
 		o.referenceEntity = subject;
 		o.information = "You find nothing of note";
-		ObservationManager::Instance().MakeObservation(o);
+ObservationManager::Instance().MakeObservation(o);
 	}
 }
 
 void Entity_Player::LookSelf()
 {
 	int playerdepth = getChildDepth();
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(false,false, true);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(false, false, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		if (nearbyEntities[i]->names.size() > 0) {
 			ObservationManager::Observation o = ObservationManager::Observation();
@@ -253,7 +254,7 @@ void Entity_Player::LookSelf()
 
 Entity* Entity_Player::FindEntityByName(std::string entityName)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,true, true);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true, true, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -265,7 +266,7 @@ Entity* Entity_Player::FindEntityByName(std::string entityName)
 }
 Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adjective)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,true,true);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true, true, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -284,7 +285,7 @@ Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adje
 
 Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adjective, std::vector<Position> positionBlacklist)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,true,true);
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true, true, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -303,8 +304,8 @@ Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adje
 
 Entity* Entity_Player::FindEntityByName(std::string entityName, Position realitivePosition, std::string realitiveEntityName)
 {
-	
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,true,true);
+
+	std::vector<Entity*> nearbyEntities = getVisibleEntities(true, true, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -329,7 +330,14 @@ bool Entity_Player::TryMove(Entity* e, Position toPos, Entity* toEntity)
 	if (toPos == Nowhere) return false;
 	if (toEntity == nullptr)return false;
 	if (e->attachedToParent == true)return false;
-	if (e->weight > strength&& e!=this)return false;
+	if (e->weight > strength && e != this)return false;
+	Entity* npcCheck = nullptr;
+	if (e->IsChildOf(typeid(Entity_Npc*).hash_code(), &npcCheck)){
+		Entity_Npc* npc = dynamic_cast<Entity_Npc*>(npcCheck);
+		npc->NoticePickpocket(this);
+		return true;
+	}
+
 	Entity_Room* roomTest = dynamic_cast<Entity_Room*>(toEntity);
 	if (roomTest) {
 		if (toPos == Inside)toPos = OnFloor;
