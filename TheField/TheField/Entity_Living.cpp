@@ -3,11 +3,15 @@
 #include "Entity_Weapon.h"
 #include "Entity_Npc.h"
 #include "Entity_Player.h"
+#include "Entity_Food.h"
+#include "Entity_Fluid.h"
+#include "Entity_Container.h"
 #include "ObservationManager.h"
 #include "World.h"
 void Entity_Living::Tick()
 {
 	Entity::Tick();
+
 	for(int i =0;i<behaviorTrees.size();i++){
 		if (behaviorTrees[i]->Tick() == true)
 		{
@@ -17,6 +21,12 @@ void Entity_Living::Tick()
 	}
 	if (homeID == -2) { //No home, set it here
 		SetHome(this->parent.first, this->parent.second);
+	}
+
+	std::vector<Entity*> inMouth = GetInventory(Mouth);
+	for (auto object : inMouth)
+	{
+		TrySwallow(object);
 	}
 
 	if (dead == false) {
@@ -247,4 +257,116 @@ void Entity_Living::AddHydration(float delta)
 {
 	hydration += delta;
 	if (hydration > maxHydration)hydration = maxHydration;
+}
+bool Entity_Living::Drink(Entity* e, bool drinkAll)
+{
+	Entity_Container* container = dynamic_cast<Entity_Container*>(e);
+	if (container) {
+		std::vector<Entity*> fluidCheck = container->GetInventory(Position::Inside);
+		for (int i = 0; i < fluidCheck.size(); i++) {
+			Entity_Fluid* fluid = dynamic_cast<Entity_Fluid*>(fluidCheck[i]);
+			if (fluid) {
+				if (drinkAll) {
+					if (fluid->size > constants.drinkableWaterThreshold) {
+						ObservationManager::Observation o = ObservationManager::Observation();
+						o.sense = ObservationManager::SENSE_Look;
+						o.type = ObservationManager::TYPE_Direct;
+						o.referenceEntity = e;
+						o.information = "There is too much to drink";
+						ObservationManager::Instance().MakeObservation(o);
+						return true;
+					}
+					fluid->SetParent(Mouth, this);
+				}
+				else {
+					Entity* e = fluid->SplitFluid(constants.mouthSize);
+					e->SetParent(Mouth, this);
+				}
+			}
+		}
+		if (fluidCheck.size() == 0) {
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Look;
+			o.type = ObservationManager::TYPE_Direct;
+			o.referenceEntity = e;
+			o.information = "The " + e->names[0] + " is empty";
+			ObservationManager::Instance().MakeObservation(o);
+		}
+		return true;
+	}
+	Entity_Fluid* fluid = dynamic_cast<Entity_Fluid*>(e);
+	if (fluid) {
+
+		if (drinkAll) {
+			if (fluid->size > constants.drinkableWaterThreshold) {
+				ObservationManager::Observation o = ObservationManager::Observation();
+				o.sense = ObservationManager::SENSE_Look;
+				o.type = ObservationManager::TYPE_Direct;
+				o.referenceEntity = e;
+				o.information = "There is too much to drink";
+				ObservationManager::Instance().MakeObservation(o);
+				return true;
+			}
+			fluid->SetParent(Mouth, this);
+		}
+		else {
+			Entity* e = fluid->SplitFluid(constants.mouthSize);
+			e->SetParent(Mouth, this);
+		}
+		return true;
+	}
+	return false;
+}
+
+bool Entity_Living::Eat(Entity* e)
+{
+	Entity_Food* food = dynamic_cast<Entity_Food*>(e);
+	if (food) {
+		e->SetParent(Mouth, this);
+		return true;
+	}
+	return false;
+}
+
+bool Entity_Living::TrySwallow(Entity* e)
+{
+
+	Entity_Fluid* fluid = dynamic_cast<Entity_Fluid*>(e);
+	if (fluid) {
+		if (fluid->swallowable) {
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Taste;
+			o.type = ObservationManager::TYPE_Direct;
+			o.information = "You drink the " + e->GetRandomAdjective(Taste) + " " + e->names[0];
+			ObservationManager::Instance().MakeObservation(o);
+			this->AddHydration(fluid->hydration);
+			World::Instance().RemoveEntity(fluid);
+			return true;
+		}
+	}
+	Entity_Food* food = dynamic_cast<Entity_Food*>(e);
+	if (food) {
+		if (food->spoiled == false) {
+			ObservationManager::Observation o = ObservationManager::Observation();
+			o.sense = ObservationManager::SENSE_Taste;
+			o.type = ObservationManager::TYPE_Direct;
+			o.information = "You eat the " + e->GetRandomAdjective(Taste) + " " + e->names[0];
+			ObservationManager::Instance().MakeObservation(o);
+			this->AddNourishment(food->nutritionalValue);
+			World::Instance().RemoveEntity(food);
+			return true;
+		}
+	}
+
+
+
+	ObservationManager::Observation o = ObservationManager::Observation();
+	o.sense = ObservationManager::SENSE_Look;
+	o.type = ObservationManager::TYPE_Direct;
+	o.referenceEntity = e;
+	o.information = "You spit out the" + e->names[0];
+	ObservationManager::Instance().MakeObservation(o);
+
+	e->SetParent(parent.first, parent.second);
+	return false;
 }

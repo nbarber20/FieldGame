@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include "BehaviorTree.h"
 #include "GameLoader.h"
+#include "Constants.h"
 
 class Entity_Living : public Entity
 {
@@ -209,6 +210,9 @@ public:
 	virtual void TakeDamage(Entity* source, DamageType type, float multiplier, int lethalityLevel);
 	void AttackTarget(bool sourceWeapon);
 	std::string GetHealthStatusString(HealthStatus s);
+	virtual bool Drink(Entity* e, bool drinkAll);
+	virtual bool Eat(Entity* e);
+	virtual bool TrySwallow(Entity* e);
 
 	int homeID = -2;
 	Position homePosition = Inside;
@@ -242,5 +246,6 @@ public:
 	float unarmedDamageMultiplier = .8;
 	int unarmedDamageLethalityLevel = 1;
 	BehaviorState behaviorState = Idle;
+	Constants constants;
 };
 

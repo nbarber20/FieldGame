@@ -32,9 +32,6 @@ public:
 	virtual bool TryMove(Entity* e, Position toPos, Entity* toEntity);
 	virtual bool Enter(Entity* e);
 	virtual bool Exit(Entity* e);
-	virtual bool Drink(Entity* e, bool drinkAll);
-	virtual bool Eat(Entity* e);
-	virtual bool TrySwallow(Entity* e);
 	Constants constants;
 	int strength = 10;
 };

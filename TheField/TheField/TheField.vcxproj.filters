@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Entity">
       <UniqueIdentifier>{f86d20c6-b0f8-4687-ac54-6e4c93995ca0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Behaviors">
+      <UniqueIdentifier>{8aee249c-a5e0-4bc4-8031-d0b042aabc80}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -102,17 +105,20 @@
     <ClInclude Include="GameLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BehaviorTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BehaviorNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Entity_Weapon.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
     <ClInclude Include="Entity_Anomaly.h">
       <Filter>Header Files\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviorNode.h">
+      <Filter>Header Files\Behaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviorTree.h">
+      <Filter>Header Files\Behaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviorNode_Living.h">
+      <Filter>Header Files\Behaviors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -180,9 +186,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BehaviorNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BehaviorTree.cpp">

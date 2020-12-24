@@ -22,103 +22,36 @@
 #include "Entity_Room.h"
 #include "BehaviorTree.h"
 #include "BehaviorNode.h"
+#include "BehaviorNode_Living.h"
 #include "ObservationManager.h"
-
 
 void GameLoader::Setup()
 {
-	currentFilename = "Development";
-	std::filesystem::create_directory("Data/Saves/" + currentFilename);
-	int worldID = 3;
+	BehaviorTree* RootHumanBehavior = new BehaviorTree("RootHumanBehavior", true);
+	BehaviorNode* RootHumanBehaviorstart = new BehaviorNode();
+	RootHumanBehavior->AddNode(RootHumanBehaviorstart, nullptr);
 
-	Entity_GroundTile* Ground = new Entity_GroundTile();
-	Ground->SetEntityData(GetUniqueID(), false, 0.0f, 60000.0f, 0.0f);
-	Ground->attachedToParent = true;
-	Ground->names = { "dirt","ground","grass" };
-	loadedTiles = { worldID };
-	Ground->worldPos = worldID;
-	Ground->toEast = std::make_pair("There is a empty field to the east", 0);
-	World::Instance().AddEntity(Ground);
+	BehaviorNode_ParallelSequence* rootParallel = new BehaviorNode_ParallelSequence();
+	RootHumanBehavior->AddNode(rootParallel, RootHumanBehaviorstart);
 
-	Entity_Event* EnterFarmEvent = new Entity_Event();
-	EnterFarmEvent->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
-	EnterFarmEvent->setObservationConsumptionList({
-		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
-		});
-	EnterFarmEvent->EventImageFile = "Data/Art/Horses.png";
-	EnterFarmEvent->EventText = "There are two people in swat-like armor mounted on horses. ";
-	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
-	World::Instance().AddEntity(EnterFarmEvent);
+	BehaviorNode_Sequence* FightSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(FightSequence, rootParallel);
 
-	Entity_Living* Horse = new Entity_Living();
-	Horse->SetEntityData(GetUniqueID(), false, 0.0f, 30511.9f, 1000.f);
-	Horse->names = { "horse" };
-	Horse->AddAdjective(Visual, "white");
-	Horse->SetParent(On, Ground);
-	World::Instance().AddEntity(Horse);
-
-	Entity_Npc* NPC = new Entity_Npc();
-	NPC->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 100.f);
-	NPC->names = { "person" };
-	NPC->AddAdjective(Visual, "masked");
-	NPC->SetParent(On, Horse);
-	NPC->AddBehavior(LoadBehaviorTree("RootHumanBehavior"));
-
-	DialogTree* tree = new DialogTree();
-	DialogTree::DialogNode node1;
-	node1.dialog = "The masked man shouts: \"anomaly research, stand back!\"";
-	tree->TreeNodes.push_back(node1);
-
-	//Finish npc setup
-	NPC->dialogTree = tree;
-	World::Instance().AddEntity(NPC);
+	BehaviorNode_Living_AttackTarget* RootHumanBehaviorattack = new BehaviorNode_Living_AttackTarget(true);
+	RootHumanBehavior->AddNode(RootHumanBehaviorattack, FightSequence);
 
 
-	Entity_Living* Horse2 = new Entity_Living();
-	Horse2->SetEntityData(GetUniqueID(), false, 0.0f, 30511.9f, 1000.f);
-	Horse2->names = { "horse" };
-	Horse2->AddAdjective(Visual, "brown");
-	Horse2->SetParent(On, Ground);
-	World::Instance().AddEntity(Horse2);
+	BehaviorNode_Sequence* GetWaterSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(GetWaterSequence, rootParallel);
 
-	Entity_Npc* NPC2 = new Entity_Npc();
-	NPC2->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 100.f);
-	NPC2->names = { "person" };
-	NPC2->AddAdjective(Visual, "armed");
-	NPC2->SetParent(On, Horse2);
-	NPC2->AddBehavior(LoadBehaviorTree("RootHumanBehavior"));
-	DialogTree* tree2 = new DialogTree();
-	DialogTree::DialogNode node12;
-	node12.dialog = "The armed man shouts: \"anomaly research, stand back!\"";
-	tree2->TreeNodes.push_back(node12);
+	BehaviorNode_Living_TargetEntityTypeInSelf* FindFluid = new BehaviorNode_Living_TargetEntityTypeInSelf(typeid(Entity_Fluid*).hash_code());
+	RootHumanBehavior->AddNode(FindFluid, GetWaterSequence);
 
-	//Finish npc setup
-	NPC2->dialogTree = tree2;
-	World::Instance().AddEntity(NPC2);
 
-	Entity_Firearm* Ak47 = new Entity_Firearm(Entity_Clip::MachineGun);
-	Ak47->SetEntityData(GetUniqueID(), false, 0.0, 1000.0f, 7.5f);
-	Ak47->names = { "ak47", "gun" };
-	Ak47->SetParent(Back, NPC);
-	World::Instance().AddEntity(Ak47);
+	BehaviorNode_Living_DrinkTarget* DrinkFluid = new BehaviorNode_Living_DrinkTarget();
+	RootHumanBehavior->AddNode(DrinkFluid, GetWaterSequence);
 
-	Entity_Clip* Ak47Ammo = new Entity_Clip(7, Entity_Clip::MachineGun);
-	Ak47Ammo->SetEntityData(GetUniqueID(), false, 0.0, 7.f, 0.5f);
-	Ak47Ammo->names = { "clip" };
-	World::Instance().AddEntity(Ak47Ammo);
-	Ak47->Reload(Ak47Ammo);
-
-	Entity_Firearm* M16 = new Entity_Firearm(Entity_Clip::MachineGun);
-	M16->SetEntityData(GetUniqueID(), false, 0.0, 1000.0f, 7.5f);
-	M16->names = { "m16", "gun" };
-	M16->SetParent(RightHand, NPC2);
-	World::Instance().AddEntity(M16);
-
-	Entity_Clip* M16Ammo = new Entity_Clip(7, Entity_Clip::MachineGun);
-	Ak47Ammo->SetEntityData(GetUniqueID(), false, 0.0, 7.f, 0.5f);
-	M16Ammo->names = { "clip" };
-	World::Instance().AddEntity(M16Ammo);
-	M16->Reload(M16Ammo);
+	SaveBehaviorTree(RootHumanBehavior);
 }
 
 
@@ -619,7 +552,15 @@ BehaviorNode* GameLoader::GenBehaviorNode(int hash)
 	else if (hash == typeid(BehaviorNode_RunSubTree*).hash_code()) {
 		return new BehaviorNode_RunSubTree();
 	}
-	
+	else if (hash == typeid(BehaviorNode_Living_TargetEntityTypeInSelf*).hash_code()) {
+		return new BehaviorNode_Living_TargetEntityTypeInSelf(0);
+	}
+	else if (hash == typeid(BehaviorNode_ParallelSequence*).hash_code()) {
+		return new BehaviorNode_ParallelSequence();
+	}
+	else if (hash == typeid(BehaviorNode_Living_DrinkTarget*).hash_code()) {
+		return new BehaviorNode_Living_DrinkTarget();
+	}
 	return new BehaviorNode();
 	
 		
