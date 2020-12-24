@@ -21,7 +21,6 @@ public:
 	virtual Entity_Player* Clone() {
 		return new Entity_Player(*this);
 	}
-	virtual std::vector<Entity*>  getVisibleEntities(bool getsurrounding, bool getParent, bool getSelf);
 	virtual void CheckForEvents();
 	virtual void Look();
 	virtual void LookSelf();

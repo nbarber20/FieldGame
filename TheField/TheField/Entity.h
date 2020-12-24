@@ -253,6 +253,7 @@ public:
 	bool IsChildOf(Entity* toCompare);
 	bool IsChildOf(int hash, Entity** foundEntity);
 	int getChildDepth();
+	virtual std::vector<Entity*>  getVisibleEntities(bool getsurrounding, bool getParent, bool getSelf);
 
 
 	//UsedForLoading
@@ -277,6 +278,8 @@ public:
 	std::vector<std::pair<Position, std::vector<Entity*>>> children;
 	Rotation rotation = Upright;
 	FacingDirection facingDirection = North;
+	Entity* target = nullptr;
+	Entity* subTarget = nullptr;
 protected:
 	virtual void AddChild(Position pos, Entity* toAdd, int roomIndex);
 	virtual bool RemoveChild(Entity* toRemove);

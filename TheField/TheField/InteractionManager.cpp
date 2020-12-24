@@ -519,7 +519,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 		if (subject) {
 			Entity_Mechanisim* mechanism = dynamic_cast<Entity_Mechanisim*>(subject);
 			if (mechanism) {
-				if (mechanism->AttemptBehavior(verb,predicate)) {
+				if (mechanism->AttemptBehavior(verb, player,predicate)) {
 					return Success;
 				}
 			}

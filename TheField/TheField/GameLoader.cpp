@@ -17,6 +17,7 @@
 #include "Entity_Npc.h"
 #include "Entity_Mechanisim.h"
 #include "Entity_Clip.h"
+#include "Entity_Anomaly.h"
 #include "Entity_Firearm.h"
 #include "Entity_Room.h"
 #include "BehaviorTree.h"
@@ -26,9 +27,9 @@
 
 void GameLoader::Setup()
 {
-	currentFilename = "Testing";
+	currentFilename = "Development";
 	std::filesystem::create_directory("Data/Saves/" + currentFilename);
-	int worldID = 0;
+	int worldID = 3;
 
 	Entity_GroundTile* Ground = new Entity_GroundTile();
 	Ground->SetEntityData(GetUniqueID(), false, 0.0f, 60000.0f, 0.0f);
@@ -39,74 +40,61 @@ void GameLoader::Setup()
 	Ground->toEast = std::make_pair("There is a empty field to the east", 0);
 	World::Instance().AddEntity(Ground);
 
-	World::Instance().playerEntity = new Entity_Player();
-	World::Instance().playerEntity->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 150.0f);
-	World::Instance().playerEntity->names = { "you" };
-	World::Instance().playerEntity->SetParent(On, Ground);
-	World::Instance().AddEntity(World::Instance().playerEntity);
+	Entity_Event* EnterFarmEvent = new Entity_Event();
+	EnterFarmEvent->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
+	EnterFarmEvent->setObservationConsumptionList({
+		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
+		});
+	EnterFarmEvent->EventImageFile = "Data/Art/Horses.png";
+	EnterFarmEvent->EventText = "There are two people in swat-like armor mounted on horses. ";
+	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
+	World::Instance().AddEntity(EnterFarmEvent);
 
-
-	BehaviorTree* RootHumanBehavior = new BehaviorTree("RootHumanBehavior", true);
-	BehaviorNode* RootHumanBehaviorstart = new BehaviorNode();
-	RootHumanBehavior->AddNode(RootHumanBehaviorstart, nullptr);
-
-	BehaviorNode_Sequence* RootHumanBehaviorseq = new BehaviorNode_Sequence();
-	RootHumanBehavior->AddNode(RootHumanBehaviorseq, RootHumanBehaviorstart);
-
-	BehaviorNode_Living_AttackTarget* RootHumanBehaviorattack = new BehaviorNode_Living_AttackTarget(true);
-	RootHumanBehavior->AddNode(RootHumanBehaviorattack, RootHumanBehaviorseq);
-
-
-	SaveBehaviorTree(RootHumanBehavior);
-
-
-	BehaviorTree* droneScanPlayer = new BehaviorTree("DroneScanPlayer", false);
-	BehaviorNode* start = new BehaviorNode();
-	droneScanPlayer->AddNode(start, nullptr);
-
-	BehaviorNode_Sequence* seq = new BehaviorNode_Sequence();
-	droneScanPlayer->AddNode(seq, start);
-
-	BehaviorNode_WaitTicks* wait = new BehaviorNode_WaitTicks(1);
-	droneScanPlayer->AddNode(wait, seq);
-
-
-	BehaviorNode_AddObservation* observer = new BehaviorNode_AddObservation("GoGOGadget droneScan");
-	droneScanPlayer->AddNode(observer, seq);
-
-	SaveBehaviorTree(droneScanPlayer);
-
-
+	Entity_Living* Horse = new Entity_Living();
+	Horse->SetEntityData(GetUniqueID(), false, 0.0f, 30511.9f, 1000.f);
+	Horse->names = { "horse" };
+	Horse->AddAdjective(Visual, "white");
+	Horse->SetParent(On, Ground);
+	World::Instance().AddEntity(Horse);
 
 	Entity_Npc* NPC = new Entity_Npc();
-	NPC->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 150.0f);
+	NPC->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 100.f);
 	NPC->names = { "person" };
-	NPC->SetParent(On,Ground);
+	NPC->AddAdjective(Visual, "masked");
+	NPC->SetParent(On, Horse);
+	NPC->AddBehavior(LoadBehaviorTree("RootHumanBehavior"));
 
-	//Make Tree
-	DialogTree* dialogtree = new DialogTree();
+	DialogTree* tree = new DialogTree();
 	DialogTree::DialogNode node1;
-	node1.dialog = "What Business do you have?";
-	node1.responses.push_back(std::make_pair("Trading", 1));
-	DialogTree::DialogNode node2;
-	node2.dialog = "Drone active.";
-	node2.behaviorTree = droneScanPlayer->treeName;
-	dialogtree->TreeNodes.push_back(node1);
-	dialogtree->TreeNodes.push_back(node2);
+	node1.dialog = "The masked man shouts: \"anomaly research, stand back!\"";
+	tree->TreeNodes.push_back(node1);
 
 	//Finish npc setup
-	NPC->dialogTree = dialogtree;
-	dialogtree->LivingSource = NPC;
-	NPC->AddBehavior(RootHumanBehavior);
-
-
-
-
-
-
-
+	NPC->dialogTree = tree;
 	World::Instance().AddEntity(NPC);
 
+
+	Entity_Living* Horse2 = new Entity_Living();
+	Horse2->SetEntityData(GetUniqueID(), false, 0.0f, 30511.9f, 1000.f);
+	Horse2->names = { "horse" };
+	Horse2->AddAdjective(Visual, "brown");
+	Horse2->SetParent(On, Ground);
+	World::Instance().AddEntity(Horse2);
+
+	Entity_Npc* NPC2 = new Entity_Npc();
+	NPC2->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 100.f);
+	NPC2->names = { "person" };
+	NPC2->AddAdjective(Visual, "armed");
+	NPC2->SetParent(On, Horse2);
+	NPC2->AddBehavior(LoadBehaviorTree("RootHumanBehavior"));
+	DialogTree* tree2 = new DialogTree();
+	DialogTree::DialogNode node12;
+	node12.dialog = "The armed man shouts: \"anomaly research, stand back!\"";
+	tree2->TreeNodes.push_back(node12);
+
+	//Finish npc setup
+	NPC2->dialogTree = tree2;
+	World::Instance().AddEntity(NPC2);
 
 	Entity_Firearm* Ak47 = new Entity_Firearm(Entity_Clip::MachineGun);
 	Ak47->SetEntityData(GetUniqueID(), false, 0.0, 1000.0f, 7.5f);
@@ -119,6 +107,18 @@ void GameLoader::Setup()
 	Ak47Ammo->names = { "clip" };
 	World::Instance().AddEntity(Ak47Ammo);
 	Ak47->Reload(Ak47Ammo);
+
+	Entity_Firearm* M16 = new Entity_Firearm(Entity_Clip::MachineGun);
+	M16->SetEntityData(GetUniqueID(), false, 0.0, 1000.0f, 7.5f);
+	M16->names = { "m16", "gun" };
+	M16->SetParent(RightHand, NPC2);
+	World::Instance().AddEntity(M16);
+
+	Entity_Clip* M16Ammo = new Entity_Clip(7, Entity_Clip::MachineGun);
+	Ak47Ammo->SetEntityData(GetUniqueID(), false, 0.0, 7.f, 0.5f);
+	M16Ammo->names = { "clip" };
+	World::Instance().AddEntity(M16Ammo);
+	M16->Reload(M16Ammo);
 }
 
 
@@ -571,6 +571,9 @@ Entity* GameLoader::GenEntity(int hash)
 	else if (hash == typeid(Entity_Room*).hash_code()) {
 		return new Entity_Room();
 	}
+	else if (hash == typeid(Entity_Anomaly*).hash_code()) {
+		return new Entity_Anomaly();
+	}
 
 	else if (hash != typeid(Entity*).hash_code()) {
 		//Undefined hash
@@ -589,9 +592,34 @@ BehaviorNode* GameLoader::GenBehaviorNode(int hash)
 	else if (hash == typeid(BehaviorNode_AddObservation*).hash_code()) {
 		return new BehaviorNode_AddObservation();
 	}
+	else if (hash == typeid(BehaviorNode_WaitForObservation*).hash_code()) {
+		return new BehaviorNode_WaitForObservation();
+	}	
 	else if (hash == typeid(BehaviorNode_RunSubTree*).hash_code()) {
 		return new BehaviorNode_RunSubTree();//might need special case
+	}	
+	else if (hash == typeid(BehaviorNode_Living_SetBehaviorState*).hash_code()) {
+		return new BehaviorNode_Living_SetBehaviorState();
 	}
+	else if (hash == typeid(BehaviorNode_Living_SetTargetByName*).hash_code()) {
+		return new BehaviorNode_Living_SetTargetByName("");
+	}
+	else if (hash == typeid(BehaviorNode_Living_SetSubTargetByName*).hash_code()) {
+		return new BehaviorNode_Living_SetSubTargetByName("");
+	}
+	else if (hash == typeid(BehaviorNode_ActivateMechanism*).hash_code()) {
+		return new BehaviorNode_ActivateMechanism("");
+	}
+	else if (hash == typeid(BehaviorNode_Living_AttackTarget*).hash_code()) {
+		return new BehaviorNode_Living_AttackTarget();
+	}
+	else if (hash == typeid(BehaviorNode_MoveToTarget*).hash_code()) {
+		return new BehaviorNode_MoveToTarget();
+	}
+	else if (hash == typeid(BehaviorNode_RunSubTree*).hash_code()) {
+		return new BehaviorNode_RunSubTree();
+	}
+	
 	return new BehaviorNode();
 	
 		

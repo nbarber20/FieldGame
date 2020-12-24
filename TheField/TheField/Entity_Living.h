@@ -131,13 +131,13 @@ public:
 		for (int i = 0; i < numTrees; i++) {
 			std::string s = ReadStringData(input);
 			BehaviorTree* tree = GameLoader::Instance().LoadBehaviorTree(s);
+			tree->parentEntity = this;
 			behaviorTrees.push_back(tree);
 			int waitReturnIndex;
 			input->read((char*)&waitReturnIndex, sizeof(int));
 			tree->waitReturnIndex = waitReturnIndex;
 		}
 	};
-
 	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
 		Entity::WriteToJson(writer);
 
@@ -178,7 +178,6 @@ public:
 		writer->Key("dead");
 		writer->Bool(dead);
 	}
-
 	virtual void ReadFromJson(Value& v) {
 		Entity::ReadFromJson(v);
 		homeID = v["homeID"].GetInt();
@@ -242,7 +241,6 @@ public:
 	DamageType unarmedDamageType = Blunt;
 	float unarmedDamageMultiplier = .8;
 	int unarmedDamageLethalityLevel = 1;
-	Entity* target;
 	BehaviorState behaviorState = Idle;
 };
 

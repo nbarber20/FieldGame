@@ -44,7 +44,7 @@ public:
 	void LogDialog();
 	bool FindParticleInput(std::string toFind);
 private:
-	InteractionState currentInteractionState = SaveOverride;
+	InteractionState currentInteractionState = MainMenu;
 	int introStage = 0;
 	int mainMenuStage = 0;
 	Constants constants;

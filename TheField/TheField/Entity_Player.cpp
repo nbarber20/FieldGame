@@ -65,64 +65,7 @@ void Entity_Player::Tick()
 	}
 }
 
-std::vector<Entity*> Entity_Player::getVisibleEntities(bool getsurrounding,bool getParent, bool getSelf)
-{
-	std::vector<Entity*> visible;
 
-	if (getSelf) {
-		std::vector<Entity*> onPerson = GetInventory();
-		for (int i = 0; i < onPerson.size(); i++) {
-			if (onPerson[i] != this) {
-				visible.push_back(onPerson[i]);
-				std::vector<Entity*> subEntity = onPerson[i]->GetInventory();
-				for (int j = 0; j < subEntity.size(); j++) {
-					if (onPerson[i]->visibleInsides == false && subEntity[j]->parent.first == Inside) {
-						continue;
-					}
-					visible.push_back(subEntity[j]);
-					std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
-					for (int k = 0; k < subEntity2.size(); k++) {
-						if (subEntity[j]->visibleInsides == false && subEntity2[k]->parent.first == Inside) {
-							continue;
-						}
-						visible.push_back(subEntity2[k]);
-					}
-				}
-			}
-		}
-	}
-	if (getsurrounding) {
-		std::vector<Entity*> withintile = (parent.second)->GetInventory();
-		for (int i = 0; i < withintile.size(); i++) {
-			if (withintile[i] != this) {
-				visible.push_back(withintile[i]);
-				std::vector<Entity*> subEntity = withintile[i]->GetInventory();
-				for (int j = 0; j < subEntity.size(); j++) {
-					if (withintile[i]->visibleInsides == false && (subEntity[j]->parent.first == Inside|| subEntity[j]->parent.first == OnFloor)) {
-						continue;
-					}
-					visible.push_back(subEntity[j]);
-					std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
-					for (int k = 0; k < subEntity2.size(); k++) {
-						if (subEntity[j]->visibleInsides == false && (subEntity2[k]->parent.first == Inside || subEntity[j]->parent.first == OnFloor)) {
-							continue;
-						}
-						visible.push_back(subEntity2[k]);
-					}					
-				}				
-			}
-		}
-	}
-	if (getParent) {
-		Entity_Room* parentRoomTest = dynamic_cast<Entity_Room*>(parent.second);
-		if (parentRoomTest) {
-			visible.push_back(parentRoomTest);
-			visible.push_back(parentRoomTest->parent.second);
-		}
-	}
-
-	return visible;
-}
 
 
 void Entity_Player::CheckForEvents()

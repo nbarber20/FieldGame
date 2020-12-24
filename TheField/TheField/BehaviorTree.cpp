@@ -7,9 +7,7 @@ bool BehaviorTree::Tick()
 {
 	if (waitReturnIndex != -1) {
 		waiting = false;
-		int last = waitReturnIndex;
-		nodes[waitReturnIndex]->Execute();
-		if (waitReturnIndex == last) {
+		if (nodes[waitReturnIndex]->Execute() != BehaviorNode::WAITING) {
 			waitReturnIndex = -1;
 		}
 	}

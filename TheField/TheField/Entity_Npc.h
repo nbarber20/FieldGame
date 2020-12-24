@@ -15,12 +15,12 @@ public:
 		return typeid(this).hash_code();
 	}
 	virtual void WriteData(std::fstream* output) {
-		Entity::WriteData(output);
+		Entity_Living::WriteData(output);
 		dialogTree->WriteData(output);
 
 	};
 	virtual void ReadData(std::fstream* input) {
-		Entity::ReadData(input);
+		Entity_Living::ReadData(input);
 		dialogTree = new DialogTree();
 		dialogTree->ReadData(input);
 		dialogTree->LivingSource = this;
