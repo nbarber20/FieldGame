@@ -27,31 +27,11 @@
 
 void GameLoader::Setup()
 {
-	BehaviorTree* RootHumanBehavior = new BehaviorTree("RootHumanBehavior", true);
-	BehaviorNode* RootHumanBehaviorstart = new BehaviorNode();
-	RootHumanBehavior->AddNode(RootHumanBehaviorstart, nullptr);
-
-	BehaviorNode_ParallelSequence* rootParallel = new BehaviorNode_ParallelSequence();
-	RootHumanBehavior->AddNode(rootParallel, RootHumanBehaviorstart);
-
-	BehaviorNode_Sequence* FightSequence = new BehaviorNode_Sequence();
-	RootHumanBehavior->AddNode(FightSequence, rootParallel);
-
-	BehaviorNode_Living_AttackTarget* RootHumanBehaviorattack = new BehaviorNode_Living_AttackTarget(true);
-	RootHumanBehavior->AddNode(RootHumanBehaviorattack, FightSequence);
-
-
-	BehaviorNode_Sequence* GetWaterSequence = new BehaviorNode_Sequence();
-	RootHumanBehavior->AddNode(GetWaterSequence, rootParallel);
-
-	BehaviorNode_Living_TargetEntityTypeInSelf* FindFluid = new BehaviorNode_Living_TargetEntityTypeInSelf(typeid(Entity_Fluid*).hash_code());
-	RootHumanBehavior->AddNode(FindFluid, GetWaterSequence);
-
-
-	BehaviorNode_Living_DrinkTarget* DrinkFluid = new BehaviorNode_Living_DrinkTarget();
-	RootHumanBehavior->AddNode(DrinkFluid, GetWaterSequence);
-
-	SaveBehaviorTree(RootHumanBehavior);
+	Entity_Fluid* Water = new Entity_Fluid();
+	Water->SetEntityData(GetUniqueID(), true, 0.0f, 200.0f, 0.0f);
+	Water->names = { "water" };
+	Water->hydration = 50;
+	SavePrefab(Water, "Water");
 }
 
 
@@ -82,9 +62,41 @@ bool GameLoader::LoadAll(std::string filename)
 		for (int i = 0; i < loadedTiles.size(); i++) {
 			LoadTile(loadedTiles[i]);
 		}
-		World::Instance().setupParents();
+		World::Instance().SetupParents();
 	}
 	return true;
+}
+
+void GameLoader::SpawnPrefab(std::string filename, Position p, Entity* parent)
+{
+	std::fstream file("Data/Prefabs/" + filename + ".bin", std::ios::in | std::ios::binary);
+	if (!file) {
+		ThrowFileError("Error loading prefab");
+	}
+	else {
+		int hash;
+		file.read((char*)&hash, sizeof(int));
+		Entity* e = GenEntity(hash);
+		e->ReadData(&file);
+		int index = World::Instance().AddEntity(e);
+		e->SetParent(p, parent);
+		file.close();
+	}
+}
+
+void GameLoader::SavePrefab(Entity* e, std::string filename)
+{
+	std::fstream file("Data/Prefabs/" + filename + ".bin", std::ios::out | std::ios::binary);
+	if (!file) {
+		ThrowFileError("Error saving prefab");
+	}
+	else {
+		file.clear();
+		int hash = e->SerializationID;
+		file.write((char*)&hash, sizeof(int));
+		e->WriteData(&file);
+		file.close();
+	}
 }
 
 void GameLoader::UnloadTiles()
@@ -162,7 +174,7 @@ void GameLoader::SaveBehaviorTree(BehaviorTree* tree)
 		int nodeCount = tree->nodes.size();
 		file.write((char*)&nodeCount, sizeof(int));
 		for (int i = 0; i < nodeCount; i++) {
-			int hash = tree->nodes[i]->GetClassHash();
+			int hash = tree->nodes[i]->SerializationID;
 			file.write((char*)&hash, sizeof(int));
 			tree->nodes[i]->WriteData(&file);
 			auto it = std::find(tree->nodes.begin(), tree->nodes.end(),tree->nodes[i]->nodeParent);
@@ -176,6 +188,7 @@ void GameLoader::SaveBehaviorTree(BehaviorTree* tree)
 				file.write((char*)&badIndex, sizeof(int)); //writing null parent node
 			}
 		}
+		file.close();
 	}
 }
 
@@ -225,14 +238,14 @@ void GameLoader::SavePlayer()
 		for (int i = 0; i < entities.size(); i++) {
 			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
 			if (p) {
-				entities[i]->worldID = currentPlayerTile;
-				int hash = entities[i]->GetClassHash();
+				entities[i]->worldID = -1;
+				int hash = entities[i]->SerializationID;
 				file.write((char*)&hash,sizeof(int));
 				entities[i]->WriteData(&file);
 			}
 			else if (entities[i]->IsChildOf(World::Instance().playerEntity) == true) {
 				entities[i]->worldID = -1;
-				int hash = entities[i]->GetClassHash();
+				int hash = entities[i]->SerializationID;
 				file.write((char*)&hash, sizeof(int));
 				entities[i]->WriteData(&file);
 			}
@@ -299,6 +312,7 @@ void GameLoader::LoadPlayer(bool getLoadedTiles)
 			file.read((char*)&hash, sizeof(int));
 			Entity* e = GenEntity(hash);
 			e->ReadData(&file);
+			e->worldID = -1;
 			World::Instance().AddEntity(e);
 		}
 		file.close();
@@ -341,7 +355,7 @@ void  GameLoader::SaveTile(int tileID) {
 		for (int i = 0; i < entities.size(); i++) {
 			if (World::Instance().playerEntity == NULL) {
 				entities[i]->worldID = tileID;
-				int hash = entities[i]->GetClassHash();
+				int hash = entities[i]->SerializationID;
 				file.write((char*)&hash, sizeof(int));
 				entities[i]->WriteData(&file);
 			}
@@ -351,7 +365,7 @@ void  GameLoader::SaveTile(int tileID) {
 				if (p == NULL) {
 					if (entities[i]->IsChildOf(World::Instance().playerEntity) == false) {
 						entities[i]->worldID = tileID;
-						int hash = entities[i]->GetClassHash();
+						int hash = entities[i]->SerializationID;
 						file.write((char*)&hash, sizeof(int));
 						entities[i]->WriteData(&file);
 					}
@@ -415,7 +429,7 @@ bool GameLoader::CreateNewGameFile(std::string filename)
 	CopyGameFile("Data/WorldData/Player.bin", "Data/Saves/" + currentFilename + "/Player.bin");
 	LoadPlayer(true);
 	LoadTile(0);
-	World::Instance().setupParents();
+	World::Instance().SetupParents();
 	World::Instance().playerEntity->SetParentOverride(On, currentGroundTile);
 	return true;
 }
@@ -457,111 +471,101 @@ void GameLoader::ThrowFileError(std::string error)
 
 Entity* GameLoader::GenEntity(int hash)
 {
-	if (hash == typeid(Entity_Clip*).hash_code()) {
-		return new Entity_Clip();
+	switch (hash)
+	{
+		case 0:
+			return new Entity();
+		case 1:
+			return new Entity_Clip();
+		case 2:
+			return new Entity_Constructed();
+		case 3:
+			return new Entity_Container();
+		case 4:
+			return new Entity_Event();
+		case 5:
+			return new Entity_Firearm(Entity_Clip::Pistol);
+		case 6:
+			return new Entity_Fluid();
+		case 7:
+			return new Entity_Food();
+		case 8:
+			return new Entity_GroundTile();
+		case 9 :
+			return new Entity_Interior();
+		case 10:
+			return new Entity_Living();
+		case 11:
+			return new Entity_Mechanisim();
+		case 12:
+			return new Entity_Npc();
+		case 13:
+		{
+			Entity_Player* ep = new Entity_Player();
+			World::Instance().playerEntity = ep;
+			return ep;
+		}
+			break;
+		case 14:
+			return new Entity_Readable();
+		case 15:
+			return new Entity_Room();
+		case 16:
+			return new Entity_Anomaly();
+		default:
+			//UNDEFINED
+			return new Entity();
 	}
-	else if (hash == typeid(Entity_Constructed*).hash_code()) {
-		return new Entity_Constructed();
-	}
-	else if (hash == typeid(Entity_Container*).hash_code()) {
-		return new Entity_Container();
-	}
-	else if (hash == typeid(Entity_Event*).hash_code()) {
-		return new Entity_Event();
-	}
-	else if (hash == typeid(Entity_Firearm*).hash_code()) {
-		return new Entity_Firearm(Entity_Clip::Pistol);
-	}
-	else if (hash == typeid(Entity_Fluid*).hash_code()) {
-		return new Entity_Fluid();
-	}
-	else if (hash == typeid(Entity_Food*).hash_code()) {
-		return new Entity_Food();
-	}
-	else if (hash == typeid(Entity_GroundTile*).hash_code()) {
-		return new Entity_GroundTile();
-	}
-	else if (hash == typeid(Entity_Interior*).hash_code()) {
-		return new Entity_Interior();
-	}
-	else if (hash == typeid(Entity_Living*).hash_code()) {
-		return new Entity_Living();
-	}
-	else if (hash == typeid(Entity_Mechanisim*).hash_code()) {
-		return new Entity_Mechanisim();
-	}
-	else if (hash == typeid(Entity_Npc*).hash_code()) {
-		return new Entity_Npc();
-	}
-	else if (hash == typeid(Entity_Player*).hash_code()) {
-		Entity_Player* ep = new Entity_Player();
-		World::Instance().playerEntity = ep;
-		return ep;
-	}
-	else if (hash == typeid(Entity_Readable*).hash_code()) {
-		return new Entity_Readable();
-	}
-	else if (hash == typeid(Entity_Room*).hash_code()) {
-		return new Entity_Room();
-	}
-	else if (hash == typeid(Entity_Anomaly*).hash_code()) {
-		return new Entity_Anomaly();
-	}
-
-	else if (hash != typeid(Entity*).hash_code()) {
-		//Undefined hash
-	}
-	return new Entity();
 }
 
 BehaviorNode* GameLoader::GenBehaviorNode(int hash)
 {
-	if (hash == typeid(BehaviorNode_Sequence*).hash_code()) {
+	switch (hash)
+	{
+	case 0:
+		return new BehaviorNode();
+	case 1:
 		return new BehaviorNode_Sequence();
-	}
-	else if (hash == typeid(BehaviorNode_WaitTicks*).hash_code()) {
-		return new BehaviorNode_WaitTicks();
-	}
-	else if (hash == typeid(BehaviorNode_AddObservation*).hash_code()) {
-		return new BehaviorNode_AddObservation();
-	}
-	else if (hash == typeid(BehaviorNode_WaitForObservation*).hash_code()) {
-		return new BehaviorNode_WaitForObservation();
-	}	
-	else if (hash == typeid(BehaviorNode_RunSubTree*).hash_code()) {
-		return new BehaviorNode_RunSubTree();//might need special case
-	}	
-	else if (hash == typeid(BehaviorNode_Living_SetBehaviorState*).hash_code()) {
-		return new BehaviorNode_Living_SetBehaviorState();
-	}
-	else if (hash == typeid(BehaviorNode_Living_SetTargetByName*).hash_code()) {
-		return new BehaviorNode_Living_SetTargetByName("");
-	}
-	else if (hash == typeid(BehaviorNode_Living_SetSubTargetByName*).hash_code()) {
-		return new BehaviorNode_Living_SetSubTargetByName("");
-	}
-	else if (hash == typeid(BehaviorNode_ActivateMechanism*).hash_code()) {
-		return new BehaviorNode_ActivateMechanism("");
-	}
-	else if (hash == typeid(BehaviorNode_Living_AttackTarget*).hash_code()) {
-		return new BehaviorNode_Living_AttackTarget();
-	}
-	else if (hash == typeid(BehaviorNode_MoveToTarget*).hash_code()) {
-		return new BehaviorNode_MoveToTarget();
-	}
-	else if (hash == typeid(BehaviorNode_RunSubTree*).hash_code()) {
-		return new BehaviorNode_RunSubTree();
-	}
-	else if (hash == typeid(BehaviorNode_Living_TargetEntityTypeInSelf*).hash_code()) {
-		return new BehaviorNode_Living_TargetEntityTypeInSelf(0);
-	}
-	else if (hash == typeid(BehaviorNode_ParallelSequence*).hash_code()) {
+	case 2:
+		return new BehaviorNode_Selector();
+	case 3:
 		return new BehaviorNode_ParallelSequence();
-	}
-	else if (hash == typeid(BehaviorNode_Living_DrinkTarget*).hash_code()) {
+	case 4:
+		return new BehaviorNode_WaitTicks(0);
+	case 5:
+		return new BehaviorNode_AddObservation("");
+	case 6:
+		return new BehaviorNode_WaitForObservation("");
+	case 7:
+		return new BehaviorNode_TargetEntityTypeInTarget(0);
+	case 8:
+		return new BehaviorNode_ActivateMechanism("");
+	case 9:
+		return new BehaviorNode_MoveToTarget();
+	case 10:
+		return new BehaviorNode_RunSubTree(nullptr);
+	case 11:
+		return new BehaviorNode_SpawnPrefab("",Nowhere,false);
+	case 12:
+		return new BehaviorNode_Living_SetTargetByName("");
+	case 13:
+		return new BehaviorNode_Living_GetSavedTarget("");
+	case 14:
+		return new BehaviorNode_Living_SetSubTargetByName("");
+	case 15:
+		return new BehaviorNode_Living_SetBehaviorState(Entity_Living::Idle);
+	case 16:
+		return new BehaviorNode_Living_AttackTarget(false);
+	case 17:
 		return new BehaviorNode_Living_DrinkTarget();
-	}
-	return new BehaviorNode();
-	
-		
+	case 18:
+		return new BehaviorNode_Living_TargetEntityTypeInSelf(0);
+	case 19:
+		return new BehaviorNode_Living_IfThirsty(0);
+	case 20:
+		return new BehaviorNode_Living_ReturnHome();
+	default:
+		//UNDEFINED
+		return new BehaviorNode();
+	}		
 }

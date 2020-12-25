@@ -3,7 +3,18 @@
 #include "Entity_Container.h"
 #include "Entity_Room.h"
 #include "ObservationManager.h"
+#include "GameLoader.h"
 #include "World.h"
+
+void Entity::SetEntityData(int id, bool visibleInsides, float internalVolume, float size, float weight)
+{
+	this->worldID = GameLoader::Instance().loadedTiles[0];
+	this->size = size;
+	this->internalVolume = internalVolume;
+	this->visibleInsides = visibleInsides;
+	this->uniqueEntityID = id;
+	this->weight = weight;
+}
 
 int Entity::RandomRange(int start, int end)
 {
@@ -240,12 +251,14 @@ bool Entity::CheckforNameMatch(Entity* toCompare)
 bool Entity::IsChildOf(Entity* toCompare)
 {
 	Entity* parentCheck = this->parent.second;
+	int attempts = 0;
 	do {
 		if (parentCheck == toCompare)return true;
 		if (parentCheck != nullptr) {
 			parentCheck = parentCheck->parent.second;
 		}
-	} while (parentCheck!= nullptr);
+		attempts++;
+	} while (parentCheck!= nullptr&& attempts<10);
 	return false;
 }
 
@@ -253,7 +266,7 @@ bool Entity::IsChildOf(int hash,Entity** foundEntity)
 {
 	Entity* parentCheck = this->parent.second;
 	do {
-		if (parentCheck->GetClassHash() == hash) {
+		if (parentCheck->SerializationID == hash) {
 			*foundEntity = parentCheck;
 			return true;
 		}
@@ -303,7 +316,7 @@ std::vector<Entity*> Entity::getVisibleEntities(bool getsurrounding, bool getPar
 			}
 		}
 	}
-	if (getsurrounding) {
+	if (getsurrounding&& this->parent.second!=nullptr) {
 		std::vector<Entity*> withintile = (parent.second)->GetInventory();
 		for (int i = 0; i < withintile.size(); i++) {
 			if (withintile[i] != this) {

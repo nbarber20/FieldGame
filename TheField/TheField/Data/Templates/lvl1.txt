@@ -1,5 +1,4 @@
-
-	currentFilename = "Development";
+currentFilename = "Development";
 	std::filesystem::create_directory("Data/Saves/" + currentFilename);
 	int worldID = 1;
 
@@ -12,6 +11,18 @@
 	Ground->toSouth = std::make_pair("There is a empty field to the south", 0);
 	World::Instance().AddEntity(Ground);
 
+	Entity_Mechanisim* WaterPump = new Entity_Mechanisim();
+	WaterPump->SetEntityData(GetUniqueID(), true, 300.0f, 400.0f, 1.0f);
+	WaterPump->attachedToParent = true;
+	WaterPump->names = { "waterpump","pump" };
+	WaterPump->SetParent(On, Ground);
+	Entity_Mechanisim::MechanismBehavior* b = new Entity_Mechanisim::MechanismBehavior();
+	b->activationKey = "use";
+	b->firstPersonActivation = "use";
+	b->thirdPersonActivation = "uses";
+	b->activationTree = LoadBehaviorTree("Spawnwater");
+	WaterPump->AddBehavior(b);
+	World::Instance().AddEntity(WaterPump);
 
 	Entity_Event* EnterFarmEvent = new Entity_Event();
 	EnterFarmEvent->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
@@ -39,6 +50,8 @@
 	Entity_Npc* NPC = new Entity_Npc();
 	NPC->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 150.0f);
 	NPC->names = { "person" };
+	NPC->AddBehavior(LoadBehaviorTree("RootHumanBehavior"));
+	NPC->SetSavedTarget("WaterSourceMechanism", WaterPump);
 	NPC->SetParent(OnFloor, House, 0, false, false);
 
 	//Make Tree

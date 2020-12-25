@@ -8,9 +8,10 @@ void World::ClearEntities()
 	entities.clear();
 }
 
-void World::AddEntity(Entity* e)
+int World::AddEntity(Entity* e)
 {
 	entities.push_back(e);
+	return entities.size()-1;
 }
 
 void World::RemoveEntity(Entity* e)
@@ -59,7 +60,7 @@ Entity* World::GetEntityByID(int id, int worldID)
 	std::vector<int> loadedTiles = GameLoader::Instance().loadedTiles;
 	if (std::find(loadedTiles.begin(), loadedTiles.end(), worldID) == loadedTiles.end() && worldID!=-1) {
 		GameLoader::Instance().LoadTile(worldID);
-		setupParents();
+		SetupParents();
 	}
 	for (int i = 0; i < entities.size(); i++) {
 		if (entities[i]->uniqueEntityID == id && entities[i]->worldID == worldID) {
@@ -79,17 +80,15 @@ void World::MoveToTile(int tileName)
 	GameLoader::Instance().loadedTiles.push_back(tileName);
 	//Load
 	GameLoader::Instance().LoadPlayer(false);
-	playerEntity->worldID = tileName;
-
 	GameLoader::Instance().currentPlayerTile = tileName;
 	GameLoader::Instance().LoadTiles();
-	setupParents();
+	SetupParents();
 	playerEntity->SetParentOverride(On, GameLoader::Instance().currentGroundTile);
 }
 
 
 
-void World::setupParents()
+void World::SetupParents()
 {
 	//Set parents
 	for (int i = 0; i < entities.size(); i++) {
@@ -97,12 +96,32 @@ void World::setupParents()
 			entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
 		}
 		else {
-			if (entities[i]->parentEntityID == playerEntity->uniqueEntityID) {
-				entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir,playerEntity);
+			if (entities[i] == playerEntity) {
+				entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, GameLoader::Instance().currentPlayerTile));
 			}
 			else {
-				entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, -1));
+				if (entities[i]->parentEntityID == playerEntity->uniqueEntityID) {
+					entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, playerEntity);
+				}
+				else {
+					entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, -1));
+				}
 			}
+		}
+	}
+}
+
+void World::SetupParents(int index)
+{
+	if (entities[index]->worldID != -1) {
+		entities[index]->SetParentOverride((Position)entities[index]->parentEntityDir, GetEntityByID(entities[index]->parentEntityID, entities[index]->worldID));
+	}
+	else {
+		if (entities[index]->parentEntityID == playerEntity->uniqueEntityID) {
+			entities[index]->SetParentOverride((Position)entities[index]->parentEntityDir, playerEntity);
+		}
+		else {
+			entities[index]->SetParentOverride((Position)entities[index]->parentEntityDir, GetEntityByID(entities[index]->parentEntityID, -1));
 		}
 	}
 }

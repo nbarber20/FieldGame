@@ -15,6 +15,7 @@ public:
 		WAITING,
 	};
 	BehaviorNode() {
+		SerializationID = 0;
 		maxSubNodes =1;
 	};
 	virtual ~BehaviorNode() {
@@ -41,10 +42,6 @@ public:
 		temp[namelen] = '\0';
 		return temp;
 	}
-	 
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
-	}
 	virtual BehaviorNode::BehaviorStatus Execute() {
 		return subNodes[0]->Execute();
 	};
@@ -62,6 +59,7 @@ public:
 	BehaviorTree* treeParent;
 	BehaviorNode* nodeParent;
 	std::vector<BehaviorNode*> subNodes;
+	int SerializationID = 0;
 protected:
 	int maxSubNodes = 0;
 };
@@ -70,14 +68,12 @@ class BehaviorNode_Sequence: public BehaviorNode
 {
 public:
 	BehaviorNode_Sequence(int timeout = -1) {
+		SerializationID = 1;
 		maxSubNodes = -1;
 		index = 0;
 		waitTime = 0;
 		waitTimeout = timeout;
 	};
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
-	}	
 	virtual void WriteData(std::fstream* output) {
 		output->write((char*)&waitTimeout, sizeof(int));
 	};
@@ -112,15 +108,29 @@ private:
 	int waitTimeout = 0;
 };
 
+class BehaviorNode_Selector : public BehaviorNode
+{
+public:
+	BehaviorNode_Selector() {
+		SerializationID = 2;
+		maxSubNodes = 2;
+	};
+	virtual BehaviorStatus Execute() {
+		BehaviorStatus first = subNodes[0]->Execute();
+		if (first == FAILED) {
+			return subNodes[1]->Execute();
+		}
+		return first;
+	};
+};
+
 class BehaviorNode_ParallelSequence : public BehaviorNode
 {
 public:
 	BehaviorNode_ParallelSequence() {
+		SerializationID = 3;
 		maxSubNodes = -1;
 	};
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output) {
 	};
 	virtual void ReadData(std::fstream* input) {
@@ -138,8 +148,8 @@ public:
 class BehaviorNode_WaitTicks : public BehaviorNode
 {
 public:
-	BehaviorNode_WaitTicks() {};
 	BehaviorNode_WaitTicks(int time) {
+		SerializationID = 4;
 		this->time = time;
 		this->current = time;
 	};
@@ -151,9 +161,6 @@ public:
 		input->read((char*)&time, sizeof(int));
 		this->current = time;
 	};
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
-	}
 	virtual BehaviorStatus Execute() {
 		if (current > 0) {
 			current--;
@@ -173,13 +180,10 @@ private:
 class BehaviorNode_AddObservation : public BehaviorNode
 {
 public:
-	BehaviorNode_AddObservation() {};
 	BehaviorNode_AddObservation(std::string observationString) {
+		SerializationID = 6;
 		this->observationString = observationString;
 	};
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output) {
 		WriteStringData(observationString, output);
 	};
@@ -204,13 +208,10 @@ private:
 class BehaviorNode_WaitForObservation : public BehaviorNode
 {
 public:
-	BehaviorNode_WaitForObservation() {};
 	BehaviorNode_WaitForObservation(std::string observationString) {
+		SerializationID = 6; 
 		this->observationString = observationString;
 	};
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output) {
 		WriteStringData(observationString, output);
 	};
@@ -235,11 +236,9 @@ class BehaviorNode_TargetEntityTypeInTarget : public BehaviorNode
 {
 public:
 	BehaviorNode_TargetEntityTypeInTarget(int hash) {
+		SerializationID = 7;
 		this->hash = hash;
 	};
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output) {
 		output->write((char*)&hash, sizeof(int));
 	};
@@ -247,9 +246,9 @@ public:
 		input->read((char*)&hash, sizeof(int));
 	};
 	virtual BehaviorStatus Execute() {
-		std::vector<Entity*> entities = treeParent->parentEntity->getVisibleEntities(true, true, true);
+		std::vector<Entity*> entities = treeParent->parentEntity->target->GetInventory();
 		for (int i = 0; i < entities.size(); i++) {
-			if (entities[i]->GetClassHash() == hash) {
+			if (entities[i]->SerializationID == hash) {
 				treeParent->parentEntity->target = entities[i];
 				return SUCCEEDED;
 			}
@@ -268,11 +267,9 @@ class BehaviorNode_ActivateMechanism : public BehaviorNode
 {
 public:
 	BehaviorNode_ActivateMechanism(std::string key) {
+		SerializationID = 8;
 		this->key = key;
 	};
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output) {
 		WriteStringData(key, output);
 	};
@@ -300,10 +297,9 @@ private:
 class BehaviorNode_MoveToTarget : public BehaviorNode
 {
 public:
-	BehaviorNode_MoveToTarget() {};
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
-	}
+	BehaviorNode_MoveToTarget() {
+		SerializationID = 9;
+	};
 	virtual void WriteData(std::fstream* output) {
 	};
 	virtual void ReadData(std::fstream* input) {
@@ -321,8 +317,8 @@ public:
 class BehaviorNode_RunSubTree: public BehaviorNode
 {
 public:
-	BehaviorNode_RunSubTree() {};
 	BehaviorNode_RunSubTree(BehaviorTree* tree) {
+		SerializationID = 10;
 		this->tree = tree;
 	};
 	virtual ~BehaviorNode_RunSubTree() {
@@ -343,9 +339,6 @@ public:
 		temp[namelen] = '\0';
 		tree = GameLoader::Instance().LoadBehaviorTree(temp);
 	};
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
-	}
 	virtual BehaviorStatus Execute() {
 		tree->Tick();
 		if (tree->waiting)return WAITING;
@@ -353,4 +346,40 @@ public:
 	};
 private:
 	BehaviorTree* tree;
+};
+
+
+class BehaviorNode_SpawnPrefab : public BehaviorNode
+{
+public:
+	BehaviorNode_SpawnPrefab(std::string name, Position p, bool sametile) {
+		SerializationID = 11;
+		this->name = name;
+		this->p = p;
+		this->sametile = sametile;
+	};
+	virtual void WriteData(std::fstream* output) {
+		WriteStringData(name, output);
+		output->write((char*)&p, sizeof(int));
+		output->write((char*)&sametile, sizeof(bool));
+	};
+
+	virtual void ReadData(std::fstream* input) {
+		name = ReadStringData(input);
+		input->read((char*)&p, sizeof(int));
+		input->read((char*)&sametile, sizeof(bool));
+	};
+	virtual BehaviorStatus Execute() {
+		if (sametile) {
+			GameLoader::Instance().SpawnPrefab(name, p, treeParent->parentEntity->parent.second);
+		}
+		else {
+			GameLoader::Instance().SpawnPrefab(name, p, treeParent->parentEntity);
+		}
+		return SUCCEEDED;
+	};
+private:
+	bool sametile = false;
+	std::string name = "";
+	Position p = Nowhere;
 };

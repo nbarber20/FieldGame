@@ -12,12 +12,13 @@ public:
 	}
 	World() {};
 	void ClearEntities();
-	void AddEntity(Entity* e);
+	int AddEntity(Entity* e);
 	void RemoveEntity(Entity* e);
 	void Tick();
 	Entity* GetEntityByID(int id, int worldID);
 	void MoveToTile(int tileName);
-	void setupParents();
+	void SetupParents();
+	void SetupParents(int index);
 	std::vector< Entity*> GetEntities();
 	float GetWorldTime();
 	int GetWorldDay();

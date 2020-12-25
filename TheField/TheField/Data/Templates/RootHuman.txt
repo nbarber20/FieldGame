@@ -1,0 +1,60 @@
+
+	BehaviorTree* RootHumanBehavior = new BehaviorTree("RootHumanBehavior", true);
+	BehaviorNode* RootHumanBehaviorstart = new BehaviorNode();
+	RootHumanBehavior->AddNode(RootHumanBehaviorstart, nullptr);
+
+	BehaviorNode_ParallelSequence* rootParallel = new BehaviorNode_ParallelSequence();
+	RootHumanBehavior->AddNode(rootParallel, RootHumanBehaviorstart);
+
+	BehaviorNode_Sequence* FightSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(FightSequence, rootParallel);
+
+	BehaviorNode_Living_AttackTarget* RootHumanBehaviorattack = new BehaviorNode_Living_AttackTarget(true);
+	RootHumanBehavior->AddNode(RootHumanBehaviorattack, FightSequence);
+
+	BehaviorNode_Sequence* thirstCheckSeq = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(thirstCheckSeq, rootParallel);
+
+	BehaviorNode_Living_IfThirsty* getThirsty = new BehaviorNode_Living_IfThirsty(100);
+	RootHumanBehavior->AddNode(getThirsty, thirstCheckSeq);
+
+
+	BehaviorNode_Selector* GetWaterSelector = new BehaviorNode_Selector();
+	RootHumanBehavior->AddNode(GetWaterSelector, thirstCheckSeq);
+
+	BehaviorNode_Sequence* GetWaterSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(GetWaterSequence, GetWaterSelector);
+
+	BehaviorNode_Living_TargetEntityTypeInSelf* FindFluid = new BehaviorNode_Living_TargetEntityTypeInSelf(6);
+	RootHumanBehavior->AddNode(FindFluid, GetWaterSequence);
+
+	BehaviorNode_Living_DrinkTarget* DrinkFluid = new BehaviorNode_Living_DrinkTarget();
+	RootHumanBehavior->AddNode(DrinkFluid, GetWaterSequence);
+
+
+
+	BehaviorNode_Sequence* GetWaterSourceSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(GetWaterSourceSequence, GetWaterSelector);
+
+	BehaviorNode_Living_GetSavedTarget* FindFluidSource = new BehaviorNode_Living_GetSavedTarget("WaterSourceMechanism");
+	RootHumanBehavior->AddNode(FindFluidSource, GetWaterSourceSequence);
+
+	BehaviorNode_MoveToTarget* move = new BehaviorNode_MoveToTarget();
+	RootHumanBehavior->AddNode(move, GetWaterSourceSequence);
+
+	BehaviorNode_ActivateMechanism* useWaterMechanism = new BehaviorNode_ActivateMechanism("use");
+	RootHumanBehavior->AddNode(useWaterMechanism, GetWaterSourceSequence);
+
+	BehaviorNode_WaitTicks* useWaterMechanismWait = new BehaviorNode_WaitTicks(1);
+	RootHumanBehavior->AddNode(useWaterMechanismWait, GetWaterSourceSequence);
+
+	BehaviorNode_TargetEntityTypeInTarget* getWaterFromMechanism = new BehaviorNode_TargetEntityTypeInTarget(6);
+	RootHumanBehavior->AddNode(getWaterFromMechanism, GetWaterSourceSequence);
+
+	BehaviorNode_Living_DrinkTarget* DrinkFluidFromMechanism = new BehaviorNode_Living_DrinkTarget();
+	RootHumanBehavior->AddNode(DrinkFluidFromMechanism, GetWaterSourceSequence);
+
+	BehaviorNode_Living_ReturnHome* returnHome = new BehaviorNode_Living_ReturnHome();
+	RootHumanBehavior->AddNode(returnHome, GetWaterSourceSequence);
+
+	SaveBehaviorTree(RootHumanBehavior);

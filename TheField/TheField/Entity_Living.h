@@ -7,6 +7,11 @@
 class Entity_Living : public Entity
 {
 public:
+	struct SavedTargetVariables {
+		std::string Name;
+		int EntityID;
+		int WorldID;
+	};
 	enum BehaviorState
 	{
 		Idle, //Do nothing of note
@@ -38,6 +43,7 @@ public:
 		Cold,
 	};
 	Entity_Living() {
+		SerializationID = 10;
 		worldActive = false;
 	};
 	virtual ~Entity_Living() {
@@ -46,9 +52,6 @@ public:
 		}
 		behaviorTrees.clear();
 	};
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
-	}
 
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);
@@ -88,6 +91,15 @@ public:
 		for (int i = 0; i < numTrees; i++) {
 			WriteStringData(behaviorTrees[i]->treeName, output);
 			output->write((char*)&behaviorTrees[i]->waitReturnIndex, sizeof(int));
+		}
+
+
+		int numSavedTargets = savedTargets.size();
+		output->write((char*)&numSavedTargets, sizeof(int));
+		for (int i = 0; i < numSavedTargets; i++) {
+			WriteStringData(savedTargets[i].Name, output);
+			output->write((char*)&savedTargets[i].EntityID, sizeof(int));
+			output->write((char*)&savedTargets[i].WorldID, sizeof(int));
 		}
 	};
 	virtual void ReadData(std::fstream* input) {
@@ -137,6 +149,21 @@ public:
 			int waitReturnIndex;
 			input->read((char*)&waitReturnIndex, sizeof(int));
 			tree->waitReturnIndex = waitReturnIndex;
+		}
+
+
+		int numSavedTargets;
+		input->read((char*)&numSavedTargets, sizeof(int));
+		for (int i = 0; i < numSavedTargets; i++) {
+			SavedTargetVariables v;
+			v.Name = ReadStringData(input);
+			int VEntityID;
+			input->read((char*)&VEntityID, sizeof(int));
+			int VWorldID;
+			input->read((char*)&VWorldID, sizeof(int));
+			v.EntityID = VEntityID;
+			v.WorldID = VWorldID;
+			savedTargets.push_back(v);
 		}
 	};
 	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
@@ -204,7 +231,7 @@ public:
 	virtual void Tick() override;
 	void AddBehavior(BehaviorTree* tree);
 	void SetHome(Position p, Entity* home);
-	void ReturnHome();	
+	void ReturnHome();
 	void AddNourishment(float delta);
 	void AddHydration(float delta);
 	virtual void TakeDamage(Entity* source, DamageType type, float multiplier, int lethalityLevel);
@@ -213,6 +240,9 @@ public:
 	virtual bool Drink(Entity* e, bool drinkAll);
 	virtual bool Eat(Entity* e);
 	virtual bool TrySwallow(Entity* e);
+	void SetSavedTarget(SavedTargetVariables newTarget);
+	void SetSavedTarget(std::string newTargetName, Entity* newTarget);
+	bool GetSavedTarget(std::string newTargetName);
 
 	int homeID = -2;
 	Position homePosition = Inside;
@@ -246,6 +276,7 @@ public:
 	float unarmedDamageMultiplier = .8;
 	int unarmedDamageLethalityLevel = 1;
 	BehaviorState behaviorState = Idle;
+	std::vector<SavedTargetVariables> savedTargets;
 	Constants constants;
 };
 

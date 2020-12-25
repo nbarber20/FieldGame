@@ -4,15 +4,13 @@ class Entity_Fluid : public Entity
 {
 public:
 	Entity_Fluid() {
+		SerializationID = 6;
 		this->countable = false;
 	};
 	virtual ~Entity_Fluid() {};
 
 	virtual Entity_Fluid* Clone() {
 		return new Entity_Fluid(*this);
-	}
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
 	}
 
 	virtual void WriteData(std::fstream* output) {

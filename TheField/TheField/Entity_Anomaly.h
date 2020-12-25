@@ -3,11 +3,10 @@
 class Entity_Anomaly : public Entity
 {
 public:
-	Entity_Anomaly() {}
-	~Entity_Anomaly() {}
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
+	Entity_Anomaly() {
+		SerializationID = 16;
 	}
+	~Entity_Anomaly() {}
 	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
 		Entity::WriteToJson(writer);
 	}

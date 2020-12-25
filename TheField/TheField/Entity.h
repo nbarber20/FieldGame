@@ -67,25 +67,17 @@ class ObservationManager;
 class Entity
 {
 public:
-	Entity() {};
+	Entity() {
+		SerializationID = 0;
+	};
 	virtual ~Entity() {
 
 	}
 
-	virtual void SetEntityData(int id, bool visibleInsides, float internalVolume, float size, float weight) {
-		this->size = size;
-		this->internalVolume = internalVolume;
-		this->visibleInsides = visibleInsides;
-		this->uniqueEntityID = id;
-		this->weight = weight;
-	}
+	virtual void SetEntityData(int id, bool visibleInsides, float internalVolume, float size, float weight);
 
 	virtual Entity* Clone() {
 		return new Entity(*this);
-	}
-
-	virtual int GetClassHash() {
-		return typeid(this).hash_code();
 	}
 	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
 		if (parent.second != nullptr) {
@@ -257,6 +249,7 @@ public:
 
 
 	//UsedForLoading
+	int SerializationID = 0;
 	int parentEntityID = -1;
 	int parentEntityDir = 0;
 	bool worldActive = false;
@@ -273,6 +266,7 @@ public:
 	float internalVolume = 0;
 	bool visibleInsides = false;
 	bool countable = true;
+	bool nonPlayerFacing = false;
 	std::pair < Position, Entity*> parent;
 	bool attachedToParent = false;
 	std::vector<std::pair<Position, std::vector<Entity*>>> children;

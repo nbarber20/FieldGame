@@ -26,5 +26,9 @@ public:
 	bool loop = true;
 	std::string treeName;
 	Entity* parentEntity;
+
+
+
+
 };
 

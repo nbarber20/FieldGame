@@ -3,13 +3,13 @@
 class Entity_Event : public Entity
 {
 public:
-	Entity_Event() {};
+	Entity_Event() {
+		SerializationID =4;
+	};
 	virtual ~Entity_Event() {
 		ObservationTypeSenseConsumptionList.clear();
+		nonPlayerFacing = true;
 	};
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);
 		WriteStringData(EventImageFile, output);

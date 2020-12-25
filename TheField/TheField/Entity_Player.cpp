@@ -269,7 +269,7 @@ bool Entity_Player::TryMove(Entity* e, Position toPos, Entity* toEntity)
 	if (e->attachedToParent == true)return false;
 	if (e->weight > strength && e != this)return false;
 	Entity* npcCheck = nullptr;
-	if (e->IsChildOf(typeid(Entity_Npc*).hash_code(), &npcCheck)){
+	if (e->IsChildOf(12, &npcCheck)){
 		Entity_Npc* npc = dynamic_cast<Entity_Npc*>(npcCheck);
 		npc->NoticePickpocket(this);
 		return true;

@@ -8,13 +8,12 @@
 class Entity_Container : public Entity_Constructed
 {
 public:
-	Entity_Container(){};
+	Entity_Container(){
+		SerializationID = 3;
+	};
 	virtual ~Entity_Container() {};
 	virtual Entity_Container* Clone() {
 		return new Entity_Container(*this);
-	}
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
 	}
 	virtual void WriteData(std::fstream* output) {
 		Entity_Constructed::WriteData(output);

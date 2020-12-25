@@ -3,11 +3,11 @@
 class Entity_Food : public Entity
 {
 public:
-	Entity_Food() {};
-	virtual ~Entity_Food() {};
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
-	}
+	Entity_Food() {
+		SerializationID = 7;
+	};
+	virtual ~Entity_Food() {
+	};
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);
 		output->write((char*)&nutritionalValue, sizeof(float));

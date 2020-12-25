@@ -96,19 +96,10 @@
     <ClInclude Include="LevelEditor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Task.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entity_Weapon.h">
-      <Filter>Header Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity_Anomaly.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
     <ClInclude Include="BehaviorNode.h">
@@ -119,6 +110,9 @@
     </ClInclude>
     <ClInclude Include="BehaviorNode_Living.h">
       <Filter>Header Files\Behaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity_Anomaly.h">
+      <Filter>Header Files\Entity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -194,18 +188,5 @@
     <ClCompile Include="Entity_Weapon.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="Entity_Anomaly.cpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="TheField.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="icon.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>

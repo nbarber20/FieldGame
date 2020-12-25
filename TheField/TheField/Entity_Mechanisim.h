@@ -12,6 +12,7 @@ public:
 	std::string firstPersonActivation;
 	std::string thirdPersonActivation;
 	BehaviorTree* activationTree;
+	Entity_Mechanisim* parent;
 	void WriteData(std::fstream* output)
 	{
 		size_t activationKeylen = activationKey.size();
@@ -43,6 +44,7 @@ public:
 		int waitReturnIndex;
 		input->read((char*)&waitReturnIndex, sizeof(int));
 		activationTree->waitReturnIndex = waitReturnIndex;
+		activationTree->parentEntity = parent;
 	}
 	std::string ReadStringData(std::fstream* input) {
 		size_t namelen;
@@ -53,11 +55,10 @@ public:
 		return temp;
 	}
 };
-	Entity_Mechanisim() {};
+	Entity_Mechanisim() {
+		SerializationID = 11;
+	};
 	virtual ~Entity_Mechanisim();
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output);
 	virtual void ReadData(std::fstream* input);
 	virtual void Tick() override;

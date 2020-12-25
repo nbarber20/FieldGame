@@ -165,9 +165,9 @@ void Entity_Living::TakeDamage(Entity* source, DamageType type, float multiplier
 		}
 		else {
 			Entity* check = nullptr;
-			source->IsChildOf(typeid(Entity_Npc*).hash_code(), &check);
-			source->IsChildOf(typeid(Entity_Living*).hash_code(), &check);
-			source->IsChildOf(typeid(Entity_Player*).hash_code(), &check);
+			source->IsChildOf(12, &check); //NPC
+			source->IsChildOf(10, &check); //living
+			source->IsChildOf(13, &check); //player
 			if (check != nullptr) {
 				target = check;
 				return;
@@ -337,7 +337,7 @@ bool Entity_Living::TrySwallow(Entity* e)
 			ObservationManager::Observation o = ObservationManager::Observation();
 			o.sense = ObservationManager::SENSE_Taste;
 			o.type = ObservationManager::TYPE_Direct;
-			o.information = "You drink the " + e->GetRandomAdjective(Taste) + " " + e->names[0];
+			o.information = this->names[0] + " drink the " + e->GetRandomAdjective(Taste) + " " + e->names[0];
 			ObservationManager::Instance().MakeObservation(o);
 			this->AddHydration(fluid->hydration);
 			World::Instance().RemoveEntity(fluid);
@@ -350,7 +350,7 @@ bool Entity_Living::TrySwallow(Entity* e)
 			ObservationManager::Observation o = ObservationManager::Observation();
 			o.sense = ObservationManager::SENSE_Taste;
 			o.type = ObservationManager::TYPE_Direct;
-			o.information = "You eat the " + e->GetRandomAdjective(Taste) + " " + e->names[0];
+			o.information = this->names[0] + " eat the " + e->GetRandomAdjective(Taste) + " " + e->names[0];
 			ObservationManager::Instance().MakeObservation(o);
 			this->AddNourishment(food->nutritionalValue);
 			World::Instance().RemoveEntity(food);
@@ -368,5 +368,32 @@ bool Entity_Living::TrySwallow(Entity* e)
 	ObservationManager::Instance().MakeObservation(o);
 
 	e->SetParent(parent.first, parent.second);
+	return false;
+}
+
+void Entity_Living::SetSavedTarget(std::string newTargetName, Entity* newTarget)
+{
+	SavedTargetVariables t;
+	t.Name = newTargetName;
+	t.EntityID = newTarget->uniqueEntityID;
+	t.WorldID = newTarget->worldID;
+	savedTargets.push_back(t);
+}
+
+void Entity_Living::SetSavedTarget(SavedTargetVariables newTarget)
+{
+	savedTargets.push_back(newTarget);
+}
+
+bool Entity_Living::GetSavedTarget(std::string newTargetName)
+{
+	for (int i = 0; i < savedTargets.size(); i++) {
+		if (savedTargets[i].Name == newTargetName) {
+			target = World::Instance().GetEntityByID(savedTargets[i].EntityID, savedTargets[i].WorldID);
+			if (target != nullptr) {
+				return true;
+			}
+		}
+	}
 	return false;
 }

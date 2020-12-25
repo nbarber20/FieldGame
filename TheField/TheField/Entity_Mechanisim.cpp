@@ -43,6 +43,7 @@ void Entity_Mechanisim::ReadData(std::fstream* input)
 	input->read((char*)&behaviorLen, sizeof(int));
 	for (int i = 0; i < behaviorLen; i++) {
 		MechanismBehavior* b = new MechanismBehavior(); 
+		b->parent = this;
 		b->ReadData(input);
 		behaviors.push_back(b);
 	}

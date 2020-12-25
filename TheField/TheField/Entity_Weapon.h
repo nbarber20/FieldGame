@@ -6,11 +6,9 @@ class Entity_Weapon:public Entity
 public:
 	Entity_Weapon()
 	{
+		SerializationID = 16;
 	};
 	virtual ~Entity_Weapon() {};
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);
 		output->write((char*)&damageType, sizeof(int));

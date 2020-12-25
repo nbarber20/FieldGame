@@ -4,12 +4,10 @@ class Entity_Room : public Entity
 {
 public:
 	Entity_Room() {
+		SerializationID = 15;
 		this->visibleInsides = false;
 	};
 	virtual ~Entity_Room() {};
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output) {
 		Entity::WriteData(output);
 	};

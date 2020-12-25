@@ -3,22 +3,22 @@
 class Entity_Clip : public Entity
 {
 public:
+	static const int SERIALIZATION_ID = 1;
 	enum ClipType
 	{
 		Pistol,
 		MachineGun,
 	};
 	Entity_Clip() {
+		SerializationID = 1;
 	};
 	Entity_Clip(int clipSize, ClipType type){
+		SerializationID = 1;
 		this->clipSize = clipSize;
 		this->bulletsInClip = clipSize;
 		this->clipType = type;
 	}
 	virtual ~Entity_Clip() {};
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
 		Entity::WriteToJson(writer);
 		writer->Key("clipType");

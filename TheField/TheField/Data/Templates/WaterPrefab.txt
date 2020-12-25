@@ -1,0 +1,6 @@
+
+	Entity_Fluid* Water = new Entity_Fluid();
+	Water->SetEntityData(GetUniqueID(), true, 0.0f, 200.0f, 0.0f);
+	Water->names = { "water" };
+	Water->hydration = 50;
+	SavePrefab(Water, "Water");

@@ -10,13 +10,11 @@ public:
 		bool hasExteriorDoor; 
 	};
 	Entity_Interior() {
+		SerializationID = 9;
 		this->visibleInsides = false;
 	};
 	virtual ~Entity_Interior();
 
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output) {
 		Entity_Constructed::WriteData(output);
 		int roomCount = rooms.size();

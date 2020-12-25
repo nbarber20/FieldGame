@@ -6,12 +6,10 @@ class Entity_Firearm : public Entity_Weapon
 public:
 	Entity_Firearm(Entity_Clip::ClipType type)
 	{
+		SerializationID = 5;
 		this->clipType = type;
 	};
 	virtual ~Entity_Firearm() {};
-	virtual int GetClassHash() override {
-		return typeid(this).hash_code();
-	}
 	virtual void WriteData(std::fstream* output) {
 		Entity_Weapon::WriteData(output);
 		output->write((char*)&clipType, sizeof(int));
