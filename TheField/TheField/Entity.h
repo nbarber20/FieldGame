@@ -150,6 +150,7 @@ public:
 			output->write((char*)&nullID, sizeof(int));
 		}
 		output->write((char*)&(parent.first), sizeof(int));
+		output->write((char*)&playerAccessible, sizeof(bool));
 		//TODO adjectives
 
 		int adjectivesCount = adjectives.size();
@@ -188,6 +189,7 @@ public:
 		input->read((char*)&facingDirection, sizeof(int));
 		input->read((char*)&parentEntityID, sizeof(int));
 		input->read((char*)&parentEntityDir, sizeof(int));
+		input->read((char*)&playerAccessible, sizeof(bool));
 
 		//TODO adjectives
 		int adjectivesCount;
@@ -245,7 +247,7 @@ public:
 	bool IsChildOf(Entity* toCompare);
 	bool IsChildOf(int hash, Entity** foundEntity);
 	int getChildDepth();
-	virtual std::vector<Entity*>  getVisibleEntities(bool getsurrounding, bool getParent, bool getSelf);
+	virtual std::vector<Entity*>  getVisibleEntities(bool getsurrounding, bool getParent, bool getSelf, bool seeInside = false);
 
 
 	//UsedForLoading
@@ -274,6 +276,7 @@ public:
 	FacingDirection facingDirection = North;
 	Entity* target = nullptr;
 	Entity* subTarget = nullptr;
+	bool playerAccessible = false;
 protected:
 	virtual void AddChild(Position pos, Entity* toAdd, int roomIndex);
 	virtual bool RemoveChild(Entity* toRemove);

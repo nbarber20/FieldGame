@@ -5,6 +5,7 @@
 #include "GameLoader.h"
 #include "Entity_Living.h"
 #include "Entity_Mechanisim.h"
+#include "Entity_Dispenser.h"
 class BehaviorNode
 {
 public:
@@ -382,4 +383,50 @@ private:
 	bool sametile = false;
 	std::string name = "";
 	Position p = Nowhere;
+};
+
+class BehaviorNode_TargetDispenserType : public BehaviorNode
+{
+public:
+	BehaviorNode_TargetDispenserType(int type) {
+		SerializationID = 21;
+		this->type = type;
+	};
+	virtual void WriteData(std::fstream* output) {
+		output->write((char*)&type, sizeof(int));
+	};
+	virtual void ReadData(std::fstream* input) {
+		input->read((char*)&type, sizeof(int));
+	};
+	virtual BehaviorStatus Execute() {
+		std::vector<Entity*> entities = treeParent->parentEntity->getVisibleEntities(true,true,true,true);
+		for (int i = 0; i < entities.size(); i++) {
+			Entity_Dispenser* disp = dynamic_cast<Entity_Dispenser*>(entities[i]);
+			if (disp) {
+				if (disp->dispenserType == type) {
+					treeParent->parentEntity->target = entities[i];
+					return SUCCEEDED;
+				}
+			}
+		}
+		return FAILED;
+	};
+private:
+	int type;
+};
+
+class BehaviorNode_UseDispenserAndTargetDispensed : public BehaviorNode
+{
+public:
+	BehaviorNode_UseDispenserAndTargetDispensed() {
+		SerializationID = 22;
+	};
+	virtual BehaviorStatus Execute() {
+		Entity_Dispenser* disp = dynamic_cast<Entity_Dispenser*>(treeParent->parentEntity->target);
+		if (disp) {
+			treeParent->parentEntity->target = disp->DispenseEntity();
+			return SUCCEEDED;
+		}
+		return FAILED;
+	};
 };

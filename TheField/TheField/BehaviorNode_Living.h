@@ -16,7 +16,7 @@ public:
 	virtual BehaviorStatus Execute() {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
-			std::vector<Entity*> entities = living->getVisibleEntities(true, true, true);
+			std::vector<Entity*> entities = living->getVisibleEntities(true, true, true,true);
 			for (int i = 0; i < entities.size(); i++) {
 				for (int n = 0; n < entities[i]->names.size(); n++) {
 					if (entities[i]->names[n] == name) {
@@ -94,7 +94,7 @@ public:
 	virtual BehaviorStatus Execute() {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
-			std::vector<Entity*> entities = living->getVisibleEntities(true, true, true);
+			std::vector<Entity*> entities = living->getVisibleEntities(true, true, true, true);
 			for (int i = 0; i < entities.size(); i++) {
 				for (int n = 0; n < entities[i]->names.size(); n++) {
 					if (entities[i]->names[n] == name) {
@@ -188,6 +188,32 @@ private:
 	float threshold;
 };
 
+class BehaviorNode_Living_IfHungry : public BehaviorNode
+{
+public:
+	BehaviorNode_Living_IfHungry(float threshold) {
+		this->threshold = threshold;
+		SerializationID = 23;
+	};
+	virtual void WriteData(std::fstream* output) {
+		output->write((char*)&threshold, sizeof(int));
+	};
+	virtual void ReadData(std::fstream* input) {
+		input->read((char*)&threshold, sizeof(int));
+	};
+	virtual BehaviorStatus Execute() {
+		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
+		if (living) {
+			if (living->nourishment < threshold) {
+				return SUCCEEDED;
+			}
+		}
+		return FAILED;
+	};
+private:
+	float threshold;
+};
+
 class BehaviorNode_Living_DrinkTarget : public BehaviorNode
 {
 public:
@@ -210,6 +236,28 @@ public:
 	};
 };
 
+class BehaviorNode_Living_EatTarget : public BehaviorNode
+{
+public:
+	BehaviorNode_Living_EatTarget() {
+		SerializationID = 24;
+	};
+	virtual void WriteData(std::fstream* output) {
+	};
+	virtual void ReadData(std::fstream* input) {
+	};
+	virtual BehaviorStatus Execute() {
+		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
+		if (living) {
+			Entity_Food* food = dynamic_cast<Entity_Food*>(treeParent->parentEntity->target);
+			if (food) {
+				living->Eat(food);
+			}
+		}
+		return SUCCEEDED;
+	};
+};
+
 class BehaviorNode_Living_TargetEntityTypeInSelf : public BehaviorNode
 {
 public:
@@ -226,7 +274,7 @@ public:
 	virtual BehaviorStatus Execute() {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
-			std::vector<Entity*> entities = living->getVisibleEntities(false,false,true);
+			std::vector<Entity*> entities = living->getVisibleEntities(false,false,true, true);
 			for (int i = 0; i < entities.size(); i++) {
 				if (entities[i]->SerializationID == hash) {
 					treeParent->parentEntity->target = entities[i];

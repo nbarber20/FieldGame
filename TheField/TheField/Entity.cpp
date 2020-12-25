@@ -290,7 +290,7 @@ int Entity::getChildDepth()
 	return depth;
 }
 
-std::vector<Entity*> Entity::getVisibleEntities(bool getsurrounding, bool getParent, bool getSelf)
+std::vector<Entity*> Entity::getVisibleEntities(bool getsurrounding, bool getParent, bool getSelf, bool seeInside)
 {
 	std::vector<Entity*> visible;
 
@@ -301,13 +301,13 @@ std::vector<Entity*> Entity::getVisibleEntities(bool getsurrounding, bool getPar
 				visible.push_back(onPerson[i]);
 				std::vector<Entity*> subEntity = onPerson[i]->GetInventory();
 				for (int j = 0; j < subEntity.size(); j++) {
-					if (onPerson[i]->visibleInsides == false && subEntity[j]->parent.first == Inside) {
+					if (seeInside == false && onPerson[i]->visibleInsides == false && subEntity[j]->parent.first == Inside) {
 						continue;
 					}
 					visible.push_back(subEntity[j]);
 					std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
 					for (int k = 0; k < subEntity2.size(); k++) {
-						if (subEntity[j]->visibleInsides == false && subEntity2[k]->parent.first == Inside) {
+						if (seeInside == false && subEntity[j]->visibleInsides == false && subEntity2[k]->parent.first == Inside) {
 							continue;
 						}
 						visible.push_back(subEntity2[k]);
@@ -323,13 +323,13 @@ std::vector<Entity*> Entity::getVisibleEntities(bool getsurrounding, bool getPar
 				visible.push_back(withintile[i]);
 				std::vector<Entity*> subEntity = withintile[i]->GetInventory();
 				for (int j = 0; j < subEntity.size(); j++) {
-					if (withintile[i]->visibleInsides == false && (subEntity[j]->parent.first == Inside || subEntity[j]->parent.first == OnFloor)) {
+					if (seeInside == false && withintile[i]->visibleInsides == false && (subEntity[j]->parent.first == Inside || subEntity[j]->parent.first == OnFloor)) {
 						continue;
 					}
 					visible.push_back(subEntity[j]);
 					std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
 					for (int k = 0; k < subEntity2.size(); k++) {
-						if (subEntity[j]->visibleInsides == false && (subEntity2[k]->parent.first == Inside || subEntity[j]->parent.first == OnFloor)) {
+						if (seeInside == false && subEntity[j]->visibleInsides == false && (subEntity2[k]->parent.first == Inside || subEntity[j]->parent.first == OnFloor)) {
 							continue;
 						}
 						visible.push_back(subEntity2[k]);

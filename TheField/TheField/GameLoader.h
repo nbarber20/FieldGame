@@ -15,7 +15,7 @@ public:
 	int GetUniqueID();
 	void SaveAll();
 	bool LoadAll(std::string filename);
-	void SpawnPrefab(std::string filename, Position p, Entity* parent);
+	Entity* SpawnPrefab(std::string filename, Position p, Entity* parent);
 	void SavePrefab(Entity* e, std::string filename);
 	void UnloadTiles();
 	void LoadTiles();

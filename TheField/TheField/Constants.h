@@ -5,7 +5,7 @@ public:
 	Constants() {};
 	const int smallItemMaxThreshold = 16;
 	const int RoomMinThreshold = 10000;
-	const float mouthSize = 7.5f;
+	const float mouthSize = 15.5f;
 	const float drinkableWaterThreshold = 231;
 	const bool godMode = true;
 	const float daySpeed = 3.0f;

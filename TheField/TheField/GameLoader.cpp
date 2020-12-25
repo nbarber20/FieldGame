@@ -20,6 +20,7 @@
 #include "Entity_Anomaly.h"
 #include "Entity_Firearm.h"
 #include "Entity_Room.h"
+#include "Entity_Dispenser.h"
 #include "BehaviorTree.h"
 #include "BehaviorNode.h"
 #include "BehaviorNode_Living.h"
@@ -27,11 +28,134 @@
 
 void GameLoader::Setup()
 {
-	Entity_Fluid* Water = new Entity_Fluid();
-	Water->SetEntityData(GetUniqueID(), true, 0.0f, 200.0f, 0.0f);
-	Water->names = { "water" };
-	Water->hydration = 50;
-	SavePrefab(Water, "Water");
+	BehaviorTree* RootHumanBehavior = new BehaviorTree("RootHumanBehavior", true);
+	BehaviorNode* RootHumanBehaviorstart = new BehaviorNode();
+	RootHumanBehavior->AddNode(RootHumanBehaviorstart, nullptr);
+
+	BehaviorNode_ParallelSequence* rootParallel = new BehaviorNode_ParallelSequence();
+	RootHumanBehavior->AddNode(rootParallel, RootHumanBehaviorstart);
+
+	BehaviorNode_Sequence* FightSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(FightSequence, rootParallel);
+
+	BehaviorNode_Living_AttackTarget* RootHumanBehaviorattack = new BehaviorNode_Living_AttackTarget(true);
+	RootHumanBehavior->AddNode(RootHumanBehaviorattack, FightSequence);
+
+
+
+	//Water
+	BehaviorNode_Sequence* thirstCheckSeq = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(thirstCheckSeq, rootParallel);
+
+	BehaviorNode_Living_IfThirsty* getThirsty = new BehaviorNode_Living_IfThirsty(100);
+	RootHumanBehavior->AddNode(getThirsty, thirstCheckSeq);
+
+	BehaviorNode_Selector* GetWateronselfOrDispenserSelector = new BehaviorNode_Selector();
+	RootHumanBehavior->AddNode(GetWateronselfOrDispenserSelector, thirstCheckSeq);
+
+	BehaviorNode_Sequence* GetWaterSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(GetWaterSequence, GetWateronselfOrDispenserSelector);
+
+	BehaviorNode_Living_TargetEntityTypeInSelf* FindFluid = new BehaviorNode_Living_TargetEntityTypeInSelf(6);
+	RootHumanBehavior->AddNode(FindFluid, GetWaterSequence);
+
+	BehaviorNode_Living_DrinkTarget* DrinkFluid = new BehaviorNode_Living_DrinkTarget();
+	RootHumanBehavior->AddNode(DrinkFluid, GetWaterSequence);
+
+
+
+
+	BehaviorNode_Selector* GetWaterDispenserOrWorldSelector = new BehaviorNode_Selector();
+	RootHumanBehavior->AddNode(GetWaterDispenserOrWorldSelector, GetWateronselfOrDispenserSelector);
+
+	BehaviorNode_Sequence* GetWaterDispenserOnSelfSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(GetWaterDispenserOnSelfSequence, GetWaterDispenserOrWorldSelector);
+
+	BehaviorNode_TargetDispenserType* FindDispenser = new BehaviorNode_TargetDispenserType(6);
+	RootHumanBehavior->AddNode(FindDispenser, GetWaterDispenserOnSelfSequence);
+
+	BehaviorNode_UseDispenserAndTargetDispensed* UseWaterDispenser = new BehaviorNode_UseDispenserAndTargetDispensed();
+	RootHumanBehavior->AddNode(UseWaterDispenser, GetWaterDispenserOnSelfSequence);
+
+	BehaviorNode_Living_DrinkTarget* DrinkFluidFromDispenser = new BehaviorNode_Living_DrinkTarget();
+	RootHumanBehavior->AddNode(DrinkFluidFromDispenser, GetWaterDispenserOnSelfSequence);
+
+
+
+
+
+	BehaviorNode_Sequence* GetWaterSourceSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(GetWaterSourceSequence, GetWaterDispenserOrWorldSelector);
+
+	BehaviorNode_Living_GetSavedTarget* FindFluidSource = new BehaviorNode_Living_GetSavedTarget("WaterSourceMechanism");
+	RootHumanBehavior->AddNode(FindFluidSource, GetWaterSourceSequence);
+
+	BehaviorNode_MoveToTarget* move = new BehaviorNode_MoveToTarget();
+	RootHumanBehavior->AddNode(move, GetWaterSourceSequence);
+
+	BehaviorNode_ActivateMechanism* useWaterMechanism = new BehaviorNode_ActivateMechanism("use");
+	RootHumanBehavior->AddNode(useWaterMechanism, GetWaterSourceSequence);
+
+	BehaviorNode_WaitTicks* useWaterMechanismWait = new BehaviorNode_WaitTicks(1);
+	RootHumanBehavior->AddNode(useWaterMechanismWait, GetWaterSourceSequence);
+
+	BehaviorNode_TargetEntityTypeInTarget* getWaterFromMechanism = new BehaviorNode_TargetEntityTypeInTarget(6);
+	RootHumanBehavior->AddNode(getWaterFromMechanism, GetWaterSourceSequence);
+
+	BehaviorNode_Living_DrinkTarget* DrinkFluidFromMechanism = new BehaviorNode_Living_DrinkTarget();
+	RootHumanBehavior->AddNode(DrinkFluidFromMechanism, GetWaterSourceSequence);
+
+	BehaviorNode_Living_ReturnHome* returnHome = new BehaviorNode_Living_ReturnHome();
+	RootHumanBehavior->AddNode(returnHome, GetWaterSourceSequence);
+
+	//FOOD
+	BehaviorNode_Sequence* HungerCheckSeq = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(HungerCheckSeq, rootParallel);
+
+	BehaviorNode_Living_IfHungry* getHungry = new BehaviorNode_Living_IfHungry(100);
+	RootHumanBehavior->AddNode(getHungry, HungerCheckSeq);
+
+	BehaviorNode_Selector* GetFoodonselfOrDispenserSelector = new BehaviorNode_Selector();
+	RootHumanBehavior->AddNode(GetFoodonselfOrDispenserSelector, HungerCheckSeq);
+
+	BehaviorNode_Sequence* GetFoodSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(GetFoodSequence, GetFoodonselfOrDispenserSelector);
+
+	BehaviorNode_Living_TargetEntityTypeInSelf* FindFood = new BehaviorNode_Living_TargetEntityTypeInSelf(7);
+	RootHumanBehavior->AddNode(FindFood, GetFoodSequence);
+
+	BehaviorNode_Living_EatTarget* EatFood = new BehaviorNode_Living_EatTarget();
+	RootHumanBehavior->AddNode(EatFood, GetFoodSequence);
+
+
+
+
+	BehaviorNode_Sequence* GetFoodDispenserOnSelfSequence = new BehaviorNode_Sequence();
+	RootHumanBehavior->AddNode(GetFoodDispenserOnSelfSequence, GetFoodonselfOrDispenserSelector);
+
+	BehaviorNode_TargetDispenserType* FindFoodDispenser = new BehaviorNode_TargetDispenserType(7);
+	RootHumanBehavior->AddNode(FindFoodDispenser, GetFoodDispenserOnSelfSequence);
+
+	BehaviorNode_UseDispenserAndTargetDispensed* UseFoodDispenser = new BehaviorNode_UseDispenserAndTargetDispensed();
+	RootHumanBehavior->AddNode(UseFoodDispenser, GetFoodDispenserOnSelfSequence);
+
+	BehaviorNode_Living_EatTarget* EatFromDispenser = new BehaviorNode_Living_EatTarget();
+	RootHumanBehavior->AddNode(EatFromDispenser, GetFoodDispenserOnSelfSequence);
+
+
+
+
+
+
+
+
+
+
+
+
+
+	SaveBehaviorTree(RootHumanBehavior);
+
 }
 
 
@@ -67,7 +191,7 @@ bool GameLoader::LoadAll(std::string filename)
 	return true;
 }
 
-void GameLoader::SpawnPrefab(std::string filename, Position p, Entity* parent)
+Entity* GameLoader::SpawnPrefab(std::string filename, Position p, Entity* parent)
 {
 	std::fstream file("Data/Prefabs/" + filename + ".bin", std::ios::in | std::ios::binary);
 	if (!file) {
@@ -79,9 +203,11 @@ void GameLoader::SpawnPrefab(std::string filename, Position p, Entity* parent)
 		Entity* e = GenEntity(hash);
 		e->ReadData(&file);
 		int index = World::Instance().AddEntity(e);
-		e->SetParent(p, parent);
+		e->SetParentOverride(p, parent);
 		file.close();
+		return e;
 	}
+	return nullptr;
 }
 
 void GameLoader::SavePrefab(Entity* e, std::string filename)
@@ -512,6 +638,8 @@ Entity* GameLoader::GenEntity(int hash)
 			return new Entity_Room();
 		case 16:
 			return new Entity_Anomaly();
+		case 17:
+			return new Entity_Dispenser();
 		default:
 			//UNDEFINED
 			return new Entity();
@@ -564,6 +692,14 @@ BehaviorNode* GameLoader::GenBehaviorNode(int hash)
 		return new BehaviorNode_Living_IfThirsty(0);
 	case 20:
 		return new BehaviorNode_Living_ReturnHome();
+	case 21:
+		return new BehaviorNode_TargetDispenserType(0);
+	case 22:
+		return new BehaviorNode_UseDispenserAndTargetDispensed();
+	case 23:
+		return new BehaviorNode_Living_IfHungry(0);
+	case 24:
+		return new BehaviorNode_Living_EatTarget();
 	default:
 		//UNDEFINED
 		return new BehaviorNode();

@@ -91,3 +91,39 @@
 	M16Ammo->names = { "clip" };
 	World::Instance().AddEntity(M16Ammo);
 	M16->Reload(M16Ammo);
+
+	Entity_Dispenser* rationDispenser1 = new Entity_Dispenser();
+	rationDispenser1->SetEntityData(GetUniqueID(), true, 0.0, 0.1, 0.5f);
+	rationDispenser1->names = { "rationDispenser" };
+	rationDispenser1->dispenserType = 7;
+	rationDispenser1->prefabName = "ration";
+	rationDispenser1->playerAccessible = false;
+	rationDispenser1->SetParentOverride(Inside, NPC);
+	World::Instance().AddEntity(rationDispenser1);
+
+	Entity_Dispenser* rationDispenser2 = new Entity_Dispenser();
+	rationDispenser2->SetEntityData(GetUniqueID(), true, 0.0, 0.1, 0.5f);
+	rationDispenser2->names = { "rationDispenser" };
+	rationDispenser2->dispenserType = 7;
+	rationDispenser2->prefabName = "ration";
+	rationDispenser2->playerAccessible = false;
+	rationDispenser2->SetParentOverride(Inside, NPC2);
+	World::Instance().AddEntity(rationDispenser2);
+
+	Entity_Dispenser* canteen1 = new Entity_Dispenser();
+	canteen1->SetEntityData(GetUniqueID(), true, 0.0, 0.1, 0.5f);
+	canteen1->names = { "canteen" };
+	canteen1->dispenserType = 6;
+	canteen1->prefabName = "water";
+	canteen1->playerAccessible = false;
+	canteen1->SetParentOverride(Inside, NPC);
+	World::Instance().AddEntity(canteen1);
+
+	Entity_Dispenser* canteen2 = new Entity_Dispenser();
+	canteen2->SetEntityData(GetUniqueID(), true, 0.0, 0.1, 0.5f);
+	canteen2->names = { "canteen" };
+	canteen2->dispenserType = 6;
+	canteen2->prefabName = "water";
+	canteen2->playerAccessible = false;
+	canteen2->SetParentOverride(Inside, NPC2);
+	World::Instance().AddEntity(canteen2);
