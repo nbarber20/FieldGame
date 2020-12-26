@@ -6,6 +6,147 @@
 #include "GameLoader.h"
 #include "World.h"
 
+#pragma region Serialization
+void Entity::WriteToJson(PrettyWriter<StringBuffer>* writer)
+{
+	if (parent.second != nullptr) {
+		parentEntityID = parent.second->uniqueEntityID;
+	}
+	parentEntityDir = (int)parent.first;
+	writer->Key("parentEntityID");
+	writer->Int(parentEntityID);
+	writer->Key("parentEntityDir");
+	writer->Int(parentEntityDir);
+	writer->Key("worldActive");
+	writer->Bool(worldActive);
+	writer->Key("worldID");
+	writer->Int(worldID);
+	writer->Key("uniqueEntityID");
+	writer->Int(uniqueEntityID);
+	writer->Key("worldActive");
+	writer->Bool(worldActive);
+	writer->Key("names");
+	writer->StartArray();
+	for (int i = 0; i < names.size(); i++) {
+		writer->String(names[i].c_str(), static_cast<SizeType>(names[i].length()));
+	}
+	writer->EndArray();
+}
+
+void Entity::ReadFromJson(Value& v)
+{
+	worldID = v["worldID"].GetInt();
+	parentEntityID = v["parentEntityID"].GetInt();
+	parentEntityDir = v["parentEntityDir"].GetInt();
+	worldActive = v["worldActive"].GetBool();
+	uniqueEntityID = v["uniqueEntityID"].GetInt();
+	worldActive = v["worldActive"].GetBool();
+	for (int i = 0; i < v["names"].Size(); i++) {
+		names.push_back(v["names"][i].GetString());
+	}
+}
+
+void Entity::WriteData(std::fstream* output)
+{
+	output->write((char*)&worldID, sizeof(int));
+	output->write((char*)& uniqueEntityID, sizeof(int));
+	output->write((char*)& worldActive, sizeof(bool));
+	int nameSize = names.size();
+	output->write((char*)&nameSize, sizeof(int));
+	for (int i = 0; i < nameSize; i++) {
+		WriteStringData(names[i], output);
+	}
+	WriteStringData(individualName, output);
+	WriteStringData(lookInfo, output);
+	output->write((char*)&size, sizeof(float));
+	output->write((char*)&weight, sizeof(float));
+	output->write((char*)&internalVolume, sizeof(float));
+	output->write((char*)&visibleInsides, sizeof(bool));
+	output->write((char*)&countable, sizeof(bool));
+	output->write((char*)&attachedToParent, sizeof(bool));
+	output->write((char*)&rotation, sizeof(int));
+	output->write((char*)&facingDirection, sizeof(int));
+	if (parent.second != nullptr) {
+		output->write((char*)&(parent.second->uniqueEntityID), sizeof(int)); //Writing parent id
+	}
+	else{
+		int nullID = -1;
+		output->write((char*)&nullID, sizeof(int));
+	}
+	output->write((char*)&(parent.first), sizeof(int));
+	output->write((char*)&playerAccessible, sizeof(bool));
+	//TODO adjectives
+	int adjectivesCount = adjectives.size();
+	output->write((char*)&(adjectivesCount), sizeof(int));
+	for (int i = 0; i < adjectivesCount; i++) {
+		output->write((char*)&(adjectives[i].first), sizeof(int));
+		int subadjectivesCount = adjectives[i].second.size();
+		output->write((char*)&(subadjectivesCount), sizeof(int));
+		for (int j = 0; j < subadjectivesCount; j++) {
+			WriteStringData(adjectives[i].second[j], output);
+		}
+	}
+}
+
+void Entity::ReadData(std::fstream* input)
+{
+	input->read((char*)&worldID, sizeof(int));
+	input->read((char*)& uniqueEntityID, sizeof(int));
+	input->read((char*)& worldActive, sizeof(bool));
+	int nameSize;
+	input->read((char*)&nameSize, sizeof(int));
+	for (int i = 0; i < nameSize; i++) {
+		names.push_back(ReadStringData(input));
+	}
+	individualName = ReadStringData(input);
+	lookInfo = ReadStringData(input);
+	input->read((char*)&size, sizeof(float));
+	input->read((char*)&weight, sizeof(float));
+	input->read((char*)&internalVolume, sizeof(float));
+	input->read((char*)&visibleInsides, sizeof(bool));
+	input->read((char*)&countable, sizeof(bool));
+	input->read((char*)&attachedToParent, sizeof(bool));
+	input->read((char*)&rotation, sizeof(int));
+	input->read((char*)&facingDirection, sizeof(int));
+	input->read((char*)&parentEntityID, sizeof(int));
+	input->read((char*)&parentEntityDir, sizeof(int));
+	input->read((char*)&playerAccessible, sizeof(bool));
+
+	//TODO adjectives
+	int adjectivesCount;
+	input->read((char*)&(adjectivesCount), sizeof(int));
+	for (int i = 0; i < adjectivesCount; i++) {
+		Position p;
+		input->read((char*)&(p), sizeof(int));
+
+		std::vector<std::string> subAdjs;
+		int subadjectivesCount;;
+		input->read((char*)&(subadjectivesCount), sizeof(int));
+		for (int j = 0; j < subadjectivesCount; j++) {
+			subAdjs.push_back(ReadStringData(input));
+		}
+		adjectives.push_back(std::make_pair(p, subAdjs));
+	}
+}
+
+void Entity::WriteStringData(std::string s, std::fstream* output)
+{
+	size_t len = s.size();
+	output->write((char*)&(len), sizeof(size_t));
+	output->write(s.c_str(), len);
+}
+
+std::string Entity::ReadStringData(std::fstream* input)
+{
+	size_t namelen;
+	input->read((char*)&namelen, sizeof(size_t));
+	char* temp = new char[namelen + 1];
+	input->read(temp, namelen);
+	temp[namelen] = '\0';
+	return temp;
+}
+#pragma endregion
+
 void Entity::SetEntityData(int id, bool visibleInsides, float internalVolume, float size, float weight)
 {
 	this->worldID = GameLoader::Instance().loadedTiles[0];
@@ -24,7 +165,6 @@ int Entity::RandomRange(int start, int end)
 void Entity::Rotate(Rotation r)
 {
 	this->rotation = r;
-
 	if (r != Upright) {
 		std::vector<Entity*> ontop = GetInventory(On);
 		for (auto object : ontop) {
@@ -32,7 +172,6 @@ void Entity::Rotate(Rotation r)
 			object->Rotate(Tipped);
 		}
 	}
-
 	ObservationManager::Observation o = ObservationManager::Observation();
 	o.sense = ObservationManager::SENSE_Look;
 	o.type = ObservationManager::TYPE_Rotation;
@@ -64,13 +203,11 @@ void Entity::FaceClockWise()
 
 void Entity::Face(FacingDirection r)
 {
-
 	ObservationManager::Observation o = ObservationManager::Observation();
 	o.sense = ObservationManager::SENSE_Look;
 	o.type = ObservationManager::TYPE_FacingDirection;
 	o.referenceEntity = this;
 	ObservationManager::Instance().MakeObservation(o);
-
 	facingDirection = r;
 }
 
@@ -144,7 +281,7 @@ std::vector<Entity*> Entity::GetInventory(Position p)
 	return e;
 }
 
-float Entity::getInternalVoidSPace()
+float Entity::GetInternalVoidSPace()
 {
 	int filledSize = this->internalVolume;
 	std::vector<Entity*> in = GetInventory(Inside);
@@ -266,7 +403,7 @@ bool Entity::IsChildOf(int hash,Entity** foundEntity)
 {
 	Entity* parentCheck = this->parent.second;
 	do {
-		if (parentCheck->SerializationID == hash) {
+		if (parentCheck->serializationID == hash) {
 			*foundEntity = parentCheck;
 			return true;
 		}
@@ -277,7 +414,7 @@ bool Entity::IsChildOf(int hash,Entity** foundEntity)
 	return false;
 }
 
-int Entity::getChildDepth()
+int Entity::GetChildDepth()
 {
 	int depth = 0;
 	Entity* parentCheck = this->parent.second;
@@ -290,10 +427,10 @@ int Entity::getChildDepth()
 	return depth;
 }
 
-std::vector<Entity*> Entity::getVisibleEntities(bool getsurrounding, bool getParent, bool getSelf, bool seeInside)
+std::vector<Entity*> Entity::GetVisibleEntities(bool getsurrounding, bool getParent, bool getSelf, bool seeInside)
 {
+	//TODO:Redo this
 	std::vector<Entity*> visible;
-
 	if (getSelf) {
 		std::vector<Entity*> onPerson = GetInventory();
 		for (int i = 0; i < onPerson.size(); i++) {
@@ -345,13 +482,11 @@ std::vector<Entity*> Entity::getVisibleEntities(bool getsurrounding, bool getPar
 			visible.push_back(parentRoomTest->parent.second);
 		}
 	}
-
 	return visible;
 }
 
 void Entity::AddChild(Position pos, Entity* toAdd, int roomIndex)
 {
-
 	for (int x = 0; x < children.size(); x++) {
 		if (children[x].first == pos) {
 			children[x].second.push_back(toAdd);

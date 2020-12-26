@@ -16,7 +16,7 @@ currentFilename = "Development";
 	WaterPump->attachedToParent = true;
 	WaterPump->names = { "waterpump","pump" };
 	WaterPump->SetParent(On, Ground);
-	Entity_Mechanisim::MechanismBehavior* b = new Entity_Mechanisim::MechanismBehavior();
+	MechanismBehavior* b = new MechanismBehavior();
 	b->activationKey = "use";
 	b->firstPersonActivation = "use";
 	b->thirdPersonActivation = "uses";
@@ -24,13 +24,11 @@ currentFilename = "Development";
 	WaterPump->AddBehavior(b);
 	World::Instance().AddEntity(WaterPump);
 
-	Entity_Event* EnterFarmEvent = new Entity_Event();
+	Entity_Event* EnterFarmEvent = new Entity_Event("You happen upon a farmhouse.", "Data/Art/Farmhouse.png");
 	EnterFarmEvent->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
 	EnterFarmEvent->setObservationConsumptionList({
 		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
 		});
-	EnterFarmEvent->EventImageFile = "Data/Art/Farmhouse.png";
-	EnterFarmEvent->EventText = "You happen upon a farmhouse.";
 	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
 	World::Instance().AddEntity(EnterFarmEvent);
 
@@ -72,22 +70,21 @@ currentFilename = "Development";
 	NPC->dialogTree = tree;
 	World::Instance().AddEntity(NPC);
 
-	Entity_Event* EnterHouseEvent = new Entity_Event();
+	Entity_Event* EnterHouseEvent = new Entity_Event("Upon entering the farm house, a warm feeling rushes over you. The environment around you has changed from harsh to cozy and comfortable.");
 	EnterHouseEvent->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
 	EnterHouseEvent->setObservationConsumptionList({
 		std::make_pair(ObservationManager::TYPE_All,ObservationManager::SENSE_All),
 		});
-	EnterHouseEvent->EventText = "Upon entering the farm house, a warm feeling rushes over you. The environment around you has changed from harsh to cozy and comfortable.";
 	EnterHouseEvent->SetParent(OnFloor, House, 0, false, false);
 	World::Instance().AddEntity(EnterHouseEvent);
 
-	Entity* Toilet = new Entity_Container();
+	Entity* Toilet = new Entity_Container(0.f,0);
 	Toilet->SetEntityData(GetUniqueID(), true, 369.6f, 1728.0f, 90.0f);
 	Toilet->names = { "toilet" };
 	Toilet->SetParent(OnFloor, House, 2, true, false);
 	World::Instance().AddEntity(Toilet);
 
-	Entity* ToiletWater = new Entity_Fluid();
+	Entity* ToiletWater = new Entity_Fluid(10.f);
 	ToiletWater->SetEntityData(GetUniqueID(), true, 0.0f, 200.0f, 0.0f);
 	ToiletWater->names = { "water" };
 	ToiletWater->SetParent(Inside, Toilet);
@@ -107,14 +104,14 @@ currentFilename = "Development";
 	Table->SetParent(OnFloor, House, 0, false, false);
 	World::Instance().AddEntity(Table);
 
-	Entity_Food* Potato = new Entity_Food();
+	Entity_Food* Potato = new Entity_Food(50.f);
 	Potato->SetEntityData(GetUniqueID(), true, 0.0, 14.50f, 0.3f);
 	Potato->names = { "potato" };
 	Potato->SetParent(On, Table);
 	World::Instance().AddEntity(Potato);
 
 
-	Entity_Container* Cup = new Entity_Container();
+	Entity_Container* Cup = new Entity_Container(0.f,0);
 	Cup->SetEntityData(GetUniqueID(), true, 14.44f, 14.50f, 0.4f);
 	Cup->names = { "cup" };
 	Cup->SetParent(On, Table);
@@ -122,7 +119,7 @@ currentFilename = "Development";
 	World::Instance().AddEntity(Cup);
 
 
-	Entity* Tea = new Entity_Fluid();
+	Entity* Tea = new Entity_Fluid(50.f);
 	Tea->SetEntityData(GetUniqueID(), true, 0.0f, 7.0f, 0.0f);
 	Tea->names = { "tea" };
 	Tea->SetParent(Inside, Cup);
@@ -130,30 +127,21 @@ currentFilename = "Development";
 	Tea->AddAdjective(Visual, "black");
 	World::Instance().AddEntity(Tea);
 
-	Entity* Tea2 = new Entity_Fluid();
-	Tea2->SetEntityData(GetUniqueID(), true, 0.0f, 7.0f, 0.0f);
-	Tea2->names = { "tea" };
-	Tea2->SetParent(Inside, Cup);
-	Tea2->AddAdjective(Taste, "bitter");
-	Tea2->AddAdjective(Visual, "black");
-	World::Instance().AddEntity(Tea2);
-
-	Entity* Cup2 = new Entity_Container();
+	Entity* Cup2 = new Entity_Container(0.f, 0);
 	Cup2->SetEntityData(GetUniqueID(), true, 14.44f, 14.50f, 0.4f);
-	Cup2->names = { "cup", "container" };
+	Cup2->names = { "cup"};
 	Cup2->SetParent(On, Table);
 	Cup2->AddAdjective(Visual, "ugly");
-	Cup2->AddAdjective(NameExtension, "liquid");
 	World::Instance().AddEntity(Cup2);
 
-	Entity* Cup3 = new Entity_Container();
+	Entity* Cup3 = new Entity_Container(0.f, 0);
 	Cup3->SetEntityData(GetUniqueID(), true, 14.44f, 14.50f, 0.4f);
 	Cup3->names = { "cup" };
 	Cup3->SetParent(OnFloor, House, 0, false, false);
 	Cup3->AddAdjective(Visual, "glass");
 	World::Instance().AddEntity(Cup3);
 
-	Entity* Tea3 = new Entity_Fluid();
+	Entity* Tea3 = new Entity_Fluid(50.f);
 	Tea3->SetEntityData(GetUniqueID(), true, 0.0f, 7.0f, 0.0f);
 	Tea3->names = { "tea" };
 	Tea3->SetParent(Inside, Cup3);
@@ -161,10 +149,8 @@ currentFilename = "Development";
 	Tea3->AddAdjective(Visual, "green");
 	World::Instance().AddEntity(Tea3);
 
-	Entity_Readable* Note = new Entity_Readable();
+	Entity_Readable* Note = new Entity_Readable(English, "This is a note.",0);
 	Note->SetEntityData(GetUniqueID(), true, 0.0f, 1.0f, 0.0f);
-	Note->requiredLanguage = English;
-	Note->text = "This is a note.";
 	Note->names = { "note" };
 	Note->SetParent(On, Table);
 	World::Instance().AddEntity(Note);

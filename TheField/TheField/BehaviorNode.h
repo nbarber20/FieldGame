@@ -18,16 +18,16 @@ public:
 	BehaviorNode() {
 		SerializationID = 0;
 		maxSubNodes =1;
-	};
+	}
 	virtual ~BehaviorNode() {
 
 	}
 
 	virtual void WriteData(std::fstream* output) {
-	};
+	}
 
 	virtual void ReadData(std::fstream* input) {
-	};
+	}
 
 	void WriteStringData(std::string s, std::fstream* output) {
 		size_t len = s.size();
@@ -45,7 +45,7 @@ public:
 	}
 	virtual BehaviorNode::BehaviorStatus Execute() {
 		return subNodes[0]->Execute();
-	};
+	}
 	virtual bool AddSubNode(BehaviorNode* node) {
 		if (maxSubNodes < 0) {
 			subNodes.push_back(node);
@@ -74,13 +74,13 @@ public:
 		index = 0;
 		waitTime = 0;
 		waitTimeout = timeout;
-	};
+	}
 	virtual void WriteData(std::fstream* output) {
 		output->write((char*)&waitTimeout, sizeof(int));
-	};
+	}
 	virtual void ReadData(std::fstream* input) {
 		input->read((char*)&waitTimeout, sizeof(int));
-	};
+	}
 	virtual BehaviorStatus Execute() {
 		for (int i = index; i < subNodes.size(); i++) {
 			BehaviorStatus s = subNodes[i]->Execute();
@@ -102,7 +102,7 @@ public:
 		}
 		index = 0;
 		return SUCCEEDED;
-	};
+	}
 private:
 	int index = 0;
 	int waitTime = 0;
@@ -115,14 +115,14 @@ public:
 	BehaviorNode_Selector() {
 		SerializationID = 2;
 		maxSubNodes = 2;
-	};
+	}
 	virtual BehaviorStatus Execute() {
 		BehaviorStatus first = subNodes[0]->Execute();
 		if (first == FAILED) {
 			return subNodes[1]->Execute();
 		}
 		return first;
-	};
+	}
 };
 
 class BehaviorNode_ParallelSequence : public BehaviorNode
@@ -131,17 +131,17 @@ public:
 	BehaviorNode_ParallelSequence() {
 		SerializationID = 3;
 		maxSubNodes = -1;
-	};
+	}
 	virtual void WriteData(std::fstream* output) {
-	};
+	}
 	virtual void ReadData(std::fstream* input) {
-	};
+	}
 	virtual BehaviorStatus Execute() {
 		for (int i = 0; i < subNodes.size(); i++) {
 			BehaviorStatus s = subNodes[i]->Execute();
 		}
 		return SUCCEEDED;
-	};
+	}
 };
 
 
@@ -153,15 +153,15 @@ public:
 		SerializationID = 4;
 		this->time = time;
 		this->current = time;
-	};
+	}
 	virtual void WriteData(std::fstream* output) {
 		output->write((char*)&time, sizeof(int));
-	};
+	}
 
 	virtual void ReadData(std::fstream* input) {
 		input->read((char*)&time, sizeof(int));
 		this->current = time;
-	};
+	}
 	virtual BehaviorStatus Execute() {
 		if (current > 0) {
 			current--;
@@ -171,7 +171,7 @@ public:
 			current = time;
 			return SUCCEEDED;
 		}
-	};
+	}
 private:
 	int current = 0;
 	int time = 0;
@@ -184,14 +184,14 @@ public:
 	BehaviorNode_AddObservation(std::string observationString) {
 		SerializationID = 6;
 		this->observationString = observationString;
-	};
+	}
 	virtual void WriteData(std::fstream* output) {
 		WriteStringData(observationString, output);
-	};
+	}
 
 	virtual void ReadData(std::fstream* input) {
 		observationString = ReadStringData(input);
-	};
+	}
 	virtual BehaviorStatus Execute() {
 
 		ObservationManager::Observation o = ObservationManager::Observation();
@@ -200,7 +200,7 @@ public:
 		o.information = observationString;
 		ObservationManager::Instance().MakeObservation(o);
 		return SUCCEEDED;
-	};
+	}
 private:
 	std::string observationString;
 };
@@ -212,14 +212,14 @@ public:
 	BehaviorNode_WaitForObservation(std::string observationString) {
 		SerializationID = 6; 
 		this->observationString = observationString;
-	};
+	}
 	virtual void WriteData(std::fstream* output) {
 		WriteStringData(observationString, output);
-	};
+	}
 
 	virtual void ReadData(std::fstream* input) {
 		observationString = ReadStringData(input);
-	};
+	}
 	virtual BehaviorStatus Execute() {
 		std::vector< ObservationManager::Observation> observations = ObservationManager::Instance().GetObservations();
 		for (int i = 0; i < observations.size(); i++) {
@@ -228,7 +228,7 @@ public:
 			}
 		}
 		return WAITING;
-	};
+	}
 private:
 	std::string observationString;
 };
@@ -239,23 +239,23 @@ public:
 	BehaviorNode_TargetEntityTypeInTarget(int hash) {
 		SerializationID = 7;
 		this->hash = hash;
-	};
+	}
 	virtual void WriteData(std::fstream* output) {
 		output->write((char*)&hash, sizeof(int));
-	};
+	}
 	virtual void ReadData(std::fstream* input) {
 		input->read((char*)&hash, sizeof(int));
-	};
+	}
 	virtual BehaviorStatus Execute() {
 		std::vector<Entity*> entities = treeParent->parentEntity->target->GetInventory();
 		for (int i = 0; i < entities.size(); i++) {
-			if (entities[i]->SerializationID == hash) {
+			if (entities[i]->serializationID == hash) {
 				treeParent->parentEntity->target = entities[i];
 				return SUCCEEDED;
 			}
 		}
 		return FAILED;
-	};
+	}
 private:
 	int hash;
 };
@@ -270,13 +270,13 @@ public:
 	BehaviorNode_ActivateMechanism(std::string key) {
 		SerializationID = 8;
 		this->key = key;
-	};
+	}
 	virtual void WriteData(std::fstream* output) {
 		WriteStringData(key, output);
-	};
+	}
 	virtual void ReadData(std::fstream* input) {
 		key = ReadStringData(input);
-	};
+	}
 	virtual BehaviorStatus Execute() {
 
 		Entity* target = treeParent->parentEntity->target;
@@ -287,7 +287,7 @@ public:
 			}
 		}
 		return FAILED;
-	};
+	}
 private:
 	std::string key;
 };
@@ -300,11 +300,11 @@ class BehaviorNode_MoveToTarget : public BehaviorNode
 public:
 	BehaviorNode_MoveToTarget() {
 		SerializationID = 9;
-	};
+	}
 	virtual void WriteData(std::fstream* output) {
-	};
+	}
 	virtual void ReadData(std::fstream* input) {
-	};
+	}
 	virtual BehaviorStatus Execute() {
 		Entity* target = treeParent->parentEntity->target;
 		if (target != nullptr) {
@@ -312,7 +312,7 @@ public:
 			return SUCCEEDED;
 		}
 		return FAILED;
-	};
+	}
 };
 
 class BehaviorNode_RunSubTree: public BehaviorNode
@@ -321,7 +321,7 @@ public:
 	BehaviorNode_RunSubTree(BehaviorTree* tree) {
 		SerializationID = 10;
 		this->tree = tree;
-	};
+	}
 	virtual ~BehaviorNode_RunSubTree() {
 		delete tree;
 	}
@@ -330,7 +330,7 @@ public:
 		size_t len = tree->treeName.size();
 		output->write((char*)&(len), sizeof(size_t));
 		output->write(tree->treeName.c_str(), len);
-	};
+	}
 
 	virtual void ReadData(std::fstream* input) {
 		size_t namelen;
@@ -339,12 +339,12 @@ public:
 		input->read(temp, namelen);
 		temp[namelen] = '\0';
 		tree = GameLoader::Instance().LoadBehaviorTree(temp);
-	};
+	}
 	virtual BehaviorStatus Execute() {
 		tree->Tick();
 		if (tree->waiting)return WAITING;
 		return SUCCEEDED;
-	};
+	}
 private:
 	BehaviorTree* tree;
 };
@@ -358,18 +358,17 @@ public:
 		this->name = name;
 		this->p = p;
 		this->sametile = sametile;
-	};
+	}
 	virtual void WriteData(std::fstream* output) {
 		WriteStringData(name, output);
 		output->write((char*)&p, sizeof(int));
 		output->write((char*)&sametile, sizeof(bool));
-	};
-
+	}
 	virtual void ReadData(std::fstream* input) {
 		name = ReadStringData(input);
 		input->read((char*)&p, sizeof(int));
 		input->read((char*)&sametile, sizeof(bool));
-	};
+	}
 	virtual BehaviorStatus Execute() {
 		if (sametile) {
 			GameLoader::Instance().SpawnPrefab(name, p, treeParent->parentEntity->parent.second);
@@ -378,7 +377,7 @@ public:
 			GameLoader::Instance().SpawnPrefab(name, p, treeParent->parentEntity);
 		}
 		return SUCCEEDED;
-	};
+	}
 private:
 	bool sametile = false;
 	std::string name = "";
@@ -391,26 +390,26 @@ public:
 	BehaviorNode_TargetDispenserType(int type) {
 		SerializationID = 21;
 		this->type = type;
-	};
+	}
 	virtual void WriteData(std::fstream* output) {
 		output->write((char*)&type, sizeof(int));
-	};
+	}
 	virtual void ReadData(std::fstream* input) {
 		input->read((char*)&type, sizeof(int));
-	};
+	}
 	virtual BehaviorStatus Execute() {
-		std::vector<Entity*> entities = treeParent->parentEntity->getVisibleEntities(true,true,true,true);
+		std::vector<Entity*> entities = treeParent->parentEntity->GetVisibleEntities(true,true,true,true);
 		for (int i = 0; i < entities.size(); i++) {
 			Entity_Dispenser* disp = dynamic_cast<Entity_Dispenser*>(entities[i]);
 			if (disp) {
-				if (disp->dispenserType == type) {
+				if (disp->GetDispenserType() == type) {
 					treeParent->parentEntity->target = entities[i];
 					return SUCCEEDED;
 				}
 			}
 		}
 		return FAILED;
-	};
+	}
 private:
 	int type;
 };
@@ -420,7 +419,7 @@ class BehaviorNode_UseDispenserAndTargetDispensed : public BehaviorNode
 public:
 	BehaviorNode_UseDispenserAndTargetDispensed() {
 		SerializationID = 22;
-	};
+	}
 	virtual BehaviorStatus Execute() {
 		Entity_Dispenser* disp = dynamic_cast<Entity_Dispenser*>(treeParent->parentEntity->target);
 		if (disp) {
@@ -428,5 +427,5 @@ public:
 			return SUCCEEDED;
 		}
 		return FAILED;
-	};
+	}
 };

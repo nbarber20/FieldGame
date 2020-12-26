@@ -1,6 +1,36 @@
 #include "pch.h"
 #include "Entity_Container.h"
+#include "Entity_Fluid.h"
 #include "ObservationManager.h"
+
+#pragma region Serialization
+
+void Entity_Container::WriteToJson(PrettyWriter<StringBuffer>* writer)
+{
+	Entity::WriteToJson(writer);
+	writer->Key("permiability");
+	writer->Double(permiability);
+}
+
+void Entity_Container::ReadFromJson(Value& v)
+{
+	Entity::ReadFromJson(v);
+	permiability = v["permiability"].GetDouble();
+}
+
+void Entity_Container::WriteData(std::fstream* output)
+{
+	Entity_Constructed::WriteData(output);
+	output->write((char*)&permiability, sizeof(float));
+
+}
+
+void Entity_Container::ReadData(std::fstream* input)
+{
+	Entity_Constructed::ReadData(input);
+	input->read((char*)&permiability, sizeof(float));
+}
+#pragma endregion
 
 void Entity_Container::Tick()
 {
@@ -41,9 +71,7 @@ bool Entity_Container::PourInto(Entity* target)
 	if (target == this) {
 		return false;
 	}
-
 	Position targetPositin = On;
-
 	if (target->internalVolume > 0) {
 		targetPositin = Inside;
 	}
@@ -51,7 +79,7 @@ bool Entity_Container::PourInto(Entity* target)
 	for (auto object : inside) {		
 		//If this is inside, ensure there is space or pour as much as possible
 		if (targetPositin == Inside) {
-			float targetVoidSpace = target->getInternalVoidSPace();
+			float targetVoidSpace = target->GetInternalVoidSPace();
 			if (object->size > targetVoidSpace) {
 				Entity_Fluid* fluidCheck = dynamic_cast<Entity_Fluid*>(object);
 				if (fluidCheck) {
@@ -67,9 +95,7 @@ bool Entity_Container::PourInto(Entity* target)
 		}
 		object->SetParent(targetPositin, target);
 	}
-
-	if (getInternalVoidSPace() == this->internalVolume) //the pouring entity is now empty
-	{
+	if (GetInternalVoidSPace() == this->internalVolume){
 		ObservationManager::Observation o = ObservationManager::Observation();
 		o.sense = ObservationManager::SENSE_Look;
 		o.type = ObservationManager::TYPE_Direct;

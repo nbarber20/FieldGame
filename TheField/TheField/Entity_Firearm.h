@@ -4,35 +4,20 @@
 class Entity_Firearm : public Entity_Weapon
 {
 public:
-	Entity_Firearm(Entity_Clip::ClipType type)
+	Entity_Firearm(Entity_Clip::ClipType type, Entity_Living::DamageType damageType, float damageMultiplier, int damageLethalityLevel) : Entity_Weapon(damageType,damageMultiplier,damageLethalityLevel)
 	{
-		SerializationID = 5;
+		this->serializationID = 5;
 		this->clipType = type;
 	};
 	virtual ~Entity_Firearm() {};
-	virtual void WriteData(std::fstream* output) {
-		Entity_Weapon::WriteData(output);
-		output->write((char*)&clipType, sizeof(int));
-
-	};
-	virtual void ReadData(std::fstream* input) {
-		Entity_Weapon::ReadData(input);
-		input->read((char*)&clipType, sizeof(int));
-	};
-
-	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
-		Entity_Weapon::WriteToJson(writer);
-		writer->Key("clipType");
-		writer->Int((int)clipType);
-	}
-
-	virtual void ReadFromJson(Value& v) {
-		Entity_Weapon::ReadFromJson(v);
-		clipType = (Entity_Clip::ClipType)v["clipType"].GetInt();
-	}
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
+	virtual void ReadFromJson(Value& v);
+	virtual void WriteData(std::fstream* output);
+	virtual void ReadData(std::fstream* input);
 
 	virtual bool Attack(Entity* source, Entity* target) override;
 	void Reload(Entity* clip);
+protected:
 	Entity_Clip::ClipType clipType;
 };
 

@@ -69,7 +69,7 @@ void LevelEditor::SaveToJSON()
 		writer.StartObject();
 
 		writer.Key("hash");
-		writer.Int(entities[i]->SerializationID);
+		writer.Int(entities[i]->serializationID);
 
 		entities[i]->WriteToJson(&writer);
 		writer.EndObject();
@@ -99,7 +99,7 @@ void LevelEditor::SavePlayerToJSON()
 			entities[i]->worldID = GameLoader::Instance().currentPlayerTile;
 
 			writer.Key("hash");
-			writer.Int(entities[i]->SerializationID);
+			writer.Int(entities[i]->serializationID);
 			writer.StartObject();
 			entities[i]->WriteToJson(&writer);
 			writer.EndObject();
@@ -108,7 +108,7 @@ void LevelEditor::SavePlayerToJSON()
 			entities[i]->worldID = -1;
 
 			writer.Key("hash");
-			writer.Int(entities[i]->SerializationID);
+			writer.Int(entities[i]->serializationID);
 			writer.StartObject();
 			entities[i]->WriteToJson(&writer);
 			writer.EndObject();

@@ -3,23 +3,21 @@
 class Entity_Dispenser : public Entity
 {
 public:
-	Entity_Dispenser() {
-		this->SerializationID = 17;
-	};
-	virtual ~Entity_Dispenser() {}; 
-	virtual void WriteData(std::fstream* output) {
-		Entity::WriteData(output);
-		WriteStringData(prefabName, output);
-		output->write((char*)&dispenserType, sizeof(int));
+	Entity_Dispenser(int dispenserType, std::string prefabName) {
+		this->serializationID = 17;
+		this->dispenserType = dispenserType;
+		this->prefabName = prefabName;
+	}
+	virtual ~Entity_Dispenser() {}
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
+	virtual void ReadFromJson(Value& v);
+	virtual void WriteData(std::fstream* output);
+	virtual void ReadData(std::fstream* input);
 
-	};
-	virtual void ReadData(std::fstream* input) {
-		Entity::ReadData(input);
-		prefabName = ReadStringData(input);
-		input->read((char*)&dispenserType, sizeof(int));
-	};
 	Entity* DispenseEntity();
-	std::string prefabName;
+	int GetDispenserType();
+protected:
 	int dispenserType;
+	std::string prefabName;
 };
 

@@ -3,12 +3,11 @@
 #include <iostream>
 #include <istream>
 #include <string>
-#include "Constants.h"
 class Entity_Player : public Entity_Living
 {
 public:
 	Entity_Player() {
-		SerializationID = 13;
+		serializationID = 13;
 		individualName = "You";
 		spokenLanguage.push_back(English);
 		readingLanguage.push_back(English);
@@ -30,7 +29,5 @@ public:
 	virtual bool TryMove(Entity* e, Position toPos, Entity* toEntity);
 	virtual bool Enter(Entity* e);
 	virtual bool Exit(Entity* e);
-	Constants constants;
-	int strength = 10;
 };
 

@@ -18,21 +18,20 @@ currentFilename = "Development";
 	World::Instance().playerEntity->SetParent(On, Ground);
 	World::Instance().AddEntity(World::Instance().playerEntity);
 
-	Entity_Container* backPack = new Entity_Container();
+	Entity_Container* backPack = new Entity_Container(4.5f,90.0f);
 	backPack->SetEntityData(GetUniqueID(), true, 1220.47f, 1221.0f, 1.0f);
 	backPack->names = { "backpack" };
 	backPack->SetParent(Back, World::Instance().playerEntity);
 	backPack->AddAdjective(Visual, "leather");
-	backPack->permiability = 4.5f;
 	World::Instance().AddEntity(backPack);
 
-	Entity_Firearm* handGun = new Entity_Firearm(Entity_Clip::Pistol);
+	Entity_Firearm* handGun = new Entity_Firearm(Entity_Clip::Pistol,Entity_Living::Piercing,.8f,3);
 	handGun->SetEntityData(GetUniqueID(), false, 0.0f, 14.5f, 1.5f);
 	handGun->names = { "handgun", "gun" };
 	handGun->SetParent(RightHand, World::Instance().playerEntity);
 	World::Instance().AddEntity(handGun);
 
-	Entity_Clip* handGunAmmo = new Entity_Clip(7, Entity_Clip::Pistol);
+	Entity_Clip* handGunAmmo = new Entity_Clip(7,7, Entity_Clip::Pistol);
 	handGun->SetEntityData(GetUniqueID(), false, 0.0f, 7.f, 1.5f);
 	handGunAmmo->names = { "clip" };
 	World::Instance().AddEntity(handGunAmmo);

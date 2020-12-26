@@ -65,11 +65,11 @@ void Entity_Player::Tick()
 void Entity_Player::CheckForEvents()
 {
 
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,false,false);
+	std::vector<Entity*> nearbyEntities = GetVisibleEntities(true,false,false);
 	for (int i = 0; i < nearbyEntities.size();i++) {
 		Entity_Event* checkEvent = dynamic_cast<Entity_Event*>(nearbyEntities[i]);
 		if (checkEvent) {
-			if (checkEvent->getChildDepth() == getChildDepth()) {
+			if (checkEvent->GetChildDepth() == GetChildDepth()) {
 				checkEvent->AttemptTrigger();
 				return;
 			}
@@ -80,15 +80,15 @@ void Entity_Player::CheckForEvents()
 
 void Entity_Player::Look()
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true,false, false);
-	int playerdepth = getChildDepth();
+	std::vector<Entity*> nearbyEntities = GetVisibleEntities(true,false, false);
+	int playerdepth = GetChildDepth();
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		if (nearbyEntities[i]->names.size() > 0) {
 			ObservationManager::Observation o = ObservationManager::Observation();
 			o.sense = ObservationManager::SENSE_Look;
 			o.type = ObservationManager::TYPE_Notice;
 			o.referenceEntity = nearbyEntities[i];
-			o.depth = nearbyEntities[i]->getChildDepth() - playerdepth;
+			o.depth = nearbyEntities[i]->GetChildDepth() - playerdepth;
 			ObservationManager::Instance().MakeObservation(o);
 		}
 	}
@@ -175,14 +175,14 @@ ObservationManager::Instance().MakeObservation(o);
 
 void Entity_Player::LookSelf()
 {
-	int playerdepth = getChildDepth();
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(false, false, true);
+	int playerdepth = GetChildDepth();
+	std::vector<Entity*> nearbyEntities = GetVisibleEntities(false, false, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		if (nearbyEntities[i]->names.size() > 0) {
 			ObservationManager::Observation o = ObservationManager::Observation();
 			o.sense = ObservationManager::SENSE_Look;
 			o.type = ObservationManager::TYPE_Notice;
-			o.depth = nearbyEntities[i]->getChildDepth() - playerdepth;
+			o.depth = nearbyEntities[i]->GetChildDepth() - playerdepth;
 			o.referenceEntity = nearbyEntities[i];
 			ObservationManager::Instance().MakeObservation(o);
 		}
@@ -191,7 +191,7 @@ void Entity_Player::LookSelf()
 
 Entity* Entity_Player::FindEntityByName(std::string entityName)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true, true, true);
+	std::vector<Entity*> nearbyEntities = GetVisibleEntities(true, true, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -203,7 +203,7 @@ Entity* Entity_Player::FindEntityByName(std::string entityName)
 }
 Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adjective)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true, true, true);
+	std::vector<Entity*> nearbyEntities = GetVisibleEntities(true, true, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -222,7 +222,7 @@ Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adje
 
 Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adjective, std::vector<Position> positionBlacklist)
 {
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true, true, true);
+	std::vector<Entity*> nearbyEntities = GetVisibleEntities(true, true, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {
@@ -242,7 +242,7 @@ Entity* Entity_Player::FindEntityByName(std::string entityName, std::string adje
 Entity* Entity_Player::FindEntityByName(std::string entityName, Position realitivePosition, std::string realitiveEntityName)
 {
 
-	std::vector<Entity*> nearbyEntities = getVisibleEntities(true, true, true);
+	std::vector<Entity*> nearbyEntities = GetVisibleEntities(true, true, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		for (int n = 0; n < nearbyEntities[i]->names.size(); n++) {
 			if (nearbyEntities[i]->names[n] == entityName) {

@@ -123,6 +123,9 @@
     <ClInclude Include="Entity_Dispenser.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
+    <ClInclude Include="MechanismBehavior.h">
+      <Filter>Header Files\Entity</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -201,6 +204,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Entity_Dispenser.cpp">
+      <Filter>Source Files\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity_groundTile.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,37 +4,23 @@
 class Entity_Weapon:public Entity
 {
 public:
-	Entity_Weapon()
+	Entity_Weapon(Entity_Living::DamageType damageType, float damageMultiplier, int damageLethalityLevel)
 	{
-		SerializationID = 16;
+		this->serializationID = 16;
+		this->damageType = damageType;
+		this->damageMultiplier = damageMultiplier;
+		this->damageLethalityLevel = damageLethalityLevel;
 	};
 	virtual ~Entity_Weapon() {};
-	virtual void WriteData(std::fstream* output) {
-		Entity::WriteData(output);
-		output->write((char*)&damageType, sizeof(int));
-		output->write((char*)&damageMultiplier, sizeof(float));
-		output->write((char*)&damageLethalityLevel, sizeof(int));
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
+	virtual void ReadFromJson(Value& v);
+	virtual void WriteData(std::fstream* output);
+	virtual void ReadData(std::fstream* input);
 
-	};
-	virtual void ReadData(std::fstream* input) {
-		Entity::ReadData(input);
-		input->read((char*)&damageType, sizeof(int));
-		input->read((char*)&damageMultiplier, sizeof(float));
-		input->read((char*)&damageLethalityLevel, sizeof(int));
-	};
-
-	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer) {
-		Entity::WriteToJson(writer);
-	}
-
-	virtual void ReadFromJson(Value& v) {
-		Entity::ReadFromJson(v);
-	}
-
-	virtual bool Attack(Entity* source,Entity* target);
-
+	virtual bool Attack(Entity* source, Entity* target);
+protected:
 	Entity_Living::DamageType damageType = Entity_Living::Blunt;
-	float damageMultiplier = .8;
-	int damageLethalityLevel = 1;
+	float damageMultiplier;
+	int damageLethalityLevel;
 };
 

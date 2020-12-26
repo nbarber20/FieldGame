@@ -6,21 +6,17 @@ class ObservationManager;
 class Entity_Readable : public Entity_Constructed
 {
 public:
-	Entity_Readable() {
-		SerializationID = 14;
+	Entity_Readable(Languages requiredLanguage, std::string text, int resisitance, bool broken = false) : Entity_Constructed(resisitance,broken) {
+		this->serializationID = 14;
+		this->requiredLanguage;
+		this->text;
 	};
 	virtual ~Entity_Readable() {};
+	virtual void WriteData(std::fstream* output);
+	virtual void ReadData(std::fstream* input);
+
 	void Read(Entity_Living* humanRef);
-	virtual void WriteData(std::fstream* output) {
-		Entity::WriteData(output);
-		output->write((char*)&requiredLanguage, sizeof(int));
-		WriteStringData(text, output);
-	};
-	virtual void ReadData(std::fstream* input) {
-		Entity::ReadData(input);
-		input->read((char*)&requiredLanguage, sizeof(int));
-		text = ReadStringData(input);
-	};
+protected:
 	Languages requiredLanguage;
 	std::string text;
 };

@@ -16,7 +16,7 @@ public:
 	virtual BehaviorStatus Execute() {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
-			std::vector<Entity*> entities = living->getVisibleEntities(true, true, true,true);
+			std::vector<Entity*> entities = living->GetVisibleEntities(true, true, true,true);
 			for (int i = 0; i < entities.size(); i++) {
 				for (int n = 0; n < entities[i]->names.size(); n++) {
 					if (entities[i]->names[n] == name) {
@@ -94,7 +94,7 @@ public:
 	virtual BehaviorStatus Execute() {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
-			std::vector<Entity*> entities = living->getVisibleEntities(true, true, true, true);
+			std::vector<Entity*> entities = living->GetVisibleEntities(true, true, true, true);
 			for (int i = 0; i < entities.size(); i++) {
 				for (int n = 0; n < entities[i]->names.size(); n++) {
 					if (entities[i]->names[n] == name) {
@@ -274,9 +274,9 @@ public:
 	virtual BehaviorStatus Execute() {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
-			std::vector<Entity*> entities = living->getVisibleEntities(false,false,true, true);
+			std::vector<Entity*> entities = living->GetVisibleEntities(false,false,true, true);
 			for (int i = 0; i < entities.size(); i++) {
-				if (entities[i]->SerializationID == hash) {
+				if (entities[i]->serializationID == hash) {
 					treeParent->parentEntity->target = entities[i];
 					return SUCCEEDED;
 				}
