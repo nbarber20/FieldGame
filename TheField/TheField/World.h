@@ -13,6 +13,8 @@ public:
 	World() {};
 	void ClearEntities();
 	int AddEntity(Entity* e);
+	void MarkRemoveEntity(Entity* e);
+	void RemoveMarkedEntities();
 	void RemoveEntity(Entity* e);
 	void Tick();
 	Entity* GetEntityByID(int id, int worldID);
@@ -27,6 +29,7 @@ public:
 	Entity_Player* playerEntity;
 private:
 	std::vector< Entity*> entities;
+	std::vector< Entity*> entitiesToDelete;
 	float worldTime = 0;
 	int day = 0;
 	Constants constants;

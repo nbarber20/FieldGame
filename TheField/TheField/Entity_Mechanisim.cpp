@@ -74,21 +74,7 @@ bool Entity_Mechanisim::AttemptBehavior(std::string input, Entity* source, Entit
 	for (int i = 0; i < behaviors.size(); i++) {
 		if (behaviors[i]->activationKey == input) {
 			if (std::find(activeBehaviors.begin(), activeBehaviors.end(), behaviors[i]) == activeBehaviors.end()) {
-				Entity_Player* playerTest = dynamic_cast<Entity_Player*>(source);
-				if (playerTest) {
-					ObservationManager::Observation o = ObservationManager::Observation();
-					o.sense = ObservationManager::SENSE_Look;
-					o.type = ObservationManager::TYPE_Direct;
-					o.information = source->names[0]+" "+ behaviors[i]->firstPersonActivation+" the "+ names[0];
-					ObservationManager::Instance().MakeObservation(o);
-				}
-				else {
-					ObservationManager::Observation o = ObservationManager::Observation();
-					o.sense = ObservationManager::SENSE_Look;
-					o.type = ObservationManager::TYPE_Direct;
-					o.information = source->names[0] + " " + behaviors[i]->thirdPersonActivation + " the " + names[0];
-					ObservationManager::Instance().MakeObservation(o);
-				}
+				ObservationManager::Instance().MakeObservation(new Observation_Action(behaviors[i]->secondPersonActivation, behaviors[i]->thirdPersonActivation, this, source));
 				this->target = target;
 				activeBehaviors.push_back(behaviors[i]);
 				return true;

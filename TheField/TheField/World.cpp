@@ -14,9 +14,21 @@ int World::AddEntity(Entity* e)
 	return entities.size()-1;
 }
 
+void World::MarkRemoveEntity(Entity* e)
+{
+	entitiesToDelete.push_back(e);
+}
+
+void World::RemoveMarkedEntities()
+{
+	for (auto e : entitiesToDelete) {
+		RemoveEntity(e);
+	}
+	entitiesToDelete.clear();
+}
+
 void World::RemoveEntity(Entity* e)
 {
-	ObservationManager::Instance().RemoveObservationForEntity(e);
 	e->DropAllChildren();
 	e->SetParent(Inside, nullptr,0,false,false);
 	entities.erase(std::remove(entities.begin(), entities.end(), e), entities.end());
@@ -31,20 +43,12 @@ void World::Tick()
 	if (worldTime > 75.f) {
 		if (sunSet == false) {
 			sunSet = true;
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Direct;
-			o.information = "The sun sets";
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation( new Observation_Direct("the sun sets",nullptr));
 		}
 	}
 	if (worldTime > 100.f) {
 		sunSet = false;
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = "The sun rises";
-		ObservationManager::Instance().MakeObservation(o);
+		ObservationManager::Instance().MakeObservation(new Observation_Direct("the sun rises", nullptr));
 		worldTime = 0;
 		day++;
 	}

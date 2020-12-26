@@ -83,7 +83,6 @@ public:
 
 	virtual void SetEntityData(int id, bool visibleInsides, float internalVolume, float size, float weight);
 	virtual void Tick() {}
-	int RandomRange(int start, int end);
 	virtual void Rotate(Rotation r);
 	void FaceClockWise();
 	void Face(FacingDirection r);
@@ -100,7 +99,6 @@ public:
 	std::vector<std::string> GetAdjectives();
 	std::vector<std::string> GetAdjectives(Position p);
 	std::vector<std::string> GetAdjectivesBlacklisted(std::vector<Position> p);
-	std::string GetRandomAdjective(Position p);
 	bool CheckforNameMatch(Entity* toCompare);
 	bool IsChildOf(Entity* toCompare);
 	bool IsChildOf(int hash, Entity** foundEntity);

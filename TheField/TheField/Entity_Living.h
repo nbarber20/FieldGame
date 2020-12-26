@@ -67,6 +67,7 @@ public:
 	std::string GetHealthStatusString(HealthStatus s);
 	virtual bool Drink(Entity* e, bool drinkAll);
 	virtual bool Eat(Entity* e);
+	bool Graze();
 	virtual bool TrySwallow(Entity* e);
 	void SetSavedTarget(SavedTargetVariables newTarget);
 	void SetSavedTarget(std::string newTargetName, Entity* newTarget);

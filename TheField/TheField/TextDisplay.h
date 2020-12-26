@@ -9,12 +9,10 @@ public:
 
 	struct Log
 	{
-		Log(std::string text, sf::Color c) {
+		Log(std::string text) {
 			logText = text;
-			logColor = c;
 		}
 		std::string logText = "";
-		sf::Color logColor;
 		sf::Texture* tex = nullptr;
 	};
 
@@ -42,7 +40,7 @@ public:
 
 
 	void addImage(std::string filename) {
-		Log newLog = Log("",sf::Color::Red);
+		Log newLog = Log("");
 		sf::Texture* tex = new sf::Texture();
 		if (tex->loadFromFile(filename)) {
 			newLog.tex = tex;
@@ -52,18 +50,18 @@ public:
 		}
 		logs.push_back(newLog);
 	}
-	void addLog(Log newlog) {
-		std::size_t found = newlog.logText.find_first_of(' ');
+	void addLog(std::string newlog) {
+		std::size_t found = newlog.find_first_of(' ');
 		while (found != std::string::npos && found<charLength)
 		{
-			found = newlog.logText.find_first_of(' ', found + 1);
+			found = newlog.find_first_of(' ', found + 1);
 		}		
 		if (found != std::string::npos && found >charLength) {
 
-			Log firstLog = Log(newlog.logText.substr(0, found), newlog.logColor);
-			Log secondLog = Log(newlog.logText.substr(found +1, newlog.logText.length()-1), newlog.logColor);
+			Log firstLog = Log(newlog.substr(0, found));
+			Log secondLog = Log(newlog.substr(found +1, newlog.length()-1));
 			logs.push_back(firstLog);
-			addLog(secondLog);
+			addLog(secondLog.logText);
 		}
 		else {
 			logs.push_back(newlog);

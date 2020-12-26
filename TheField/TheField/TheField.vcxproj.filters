@@ -22,6 +22,9 @@
     <Filter Include="Header Files\Behaviors">
       <UniqueIdentifier>{8aee249c-a5e0-4bc4-8031-d0b042aabc80}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Observations">
+      <UniqueIdentifier>{f029c1f5-e971-42c2-8106-5a6cc21cc228}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -34,9 +37,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="World.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObservationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entity.h">
@@ -114,16 +114,13 @@
     <ClInclude Include="Entity_Anomaly.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ObservationManager.h">
+      <Filter>Header Files\Observations</Filter>
     </ClInclude>
-    <ClInclude Include="Task.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Observation.h">
+      <Filter>Header Files\Observations</Filter>
     </ClInclude>
     <ClInclude Include="Entity_Dispenser.h">
-      <Filter>Header Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="MechanismBehavior.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
   </ItemGroup>
@@ -200,24 +197,14 @@
     <ClCompile Include="Entity_Weapon.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="Entity_Anomaly.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Entity_Dispenser.cpp">
+      <Filter>Source Files\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity_Anomaly.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
     <ClCompile Include="Entity_groundTile.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="TheField.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="icon.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>

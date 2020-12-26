@@ -157,11 +157,6 @@ void Entity::SetEntityData(int id, bool visibleInsides, float internalVolume, fl
 	this->weight = weight;
 }
 
-int Entity::RandomRange(int start, int end)
-{
-	return (start + (std::rand() % (end - start + 1)));
-}
-
 void Entity::Rotate(Rotation r)
 {
 	this->rotation = r;
@@ -171,12 +166,8 @@ void Entity::Rotate(Rotation r)
 			object->SetParent(parent.first, parent.second);
 			object->Rotate(Tipped);
 		}
-	}
-	ObservationManager::Observation o = ObservationManager::Observation();
-	o.sense = ObservationManager::SENSE_Look;
-	o.type = ObservationManager::TYPE_Rotation;
-	o.referenceEntity = this;
-	ObservationManager::Instance().MakeObservation(o);
+	}		
+	ObservationManager::Instance().MakeObservation(new Observation_Status("facing "+ ObservationManager::Instance().RotationToString(r),this));
 }
 
 void Entity::FaceClockWise()
@@ -203,12 +194,8 @@ void Entity::FaceClockWise()
 
 void Entity::Face(FacingDirection r)
 {
-	ObservationManager::Observation o = ObservationManager::Observation();
-	o.sense = ObservationManager::SENSE_Look;
-	o.type = ObservationManager::TYPE_FacingDirection;
-	o.referenceEntity = this;
-	ObservationManager::Instance().MakeObservation(o);
 	facingDirection = r;
+	ObservationManager::Instance().MakeObservation(new Observation_Status(ObservationManager::Instance().FacingDirectionToString(facingDirection), this));
 }
 
 bool Entity::SetParent(Position pos, Entity* newParent)
@@ -226,12 +213,7 @@ bool Entity::SetParent(Position pos, Entity* newParent, int roomIndex, bool atta
 		}
 	}
 	if (logObeservation) {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Movement;
-		o.referenceEntity = this;
-		o.lastState = ObservationManager::Instance().PositionToString(this->parent.first, individualName);
-		ObservationManager::Instance().MakeObservation(o);
+		ObservationManager::Instance().MakeObservation(new Observation_Movement(this->parent.first,this->parent.second,this));
 	}
 
 	if (parent.second != nullptr) parent.second->RemoveChild(this);
@@ -362,17 +344,6 @@ std::vector<std::string> Entity::GetAdjectivesBlacklisted(std::vector<Position> 
 		}
 	}
 	return ad;
-}
-
-std::string Entity::GetRandomAdjective(Position p)
-{
-	for (int x = 0; x < adjectives.size(); x++) {
-		if (adjectives[x].first == p) {
-			if (adjectives[x].second.size() == 0)return"";
-			return adjectives[x].second[RandomRange(0, adjectives[x].second.size() - 1)];
-		}
-	}
-	return "";
 }
 
 bool Entity::CheckforNameMatch(Entity* toCompare)

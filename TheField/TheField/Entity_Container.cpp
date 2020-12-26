@@ -50,13 +50,7 @@ void Entity_Container::Tick()
 		for (auto object : inside) {
 			Entity_Fluid* fluidCheck = dynamic_cast<Entity_Fluid*>(object);
 			if (fluidCheck) {
-				ObservationManager::Observation o = ObservationManager::Observation();
-				o.sense = ObservationManager::SENSE_Look;
-				o.type = ObservationManager::TYPE_Direct;
-				o.referenceEntity = fluidCheck;
-				o.information = "Some " + fluidCheck->names[0] + " drips out of the " + this->names[0];
-				ObservationManager::Instance().MakeObservation(o);
-
+				ObservationManager::Instance().MakeObservation(new Observation_Direct("Some " + fluidCheck->names[0] + " drips out of the " + this->names[0], fluidCheck));
 				Entity* drippingFluid = fluidCheck->SplitFluid(permiability);
 				drippingFluid->AddAdjective(Visual, "spilled");
 				drippingFluid->SetParent(parent.first, parent.second);				
@@ -96,12 +90,7 @@ bool Entity_Container::PourInto(Entity* target)
 		object->SetParent(targetPositin, target);
 	}
 	if (GetInternalVoidSPace() == this->internalVolume){
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Direct;
-		o.referenceEntity = this;
-		o.information = "The " + names[0] + " is empty";
-		ObservationManager::Instance().MakeObservation(o);
+		ObservationManager::Instance().MakeObservation(new Observation_Direct("The " + names[0] + " is empty", this));
 		return true;
 	}
 	return true;

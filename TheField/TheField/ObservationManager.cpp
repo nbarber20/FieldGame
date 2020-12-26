@@ -3,200 +3,134 @@
 #include "TextDisplay.h"
 #include <SFML/Graphics.hpp>
 #include "Entity.h"
-
+#include "Entity_Room.h"
 void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* textDisplay)
 {
 	Constants constants;
 
-	ObservationType lastType = TYPE_All; 
-	for (int i = 0; i < observations.size(); i++) {
+	Observation* lastObservation = nullptr;
+	for (int i = 0; i < observations.size(); i++) {		
 		
-		Observation o = observations[i]; 
-		if (o.displayed == true)continue;
-		o.displayed = true;
+		if (observations[i]->displayed == true)continue;
+		observations[i]->displayed = true;
 
-
-
-		if (o.type == TYPE_Notice && lastType != TYPE_Notice&& o.information == "") {
-			textDisplay->addLog(TextDisplay::Log("You see: ", sf::Color::Yellow));
-
+		//Headers
+		Observation_Look* observation_OldLook = dynamic_cast<Observation_Look*>(lastObservation);
+		Observation_Look* observation_NewLook = dynamic_cast<Observation_Look*>(observations[i]);
+		if (observation_NewLook && observation_OldLook == nullptr) {
+			textDisplay->addLog("You see: "); 
 		}
 
-		Entity* e = o.referenceEntity;
-		std::string defrefName="";
-		std::string indefdefrefName = "";
-		std::string defrefNameADJ = "";
-		std::string indefdefrefNameADJ = "";
-		std::string ADJ = "";
-		std::string preposition = "";
-		bool prepositionNoun=false;
-		bool plural = false;
-		int pluralCount = 0;
-		std::string depthTab= "";
+		lastObservation = observations[i];
 
 
-		if (o.depth > 0) {
-			for (int i = 0; i < o.depth; i++) {
+
+		std::string depthTab = "";
+		if (observations[i]->depth > 0) {
+			for (int i = 0; i < observations[i]->depth; i++) {
 				depthTab += "   ";
 			}
 			depthTab += "-";
 		}
 
-		if (e != nullptr) {
-			if (e->names.size() > 0) {
-
-				for (int j = 0; j < observations.size(); j++) {
-					if (observations[j].displayed == false) {
-						if (o.sense == observations[j].sense && o.type == observations[j].type &&  observations[j].referenceEntity != nullptr) {
-							if (observations[j].referenceEntity != e) {
-								if (e->parent == observations[j].referenceEntity->parent && e->countable == true&& e->individualName =="")
-								{
-									if (e->CheckforNameMatch(observations[j].referenceEntity))
-									{
-										observations[j].displayed = true;
-										plural = true;
-										pluralCount++;
-									}
-								}
-							}
-						}
-					}
-				}
-
-				preposition = getPreposition(e->parent.first, &prepositionNoun, e->IsChildOf(playerEntity));
-				if (prepositionNoun == false&& e->parent.second!=nullptr) {
-					//TODO check if parent has name
-					preposition += " the " + e->parent.second->names[0];
-				}
-				ADJ = e->GetRandomAdjective(Visual) + " ";
-				if (ADJ == " ")ADJ = "";
-				defrefName = "the " + e->names[0];
-				defrefNameADJ = "the " + ADJ + e->names[0];
-				if (e->countable&& plural == false && e->individualName == "") {
-					if (StartsWithVowel(e->names[0])) {
-						indefdefrefName = "an " + e->names[0];
-					}
-					else {
-						indefdefrefName = "a " + e->names[0];
-					}
-					if (StartsWithVowel(ADJ)) {
-						indefdefrefNameADJ = "an " + ADJ + e->names[0];
-					}
-					else {
-						indefdefrefNameADJ = "a " + ADJ + e->names[0];
-					}
-				}
-				else {
-					indefdefrefName = e->names[0];
-					indefdefrefNameADJ = ADJ + e->names[0];
-				}
-			}
+		Observation_Image* observation_Image = dynamic_cast<Observation_Image*>(observations[i]);
+		if (observation_Image) {
+			textDisplay->addImage(observation_Image->imageFile);
+			continue;
 		}
 
+		Observation_Direct* observation_Direct = dynamic_cast<Observation_Direct*>(observations[i]);
+		if (observation_Direct) {
+			textDisplay->addLog(observation_Direct->text);
+			continue;
+		}
 
-		if (o.type == TYPE_Image) {
-			textDisplay->addImage(o.imageFile);
-		}
-		if (o.type == TYPE_Direct) {
-			textDisplay->addLog(TextDisplay::Log(o.information,sf::Color::Yellow));
-		}
-		if (o.type == TYPE_Notice) {
-			if (o.information != "")
-			{
-				textDisplay->addLog(TextDisplay::Log(o.information, sf::Color::Yellow));
+		Observation_Look* observation_Look = dynamic_cast<Observation_Look*>(observations[i]);
+		if (observation_Look) {
+			if (observation_Look->directional) {
+				textDisplay->addLog(GetIndefNameAndParticle(observation_Look->referenceEntity) + " to the " + FacingDirectionToString(observation_Look->direction));
 			}
 			else {
-				if (e->parent.second == playerEntity){
-					textDisplay->addLog(TextDisplay::Log(depthTab+ indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
-				}
-				else {
-					if (plural) {
-						if (e->size > constants.smallItemMaxThreshold && e->parent.second == playerEntity->parent.second) {
-							textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s", sf::Color::Yellow));							
-						}
-						else {
-							textDisplay->addLog(TextDisplay::Log(depthTab + numberStrings[pluralCount] + " " + indefdefrefNameADJ + "s " + preposition, sf::Color::Yellow));
-							
-						}
+				if (observation_Look->depth > 0 || observation_Look->referenceEntity->size < constants.smallItemMaxThreshold)
+				{
+					bool containsNoun;
+					std::string preposition = getPreposition(observation_Look->referenceEntity->parent.first, &containsNoun, observation_Look->referenceEntity->parent.second == playerEntity);
+					if (containsNoun) {
+						textDisplay->addLog(depthTab + GetIndefNameAndParticle(observation_Look->referenceEntity) + " " + preposition);
 					}
 					else {
-						if (e->size > constants.smallItemMaxThreshold && e->parent.second == playerEntity->parent.second) {
-							textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ, sf::Color::Yellow));
-						}
-						else {
-							textDisplay->addLog(TextDisplay::Log(depthTab + indefdefrefNameADJ + " " + preposition, sf::Color::Yellow));
-						}
-					}
-				}
-			}
-		}
-		if (o.type == TYPE_Movement) {
-			if (e->parent.second != playerEntity) {
-				if (e == playerEntity) {
-					if (!prepositionNoun) {
-						bool wasinside = o.lastState == "inside" || o.lastState == "on the floor";
-						if (wasinside && e->parent.first != Inside) {
-							textDisplay->addLog(TextDisplay::Log("You are outside", sf::Color::Yellow));
-
-						}
-						else {
-							textDisplay->addLog(TextDisplay::Log("You are " + preposition, sf::Color::Yellow));
-						}
-					}
-					else {
-						textDisplay->addLog(TextDisplay::Log("You are in the " + e->parent.second->names[0], sf::Color::Yellow));
+						textDisplay->addLog(depthTab + GetIndefNameAndParticle(observation_Look->referenceEntity) + " " + preposition + " " + GetNameAndParticle(observation_Look->referenceEntity->parent.second));
 					}
 				}
 				else {
-					textDisplay->addLog(TextDisplay::Log(defrefNameADJ + " is now " + preposition, sf::Color::Yellow));
+					textDisplay->addLog(depthTab + GetIndefNameAndParticle(observation_Look->referenceEntity));
 				}
 			}
-		}
-		if (o.type == TYPE_Rotation) {
-			textDisplay->addLog(TextDisplay::Log(defrefNameADJ + " is now " + RotationToString(e->rotation), sf::Color::Yellow));
-		}
-		if (o.type == TYPE_FacingDirection) {
-			textDisplay->addLog(TextDisplay::Log(defrefNameADJ + " is now facing " + FacingDirectionToString(e->facingDirection), sf::Color::Yellow));
-		}
-		lastType = o.type;
-	}
-}
-
-
-void ObservationManager::ConsumeObservations(std::vector<std::pair<int, int>> toConsume)
-{
-	for (int i = 0; i < toConsume.size(); i++) {
-		ObservationType type = (ObservationType)toConsume[i].first;
-		ObservationSense sense = (ObservationSense)toConsume[i].second;
-		if (type == TYPE_All&& sense == TYPE_All) {
-			ClearObservations();
-			return;
+			continue;
 		}
 
-		for (int j = 0; j < observations.size(); j++) {
-			if (type == TYPE_All) {
-				if (observations[j].sense == sense) {
-					RemoveObservation(j);
-				}
+		Observation_Movement* observation_Movement = dynamic_cast<Observation_Movement*>(observations[i]);
+		if (observation_Movement) {
+			bool containsNoun;
+			std::string preposition = getPreposition(observation_Movement->referenceEntity->parent.first, &containsNoun, observation_Movement->referenceEntity == playerEntity);
+
+			Entity_Room* isLastRoom = dynamic_cast<Entity_Room*>(observation_Movement->lastParent);
+			Entity_Room* isInRoom = dynamic_cast<Entity_Room*>(observation_Movement->referenceEntity->parent.second);
+			if (isLastRoom && isInRoom==nullptr) {
+				containsNoun = true;
+				preposition = "outside";
 			}
-			else if (sense == SENSE_All) {
-				if (observations[j].type == type) {
-					RemoveObservation(j);
+			else if (isLastRoom==nullptr && isInRoom) {
+				containsNoun = true;
+				preposition = "inside";
+			}
+
+			if (observation_Movement->referenceEntity == playerEntity) {
+				if (containsNoun) {
+					textDisplay->addLog("you are now " + preposition);
+				}
+				else {
+					textDisplay->addLog("you are now " + preposition + " " +  GetNameAndParticle(observation_Movement->referenceEntity->parent.second));
 				}
 			}
 			else {
-				if (observations[j].type == type && observations[j].sense == sense) {
-					RemoveObservation(j);
+				if (containsNoun) {
+					textDisplay->addLog(GetNameAndParticle(observation_Movement->referenceEntity) + " is now " + preposition);
 				}
+				else {
+					textDisplay->addLog(GetNameAndParticle(observation_Movement->referenceEntity) + " is now " + preposition + " " + GetNameAndParticle(observation_Movement->referenceEntity->parent.second));
+				}
+			}
+		}
+
+		Observation_Action* observation_Action = dynamic_cast<Observation_Action*>(observations[i]);
+		if (observation_Action) {
+			if (observation_Action->referenceEntity == playerEntity) {
+				textDisplay->addLog("you " + observation_Action->SecPersonverb + " " + GetNameAndParticle(observation_Action->target));
+			}
+			else {
+				textDisplay->addLog(GetNameAndParticle(observation_Action->referenceEntity) + " " + observation_Action->ThirdPersonverb + " " + GetNameAndParticle(observation_Action->target));
+			}
+			continue;
+		}
+
+		Observation_Status* observation_Status = dynamic_cast<Observation_Status*>(observations[i]);
+		if (observation_Status) {
+			if (observation_Status->referenceEntity == playerEntity) {
+				textDisplay->addLog("you are " + observation_Status->statusString);
+			}
+			else {
+				textDisplay->addLog(GetNameAndParticle(observation_Status->referenceEntity) + " is " + observation_Status->statusString);
 			}
 		}
 	}
 }
+
 
 void ObservationManager::RemoveObservationForEntity(Entity* entity)
 {
 	for (int i = 0; i < observations.size(); i++) {
-		if (observations[i].referenceEntity == entity) {
+		if (observations[i]->referenceEntity == entity) {
 			RemoveObservation(i);
 			return;
 		}
@@ -215,8 +149,74 @@ bool ObservationManager::StartsWithVowel(std::string input)
 	return false;
 }
 
+int ObservationManager::RandomRange(int start, int end)
+{
+	return (start + (std::rand() % ((end-1) - start + 1)));
+}
+
+std::string ObservationManager::GetNameAndParticle(Entity* e)
+{
+
+	if (e == nullptr)return "";
+	if (e->names.size() == 0)return "";
+
+	std::vector<std::string> adjs = e->GetAdjectivesBlacklisted({ Taste });
+	if (adjs.size() == 0)
+	{
+		if (e->countable) {
+			return	"the " + e->names[0];
+		}
+		else {
+			return e->names[0];
+		}
+	}
+	else {
+		if (e->countable) {
+			return "the " + adjs[RandomRange(0, adjs.size())] + " " + e->names[0];
+		}
+		else {
+			return adjs[RandomRange(0, adjs.size())] + " " + e->names[0];
+		}
+	}
+}
+
+std::string ObservationManager::GetIndefNameAndParticle(Entity* e)
+{
+	if (e == nullptr)return "";
+	if (e->names.size() == 0)return "";
+	std::vector<std::string> adjs = e->GetAdjectivesBlacklisted({ Taste });
+	if (e->countable) {
+		if (adjs.size() == 0) {
+			if (StartsWithVowel(e->names[0])) {
+				return "an " + e->names[0];
+			}
+			else {
+				return "a " + e->names[0];
+			}
+		}
+		else {
+			std::string adj = adjs[RandomRange(0, adjs.size())];
+			if (StartsWithVowel(adj)) {
+				return "an " + adj + " " + e->names[0];
+			}
+			else {
+				return "a " + adj + " " + e->names[0];
+			}
+		}
+	}
+	else {
+		if (adjs.size() == 0) {
+			return e->names[0];
+		}
+		else {
+			return adjs[RandomRange(0, adjs.size())] + " " + e->names[0];
+		}
+	}
+}
+
 void ObservationManager::RemoveObservation(int index)
 {
+	//delete observations[index];
 	observations.erase(std::remove(observations.begin(), observations.end(), observations[index]), observations.end());
 }
 
@@ -246,54 +246,6 @@ std::string ObservationManager::FacingDirectionToString(FacingDirection r)
 		return "south";
 	case West:
 		return "west";
-	}
-	return "ERROR";
-}
-
-std::string ObservationManager::PositionToString(Position r, std::string individualName)
-{
-	switch (r)
-	{
-	case InFront:
-		return "in front";
-	case Inside:
-		return "inside";
-	case Behind:
-		return "behind";
-	case On:
-		return "on";
-	case Below:
-		return "below";
-	case RightHand:
-		return individualName + "'s right hand";
-	case LeftHand:
-		return individualName + "'s left hand";
-	case Arms:
-		return individualName + "'s arms";
-	case Chest:
-		return individualName + "'s chest";
-	case Back:
-		return individualName + "'s back";
-	case Legs:
-		return individualName + "'s legs";
-	case Feet:
-		return individualName + "'s feet";
-	case Head:
-		return individualName + "'s head";
-	case Mouth:
-		return individualName + "'s mouth";
-	case OnWall:
-		return "wall";
-	case OnFloor:
-		return "floor";
-	case OnCieling:
-		return "ceiling";
-	case Visual:
-		return "ERROR";
-	case Taste:
-		return "ERROR";
-	case Smell:
-		return "ERROR";
 	}
 	return "ERROR";
 }

@@ -242,13 +242,7 @@ void Entity_Living::Tick()
 		}
 		else {
 			bloodLevel -= bleedSpeed;
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Physical;
-			o.type = ObservationManager::TYPE_Direct;
-			o.information = names[0] + " bleeds";
-			ObservationManager::Instance().MakeObservation(o);
-
-
+			ObservationManager::Instance().MakeObservation(new Observation_Action("bleed", "bleeds", nullptr, this));
 			if (bloodLevel < 0) {
 				bloodLevel = 0;
 			}
@@ -258,27 +252,41 @@ void Entity_Living::Tick()
 			if (unconscious == false) {
 				unconscious = true; 
 				unconsciousCounter = 4;
-				ObservationManager::Observation o = ObservationManager::Observation();
-				o.sense = ObservationManager::SENSE_Physical;
-				o.type = ObservationManager::TYPE_Direct;
-				o.information = names[0] + " falls unconscious";
-				ObservationManager::Instance().MakeObservation(o);
+				ObservationManager::Instance().MakeObservation(new Observation_Action("fall unconscious", "falls unconscious", nullptr, this));
 			}
 			TakeDamage(this, Bleed, 1, 1);
 		}
 		if (unconscious == true) {
 			unconsciousCounter--;
 			if (unconsciousCounter <= 0) {
-				ObservationManager::Observation o = ObservationManager::Observation();
-				o.sense = ObservationManager::SENSE_Physical;
-				o.type = ObservationManager::TYPE_Direct;
-				o.information = names[0] + " wakes";
-				ObservationManager::Instance().MakeObservation(o);
+				ObservationManager::Instance().MakeObservation(new Observation_Action("wake", "wakes", nullptr, this));
 				unconsciousCounter = 0;
 				unconscious = false;
 			}
 		}
 	}	
+
+	//HYDRATION HUNGER NOTIFIERS
+
+	if (nourishment <= 0) {
+		ObservationManager::Instance().MakeObservation(new Observation_Status("starving", this));
+	}
+	else if (nourishment <= 20) {
+		ObservationManager::Instance().MakeObservation(new Observation_Status("very hungry", this));
+	}
+	else if (nourishment <= 40) {
+		ObservationManager::Instance().MakeObservation(new Observation_Status("hungry", this));
+	}
+
+	if (hydration <= 0) {
+		ObservationManager::Instance().MakeObservation(new Observation_Status("dying of dehydration", this));
+	}
+	else if (hydration <= 20) {
+		ObservationManager::Instance().MakeObservation(new Observation_Status("very thirsty", this));
+	}
+	else if (hydration <= 40) {
+		ObservationManager::Instance().MakeObservation(new Observation_Status("thirsty", this));
+	}
 }
 
 void Entity_Living::AddBehavior(BehaviorTree* tree)
@@ -322,11 +330,7 @@ void Entity_Living::TakeDamage(Entity* source, DamageType type, float multiplier
 			if (unconscious == false) {
 				unconscious = true;
 				unconsciousCounter = 3;
-				ObservationManager::Observation o = ObservationManager::Observation();
-				o.sense = ObservationManager::SENSE_Physical;
-				o.type = ObservationManager::TYPE_Direct;
-				o.information = names[0] + " falls unconscious";
-				ObservationManager::Instance().MakeObservation(o);
+				ObservationManager::Instance().MakeObservation(new Observation_Action("fall unconscious", "falls unconscious", nullptr, this));
 			}
 		}
 
@@ -335,12 +339,7 @@ void Entity_Living::TakeDamage(Entity* source, DamageType type, float multiplier
 
 		healthStatus = (HealthStatus)(offset);
 		if (healthStatus == Dead)dead = true;
-
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Physical;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = names[0] + " is " + GetHealthStatusString(healthStatus);
-		ObservationManager::Instance().MakeObservation(o);
+		ObservationManager::Instance().MakeObservation(new Observation_Status(GetHealthStatusString(healthStatus),this));
 	}
 	if (source != this) {
 		Entity_Living* livingTest = dynamic_cast<Entity_Living*>(source);
@@ -382,20 +381,11 @@ void Entity_Living::AttackTarget(bool sourceWeapon)
 				}
 			}
 
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Direct;
-			o.information = names[0] + " punches" + target->names[0];
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Action("punch", "punches", livingTarget, this));
 			livingTarget->TakeDamage(this,unarmedDamageType, unarmedDamageMultiplier, unarmedDamageLethalityLevel); // punch
 		}
 		else {
-
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Direct;
-			o.information = names[0] + " attacks" + target->names[0];
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Action("attack", "attacks", livingTarget, this));
 			livingTarget->TakeDamage(this, unarmedDamageType, unarmedDamageMultiplier, unarmedDamageLethalityLevel);// punch
 		}
 
@@ -453,29 +443,19 @@ bool Entity_Living::Drink(Entity* e, bool drinkAll)
 			if (fluid) {
 				if (drinkAll) {
 					if (fluid->size > constants.drinkableWaterThreshold) {
-						ObservationManager::Observation o = ObservationManager::Observation();
-						o.sense = ObservationManager::SENSE_Look;
-						o.type = ObservationManager::TYPE_Direct;
-						o.referenceEntity = e;
-						o.information = "There is too much to drink";
-						ObservationManager::Instance().MakeObservation(o);
+						ObservationManager::Instance().MakeObservation(new Observation_Direct("There is too much to drink" , e));
 						return true;
 					}
-					fluid->SetParent(Mouth, this);
+					fluid->SetParent(Mouth, this,0,false,false);
 				}
 				else {
 					Entity* e = fluid->SplitFluid(constants.mouthSize);
-					e->SetParent(Mouth, this);
+					e->SetParent(Mouth, this, 0, false, false);
 				}
 			}
 		}
 		if (fluidCheck.size() == 0) {
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Direct;
-			o.referenceEntity = e;
-			o.information = "The " + e->names[0] + " is empty";
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Direct("The " + e->names[0] + " is empty", e));
 		}
 		return true;
 	}
@@ -484,19 +464,14 @@ bool Entity_Living::Drink(Entity* e, bool drinkAll)
 
 		if (drinkAll) {
 			if (fluid->size > constants.drinkableWaterThreshold) {
-				ObservationManager::Observation o = ObservationManager::Observation();
-				o.sense = ObservationManager::SENSE_Look;
-				o.type = ObservationManager::TYPE_Direct;
-				o.referenceEntity = e;
-				o.information = "There is too much to drink";
-				ObservationManager::Instance().MakeObservation(o);
+				ObservationManager::Instance().MakeObservation(new Observation_Direct("There is too much to drink", e));
 				return true;
 			}
-			fluid->SetParent(Mouth, this);
+			fluid->SetParent(Mouth, this, 0, false, false);
 		}
 		else {
 			Entity* e = fluid->SplitFluid(constants.mouthSize);
-			e->SetParent(Mouth, this);
+			e->SetParent(Mouth, this, 0, false, false);
 		}
 		return true;
 	}
@@ -507,10 +482,19 @@ bool Entity_Living::Eat(Entity* e)
 {
 	Entity_Food* food = dynamic_cast<Entity_Food*>(e);
 	if (food) {
-		e->SetParent(Mouth, this);
+		e->SetParent(Mouth, this,0,false,false);
 		return true;
 	}
 	return false;
+}
+
+bool Entity_Living::Graze()
+{
+	//TODO - a bit hacky, grass isnt the most nutritious 
+	ObservationManager::Instance().MakeObservation(new Observation_Action("eat some grass.. wait what?", "eats the grass", nullptr, this));
+	this->AddHydration(100);
+	this->AddNourishment(100);
+	return true;
 }
 
 bool Entity_Living::TrySwallow(Entity* e)
@@ -519,39 +503,24 @@ bool Entity_Living::TrySwallow(Entity* e)
 	Entity_Fluid* fluid = dynamic_cast<Entity_Fluid*>(e);
 	if (fluid) {
 		if (fluid->GetSwallowable()) {
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Taste;
-			o.type = ObservationManager::TYPE_Direct;
-			o.information = this->names[0] + " drink the " + e->GetRandomAdjective(Taste) + " " + e->names[0];
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Action("drink", "drinks", e, this));
 			this->AddHydration(fluid->GetHydration());
-			World::Instance().RemoveEntity(fluid);
+			World::Instance().MarkRemoveEntity(fluid);
 			return true;
 		}
 	}
 	Entity_Food* food = dynamic_cast<Entity_Food*>(e);
 	if (food) {
 		if (food->GetSpoiled() == false) {
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Taste;
-			o.type = ObservationManager::TYPE_Direct;
-			o.information = this->names[0] + " eat the " + e->GetRandomAdjective(Taste) + " " + e->names[0];
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Action("eat", "eats", e, this));
 			this->AddNourishment(food->GetNutritionalValue());
-			World::Instance().RemoveEntity(food);
+			World::Instance().MarkRemoveEntity(food);
 			return true;
 		}
 	}
 
 
-
-	ObservationManager::Observation o = ObservationManager::Observation();
-	o.sense = ObservationManager::SENSE_Look;
-	o.type = ObservationManager::TYPE_Direct;
-	o.referenceEntity = e;
-	o.information = "You spit out the" + e->names[0];
-	ObservationManager::Instance().MakeObservation(o);
-
+	ObservationManager::Instance().MakeObservation(new Observation_Action("spit out", "spits out", e, this));
 	e->SetParent(parent.first, parent.second);
 	return false;
 }

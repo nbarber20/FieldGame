@@ -36,16 +36,10 @@ void Entity_Constructed::ReadData(std::fstream* input)
 bool Entity_Constructed::BreakConstructed(int inputStrength)
 {
 	if (inputStrength > resistance) {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Direct;
-		o.referenceEntity = this;
-		o.information = "the " + this->names[0] + " breaks";
-		ObservationManager::Instance().MakeObservation(o);
+		ObservationManager::Instance().MakeObservation(new Observation_Direct("the " + this->names[0] + " breaks",this));
+
 		visibleInsides = true;
 		broken = true;
-
-
 		std::vector<std::string> toRemove = GetAdjectives(Visual);
 		for (auto i : toRemove) {
 			RemoveAdjective(i);

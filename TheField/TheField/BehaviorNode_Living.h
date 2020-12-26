@@ -287,3 +287,23 @@ public:
 private:
 	int hash;
 };
+
+
+class BehaviorNode_Graze : public BehaviorNode
+{
+public:
+	BehaviorNode_Graze() {
+		SerializationID = 25;
+	};
+	virtual void WriteData(std::fstream* output) {
+	};
+	virtual void ReadData(std::fstream* input) {
+	};
+	virtual BehaviorStatus Execute() {
+		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
+		if (living) {
+			living->Graze();
+		}
+		return FAILED;
+	};
+};

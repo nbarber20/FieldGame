@@ -9,19 +9,14 @@ public:
 		this->eventText = EventText;
 		this->eventImageFile = EventImageFile;
 	};
-	virtual ~Entity_Event() {
-		observationTypeSenseConsumptionList.clear();
-	};
+	virtual ~Entity_Event() {};
 	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
 	virtual void ReadFromJson(Value& v);
 	virtual void WriteData(std::fstream* output);
 	virtual void ReadData(std::fstream* input);
-
-	void SetObservationConsumptionList(std::vector<std::pair<int, int>> newList);
 	bool AttemptTrigger();
 protected:
 	std::string eventText;
 	std::string eventImageFile;
-	std::vector<std::pair<int, int>> observationTypeSenseConsumptionList;
 };
 

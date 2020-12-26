@@ -4,7 +4,7 @@
 #include "BehaviorTree.h"
 struct MechanismBehavior {
 	std::string activationKey;
-	std::string firstPersonActivation;
+	std::string secondPersonActivation;
 	std::string thirdPersonActivation;
 	BehaviorTree* activationTree;
 	Entity_Mechanisim* parent;
@@ -15,9 +15,9 @@ struct MechanismBehavior {
 		output->write(activationKey.c_str(), activationKeylen);
 
 
-		size_t firstPersonActivationlen = firstPersonActivation.size();
+		size_t firstPersonActivationlen = secondPersonActivation.size();
 		output->write((char*)&(firstPersonActivationlen), sizeof(size_t));
-		output->write(firstPersonActivation.c_str(), firstPersonActivationlen);
+		output->write(secondPersonActivation.c_str(), firstPersonActivationlen);
 
 
 		size_t thirdPersonActivationlen = activationKey.size();
@@ -33,7 +33,7 @@ struct MechanismBehavior {
 	}
 	void ReadData(std::fstream* input) {
 		activationKey = ReadStringData(input);
-		firstPersonActivation = ReadStringData(input);
+		secondPersonActivation = ReadStringData(input);
 		thirdPersonActivation = ReadStringData(input);
 		activationTree = GameLoader::Instance().LoadBehaviorTree(ReadStringData(input));
 		int waitReturnIndex;

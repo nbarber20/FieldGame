@@ -38,12 +38,7 @@ bool Entity_Firearm::Attack(Entity* source, Entity* target)
 			if (clip->FireBullet(1) > 0) {
 				Entity_Living* liv = dynamic_cast<Entity_Living*>(target);
 				if (liv) {
-
-					ObservationManager::Observation o = ObservationManager::Observation();
-					o.sense = ObservationManager::SENSE_Look;
-					o.type = ObservationManager::TYPE_Direct;
-					o.information = source->names[0] + " fires the" + names[0];
-					ObservationManager::Instance().MakeObservation(o);
+					ObservationManager::Instance().MakeObservation(new Observation_Action("fire","fires",this, source));
 					liv->TakeDamage(this, Entity_Living::Piercing, 1, 3);
 					return true;
 				}

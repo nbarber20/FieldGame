@@ -28,7 +28,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 		if (mainMenuStage == 0) {
 			if (input == "new") {
 				mainMenuStage = 1;
-				textdisplay->addLog(TextDisplay::Log("what is your name?", sf::Color::Yellow));
+				textdisplay->addLog("what is your name?");
 				return;
 			}
 			else if (input == "load") {
@@ -39,15 +39,15 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 					if (p.is_directory())numfiles++;
 				}
 				if (numfiles == 0) {
-					textdisplay->addLog(TextDisplay::Log("there are no files to load....", sf::Color::Yellow));
-					textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+					textdisplay->addLog("there are no files to load....");
+					textdisplay->addLog("");
 					return;
 				}
 
 				mainMenuStage = 2;
-				textdisplay->addLog(TextDisplay::Log("which file?", sf::Color::Yellow));
+				textdisplay->addLog("which file?");
 				for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
-					if (p.is_directory())textdisplay->addLog(TextDisplay::Log("     -"+p.path().filename().string(), sf::Color::Yellow));
+					if (p.is_directory())textdisplay->addLog("     -"+p.path().filename().string());
 				}
 				return;
 			}
@@ -58,56 +58,56 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 					if (p.is_directory())numfiles++;
 				}
 				if (numfiles == 0) {
-					textdisplay->addLog(TextDisplay::Log("there are no files to delete....", sf::Color::Yellow));
-					textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+					textdisplay->addLog("there are no files to delete....");
+					textdisplay->addLog("");
 					return;
 				}
 
 				mainMenuStage = 3;
-				textdisplay->addLog(TextDisplay::Log("which file?", sf::Color::Yellow));
+				textdisplay->addLog("which file?");
 					for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
-						if (p.is_directory())textdisplay->addLog(TextDisplay::Log("     -" + p.path().filename().string(), sf::Color::Yellow));
+						if (p.is_directory())textdisplay->addLog("     -" + p.path().filename().string());
 					}
 				return;
 			}
 			else {
-				textdisplay->addLog(TextDisplay::Log("use new, load, or delete", sf::Color::Yellow));
+				textdisplay->addLog("use new, load, or delete");
 			}
 		}
 		else if (mainMenuStage == 1) {
 			if (GameLoader::Instance().CreateNewGameFile(input)) {
 				currentInteractionState = Intro;
-				textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
-				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
-				textdisplay->addLog(TextDisplay::Log("How did you die?", sf::Color::Yellow));
+				textdisplay->addLog(input);
+				textdisplay->addLog("");
+				textdisplay->addLog("How did you die?");
 			}
 			else {
-				textdisplay->addLog(TextDisplay::Log("error: cannot create save file", sf::Color::Yellow));
-				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				textdisplay->addLog("error: cannot create save file");
+				textdisplay->addLog("");
 				mainMenuStage = 0;
 			}
 		}
 		else if (mainMenuStage ==2) {
 			if (GameLoader::Instance().LoadAll(input)) {
-				textdisplay->addLog(TextDisplay::Log("... world loaded", sf::Color::Yellow));
-				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				textdisplay->addLog("... world loaded");
+				textdisplay->addLog("");
 				currentInteractionState = WorldInteraction;
 			}
 			else {
-				textdisplay->addLog(TextDisplay::Log("error: cannot load file", sf::Color::Yellow));
-				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				textdisplay->addLog("error: cannot load file");
+				textdisplay->addLog("");
 				mainMenuStage = 0;
 			}
 		}
 		else if (mainMenuStage == 3) {
 			if (GameLoader::Instance().DeleteGameFile(input)) {
-				textdisplay->addLog(TextDisplay::Log("File deleted...", sf::Color::Yellow));
-				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				textdisplay->addLog("File deleted...");
+				textdisplay->addLog("");
 				mainMenuStage = 0;
 			}
 			else {
-				textdisplay->addLog(TextDisplay::Log("error cannot delete file", sf::Color::Yellow));
-				textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+				textdisplay->addLog("error cannot delete file");
+				textdisplay->addLog("");
 				mainMenuStage = 0;
 			}
 		}
@@ -115,18 +115,18 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 	}
 	else if (currentInteractionState == Intro) {
 		if (introStage == 0) {
-			textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("Everyone has a special item they hold dearly.", sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("What do you bring with you?", sf::Color::Yellow));
+			textdisplay->addLog(input);
+			textdisplay->addLog("");
+			textdisplay->addLog("Everyone has a special item they hold dearly.");
+			textdisplay->addLog("What do you bring with you?");
 		}
 		else if (introStage == 1) {
-			textdisplay->addLog(TextDisplay::Log(input, sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+			textdisplay->addLog(input);
+			textdisplay->addLog("");
 			textdisplay->addImage("Data/Art/Start.png");
-			textdisplay->addLog(TextDisplay::Log("You find yourself laying in a large grassy field. Its nearly sunset", sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("What will you do next?", sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+			textdisplay->addLog("You find yourself laying in a large grassy field. Its nearly sunset");
+			textdisplay->addLog("What will you do next?");
+			textdisplay->addLog("");
 			currentInteractionState = WorldInteraction;
 		}
 		else {
@@ -146,16 +146,16 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 		}
 		InputError inputError = AttemptPlayerCommand(player);
 		if (inputError == NeedsSubject) {
-			textdisplay->addLog(TextDisplay::Log("Specify a proper subject", sf::Color::Red));
+			textdisplay->addLog("Specify a proper subject");
 		}
 		else if (inputError == NeedsPredicate) {
-			textdisplay->addLog(TextDisplay::Log("Specify a proper target", sf::Color::Red));
+			textdisplay->addLog("Specify a proper target");
 		}
 		else if (inputError == NeedsSubjectPredicate) {
-			textdisplay->addLog(TextDisplay::Log("Specify a proper subject and target", sf::Color::Red));
+			textdisplay->addLog("Specify a proper subject and target");
 		}
 		else if (inputError == Impossible) {
-			textdisplay->addLog(TextDisplay::Log("That isn't currently possible", sf::Color::Red));
+			textdisplay->addLog("That isn't currently possible");
 		}
 
 
@@ -163,7 +163,8 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 		World::Instance().Tick();
 		ObservationManager::Instance().CompileObservations(World::Instance().playerEntity, textdisplay);
 		ObservationManager::Instance().ClearObservations();
-		textdisplay->addLog(TextDisplay::Log("", sf::Color::Red));
+		textdisplay->addLog("");
+		World::Instance().RemoveMarkedEntities();
 	}
 	else if (currentInteractionState == Dialog) {
 
@@ -180,8 +181,8 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 		}
 		else {
 			EnterWorldInteraction();
-			textdisplay->addLog(TextDisplay::Log("...", sf::Color::Yellow));
-			textdisplay->addLog(TextDisplay::Log("", sf::Color::Yellow));
+			textdisplay->addLog("...");
+			textdisplay->addLog("");
 		}
 	}
 }
@@ -204,7 +205,7 @@ void InteractionManager::ParsePlayerInput(std::string input, TextDisplay* textdi
 		}
 	}
 
-	textdisplay->addLog(TextDisplay::Log(input, sf::Color::Red));
+	textdisplay->addLog(input);
 
 	verb = GetVerb(player,0);
 	subject = GetNoun(player);
@@ -467,25 +468,16 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 	}
 	else if (verb == "goddelete") {
 		if (subject) {
-			World::Instance().RemoveEntity(subject);
+			World::Instance().MarkRemoveEntity(subject);
 		}
 		return Success;
 	}
 	else if (verb == "wait") {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = "You wait";
-		ObservationManager::Instance().MakeObservation(o);
+		ObservationManager::Instance().MakeObservation(new Observation_Direct("you wait",nullptr));
 		return Success;
 	}
 	else if (verb == "help") {
-
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = GetHelp(GetVerb(player, 1));
-		ObservationManager::Instance().MakeObservation(o);
+		ObservationManager::Instance().MakeObservation(new Observation_Direct(GetHelp(GetVerb(player, 1)), nullptr));
 		return Success;
 	}
 	else if (verb == "fire") {
@@ -758,13 +750,10 @@ void InteractionManager::EnterWorldInteraction()
 	currentInteractionState = WorldInteraction;
 }
 
-void InteractionManager::LogDialog()
+void InteractionManager::LogDialog() 
 {
-	ObservationManager::Observation o = ObservationManager::Observation();
-	o.sense = ObservationManager::SENSE_Look;
-	o.type = ObservationManager::TYPE_Direct;
-	o.information = currentDialogTree->TreeNodes[currentDialogTree->currentIndex].dialog;
-	ObservationManager::Instance().MakeObservation(o);
+	ObservationManager::Instance().MakeObservation(new Observation_Direct(currentDialogTree->TreeNodes[currentDialogTree->currentIndex].dialog, nullptr));
+
 	for (int i = 0; i < currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses.size() + 1; i++) {
 
 		std::string c = "a";
@@ -773,19 +762,11 @@ void InteractionManager::LogDialog()
 		if (i == 3) c = "d";
 		if (i < currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses.size()) {
 			std::string s = c + "): " + currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses[i].first;
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Direct;
-			o.information = s;
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Direct(s, nullptr));
 		}
 		else {
 			std::string s = c + "): Leave";
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Direct;
-			o.information = s;
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Direct(s, nullptr));
 		}
 	}
 

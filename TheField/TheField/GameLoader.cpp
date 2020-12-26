@@ -29,6 +29,35 @@
 
 void GameLoader::Setup()
 {
+	BehaviorTree* RootAnimalBehavior = new BehaviorTree("RootAnimalBehavior", true);
+	BehaviorNode* start = new BehaviorNode();
+	RootAnimalBehavior->AddNode(start, nullptr);
+
+	BehaviorNode_Selector* GetWaterOrFoodSelector = new BehaviorNode_Selector();
+	RootAnimalBehavior->AddNode(GetWaterOrFoodSelector, start);
+
+	//WaterGraze
+	BehaviorNode_Sequence* GetWater = new BehaviorNode_Sequence();
+	RootAnimalBehavior->AddNode(GetWater, GetWaterOrFoodSelector);
+
+	BehaviorNode_Living_IfThirsty* WaterCheck = new BehaviorNode_Living_IfThirsty(100);
+	RootAnimalBehavior->AddNode(WaterCheck, GetWater);
+
+	BehaviorNode_Graze* WaterGraze = new BehaviorNode_Graze();
+	RootAnimalBehavior->AddNode(WaterGraze, GetWater);
+
+	//FoodGraze
+	BehaviorNode_Sequence* GetFood = new BehaviorNode_Sequence();
+	RootAnimalBehavior->AddNode(GetWater, GetWaterOrFoodSelector);
+
+	BehaviorNode_Living_IfHungry* FoodCheck = new BehaviorNode_Living_IfHungry(100);
+	RootAnimalBehavior->AddNode(FoodCheck, GetFood);
+
+	BehaviorNode_Graze* FoodGraze = new BehaviorNode_Graze();
+	RootAnimalBehavior->AddNode(FoodGraze, GetFood);
+
+
+	SaveBehaviorTree(RootAnimalBehavior);
 }
 
 
@@ -403,7 +432,15 @@ void GameLoader::LoadTile(int tileID)
 			int hash;
 			file.read((char*)&hash, sizeof(int));
 			Entity* e = GenEntity(hash);
-			e->ReadData(&file);
+			try {
+				e->ReadData(&file);
+			}
+			catch (...) {
+				file.close();
+				ThrowFileError("Error loading entity");
+				return;
+			}
+
 			//Get the ground tile to put the player on TODO: maybe a better way of finding where to parent player
 			Entity_GroundTile* groundTile = dynamic_cast<Entity_GroundTile*>(e);
 			if (groundTile) {
@@ -457,15 +494,16 @@ void GameLoader::CopyGameFile(std::string from, std::string to)
 		dst.close();
 	}
 	else {
-		std::string s = "Important Game Data is Missing!(" + from + ")";
-		MessageBoxA(NULL, s.c_str(), "ERROR", MB_OK);
-		exit(EXIT_FAILURE);
+		ThrowFileError("Important Game Data is Missing!(" + from + ")");
 	}
 }
 
 void GameLoader::ThrowFileError(std::string error)
 {
+	//TODO asses
 	errorCount = 0;
+	MessageBoxA(NULL, error.c_str(), "ERROR", MB_OK);
+	exit(EXIT_FAILURE);
 }
 
 Entity* GameLoader::GenEntity(int hash)
@@ -573,6 +611,8 @@ BehaviorNode* GameLoader::GenBehaviorNode(int hash)
 		return new BehaviorNode_Living_IfHungry(0);
 	case 24:
 		return new BehaviorNode_Living_EatTarget();
+	case 25:
+		return new BehaviorNode_Graze();
 	default:
 		//UNDEFINED
 		return new BehaviorNode();

@@ -14,49 +14,6 @@
 void Entity_Player::Tick()
 {
 	Entity_Living::Tick();
-	if (nourishment <= 0) {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Physical;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = "You are starving";
-		ObservationManager::Instance().MakeObservation(o);
-	}
-	else if (nourishment <= 20) {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Physical;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = "You really need to eat";
-		ObservationManager::Instance().MakeObservation(o);
-	}
-	else if (nourishment <= 40) {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Physical;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = "You could eat something";
-		ObservationManager::Instance().MakeObservation(o);
-	}
-
-	if (hydration <= 0) {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Physical;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = "You are dying of dehydration";
-		ObservationManager::Instance().MakeObservation(o);
-	}
-	else if (hydration <= 20) {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Physical;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = "You really need to drink something";
-		ObservationManager::Instance().MakeObservation(o);
-	}
-	else if (hydration <= 40) {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Physical;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = "You are feeling thirsty";
-		ObservationManager::Instance().MakeObservation(o);
-	}
 }
 
 
@@ -84,12 +41,7 @@ void Entity_Player::Look()
 	int playerdepth = GetChildDepth();
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		if (nearbyEntities[i]->names.size() > 0) {
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Notice;
-			o.referenceEntity = nearbyEntities[i];
-			o.depth = nearbyEntities[i]->GetChildDepth() - playerdepth;
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Look(nearbyEntities[i], nearbyEntities[i]->GetChildDepth() - playerdepth));
 		}
 	}
 
@@ -101,13 +53,8 @@ void Entity_Player::Look()
 			for (int i = 0; i < 4; i++) {
 				FacingDirection dir = (FacingDirection)i;
 				Entity* room = interiorTest->GetAdjacent(dir, roomTest);
-				if (room) {
-					ObservationManager::Observation o = ObservationManager::Observation();
-					o.sense = ObservationManager::SENSE_Look;
-					o.type = ObservationManager::TYPE_Notice;
-					o.referenceEntity = room;
-					o.information = "a " + room->names[0] + " to the " + ObservationManager::Instance().FacingDirectionToString(dir);
-					ObservationManager::Instance().MakeObservation(o);
+				if (room) {					
+					ObservationManager::Instance().MakeObservation(new Observation_Look(dir,room));
 				}
 			}
 		}
@@ -117,35 +64,19 @@ void Entity_Player::Look()
 
 		if (groundTest->toNorth.second != -1)
 		{
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Notice;
-			o.information = groundTest->toNorth.first;
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Direct(groundTest->toNorth.first,nullptr));
 		}
 		if (groundTest->toEast.second != -1)
 		{
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Notice;
-			o.information = groundTest->toEast.first;
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Direct(groundTest->toEast.first, nullptr));
 		}
 		if (groundTest->toSouth.second != -1)
 		{
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Notice;
-			o.information = groundTest->toSouth.first;
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Direct(groundTest->toSouth.first, nullptr));
 		}
 		if (groundTest->toWest.second != -1)
 		{
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Notice;
-			o.information = groundTest->toWest.first;
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Direct(groundTest->toWest.first, nullptr));
 		}
 		
 	}
@@ -156,20 +87,10 @@ void Entity_Player::Look()
 void Entity_Player::Look(Entity* subject)
 {
 	if (subject->lookInfo != "") {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Direct;
-		o.referenceEntity = subject;
-		o.information = subject->lookInfo;
-		ObservationManager::Instance().MakeObservation(o);
+		ObservationManager::Instance().MakeObservation(new Observation_Direct(subject->lookInfo,subject));
 	}
 	else {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Direct;
-		o.referenceEntity = subject;
-		o.information = "You find nothing of note";
-ObservationManager::Instance().MakeObservation(o);
+		ObservationManager::Instance().MakeObservation(new Observation_Direct("You find nothing of note", subject));
 	}
 }
 
@@ -179,12 +100,7 @@ void Entity_Player::LookSelf()
 	std::vector<Entity*> nearbyEntities = GetVisibleEntities(false, false, true);
 	for (int i = 0; i < nearbyEntities.size(); i++) {
 		if (nearbyEntities[i]->names.size() > 0) {
-			ObservationManager::Observation o = ObservationManager::Observation();
-			o.sense = ObservationManager::SENSE_Look;
-			o.type = ObservationManager::TYPE_Notice;
-			o.depth = nearbyEntities[i]->GetChildDepth() - playerdepth;
-			o.referenceEntity = nearbyEntities[i];
-			ObservationManager::Instance().MakeObservation(o);
+			ObservationManager::Instance().MakeObservation(new Observation_Look(nearbyEntities[i], nearbyEntities[i]->GetChildDepth() - playerdepth));
 		}
 	}
 }

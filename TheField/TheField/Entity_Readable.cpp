@@ -21,19 +21,9 @@ void Entity_Readable::ReadData(std::fstream* input)
 
 void Entity_Readable::Read(Entity_Living* humanRef)
 {
-	if (std::find(humanRef->readingLanguage.begin(), humanRef->readingLanguage.end(), this->requiredLanguage) != humanRef->readingLanguage.end()) {
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Direct;
-		o.referenceEntity = this;
-		o.information = text;
-		ObservationManager::Instance().MakeObservation(o);
+	if (std::find(humanRef->readingLanguage.begin(), humanRef->readingLanguage.end(), this->requiredLanguage) != humanRef->readingLanguage.end()){
+		ObservationManager::Instance().MakeObservation(new Observation_Direct(text, this));
 		return;
 	}
-	ObservationManager::Observation o = ObservationManager::Observation();
-	o.sense = ObservationManager::SENSE_Look;
-	o.type = ObservationManager::TYPE_Direct;
-	o.referenceEntity = this;
-	o.information = "You are not familiar with these symbols";
-	ObservationManager::Instance().MakeObservation(o);
+	ObservationManager::Instance().MakeObservation(new Observation_Status("unfamiliar with the symbols", this));
 }

@@ -193,12 +193,7 @@ public:
 		observationString = ReadStringData(input);
 	}
 	virtual BehaviorStatus Execute() {
-
-		ObservationManager::Observation o = ObservationManager::Observation();
-		o.sense = ObservationManager::SENSE_Look;
-		o.type = ObservationManager::TYPE_Direct;
-		o.information = observationString;
-		ObservationManager::Instance().MakeObservation(o);
+		ObservationManager::Instance().MakeObservation(new Observation_Direct(observationString, nullptr));
 		return SUCCEEDED;
 	}
 private:
@@ -221,12 +216,7 @@ public:
 		observationString = ReadStringData(input);
 	}
 	virtual BehaviorStatus Execute() {
-		std::vector< ObservationManager::Observation> observations = ObservationManager::Instance().GetObservations();
-		for (int i = 0; i < observations.size(); i++) {
-			if (observations[i].information == observationString) {
-				return SUCCEEDED;
-			}
-		}
+		//TODO Make work
 		return WAITING;
 	}
 private:
