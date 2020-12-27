@@ -1,0 +1,150 @@
+currentFilename = "Development";
+	std::filesystem::create_directory("Data/Saves/" + currentFilename);
+	int worldID = 1;
+
+	Entity_GroundTile* Ground = new Entity_GroundTile();
+	Ground->SetEntityData(GetUniqueID(), false, 0.0f, 60000.0f, 0.0f);
+	Ground->attachedToParent = true;
+	Ground->names = { "dirt","ground","grass" };
+	loadedTiles = { worldID };
+	Ground->worldPos = worldID;
+	Ground->toSouth = std::make_pair("There is a empty field to the south", 0);
+	World::Instance().AddEntity(Ground);
+
+	Entity_Mechanisim* WaterPump = new Entity_Mechanisim();
+	WaterPump->SetEntityData(GetUniqueID(), true, 300.0f, 400.0f, 1.0f);
+	WaterPump->attachedToParent = true;
+	WaterPump->names = { "waterpump","pump" };
+	WaterPump->SetParent(On, Ground);
+	MechanismBehavior* b = new MechanismBehavior();
+	b->activationKey = "use";
+	b->secondPersonActivation = "use";
+	b->thirdPersonActivation = "uses";
+	b->activationTree = LoadBehaviorTree("Spawnwater");
+	WaterPump->AddBehavior(b);
+	World::Instance().AddEntity(WaterPump);
+
+	Entity_Event* EnterFarmEvent = new Entity_Event("You happen upon a farmhouse.", "Data/Art/Farmhouse.png");
+	EnterFarmEvent->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
+	EnterFarmEvent->SetParent(On, Ground, 0, true, false);
+	World::Instance().AddEntity(EnterFarmEvent);
+
+	Entity_Interior* House = new Entity_Interior();
+	House->SetEntityData(GetUniqueID(), false, 47520.0f, 47520.0f, 80000.0f);
+	House->names = { "farmhouse","house","home" };
+	House->SetParent(On, Ground, 0, true, false);
+	House->AddAdjective(Visual, "brick");
+	House->AddAdjective(Inside, "cozy");
+	House->worldID = worldID;
+	House->AddRoom("living room", sf::Vector2i(0, 0), true);
+	House->AddRoom("bedroom", sf::Vector2i(0, 1), true);
+	House->AddRoom("bathroom", sf::Vector2i(1, 0), true);
+	World::Instance().AddEntity(House);
+
+
+	Entity_Npc* NPC = new Entity_Npc();
+	NPC->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 150.0f);
+	NPC->names = { "person" };
+	NPC->AddBehavior(LoadBehaviorTree("RootHumanBehavior"));
+	NPC->SetSavedTarget("WaterSourceMechanism", WaterPump);
+	NPC->SetParent(OnFloor, House, 0, false, false);
+
+	//Make Tree
+	DialogTree* tree = new DialogTree();
+	DialogTree::DialogNode node1;
+	node1.dialog = "The man greets you kindly, welcoming you to his humble farmhouse.";
+	node1.responses.push_back(std::make_pair("Greet the man", 1));
+	node1.responses.push_back(std::make_pair("Insult the man", 2));
+	DialogTree::DialogNode node2;
+	node2.dialog = "The man offers you food and supplies, whats his is yours.";
+	DialogTree::DialogNode node3;
+	node3.dialog = "The man takes offense to your insult and kindly asks you to leave.";
+	tree->TreeNodes.push_back(node1);
+	tree->TreeNodes.push_back(node2);
+	tree->TreeNodes.push_back(node3);
+
+	//Finish npc setup
+	NPC->dialogTree = tree;
+	World::Instance().AddEntity(NPC);
+
+	Entity_Event* EnterHouseEvent = new Entity_Event("Upon entering the farm house, a warm feeling rushes over you. The environment around you has changed from harsh to cozy and comfortable.");
+	EnterHouseEvent->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
+	EnterHouseEvent->SetParent(OnFloor, House, 0, false, false);
+	World::Instance().AddEntity(EnterHouseEvent);
+
+	Entity* Toilet = new Entity_Container(0.f, 0);
+	Toilet->SetEntityData(GetUniqueID(), true, 369.6f, 1728.0f, 90.0f);
+	Toilet->names = { "toilet" };
+	Toilet->SetParent(OnFloor, House, 2, true, false);
+	World::Instance().AddEntity(Toilet);
+
+	Entity* ToiletWater = new Entity_Fluid(10.f);
+	ToiletWater->SetEntityData(GetUniqueID(), true, 0.0f, 200.0f, 0.0f);
+	ToiletWater->names = { "water" };
+	ToiletWater->SetParent(Inside, Toilet);
+	World::Instance().AddEntity(ToiletWater);
+
+
+	Entity* Bed = new Entity();
+	Bed->SetEntityData(GetUniqueID(), true, 0.0f, 50.0f, 150.0f);
+	Bed->names = { "bed" };
+	Bed->SetParent(OnFloor, House, 1, false, false);
+	World::Instance().AddEntity(Bed);
+
+
+	Entity* Table = new Entity();
+	Table->SetEntityData(GetUniqueID(), true, 0.0f, 1728.0f, 100.0f);
+	Table->names = { "table" };
+	Table->SetParent(OnFloor, House, 0, false, false);
+	World::Instance().AddEntity(Table);
+
+	Entity_Food* Potato = new Entity_Food(50.f);
+	Potato->SetEntityData(GetUniqueID(), true, 0.0, 14.50f, 0.3f);
+	Potato->names = { "potato" };
+	Potato->SetParent(On, Table);
+	World::Instance().AddEntity(Potato);
+
+
+	Entity_Container* Cup = new Entity_Container(0.f, 0);
+	Cup->SetEntityData(GetUniqueID(), true, 14.44f, 14.50f, 0.4f);
+	Cup->names = { "cup" };
+	Cup->SetParent(On, Table);
+	Cup->AddAdjective(Visual, "wooden");
+	World::Instance().AddEntity(Cup);
+
+
+	Entity* Tea = new Entity_Fluid(50.f);
+	Tea->SetEntityData(GetUniqueID(), true, 0.0f, 7.0f, 0.0f);
+	Tea->names = { "tea" };
+	Tea->SetParent(Inside, Cup);
+	Tea->AddAdjective(Taste, "bitter");
+	Tea->AddAdjective(Visual, "black");
+	World::Instance().AddEntity(Tea);
+
+	Entity* Cup2 = new Entity_Container(0.f, 0);
+	Cup2->SetEntityData(GetUniqueID(), true, 14.44f, 14.50f, 0.4f);
+	Cup2->names = { "cup" };
+	Cup2->SetParent(On, Table);
+	Cup2->AddAdjective(Visual, "ugly");
+	World::Instance().AddEntity(Cup2);
+
+	Entity* Cup3 = new Entity_Container(0.f, 0);
+	Cup3->SetEntityData(GetUniqueID(), true, 14.44f, 14.50f, 0.4f);
+	Cup3->names = { "cup" };
+	Cup3->SetParent(OnFloor, House, 0, false, false);
+	Cup3->AddAdjective(Visual, "glass");
+	World::Instance().AddEntity(Cup3);
+
+	Entity* Tea3 = new Entity_Fluid(50.f);
+	Tea3->SetEntityData(GetUniqueID(), true, 0.0f, 7.0f, 0.0f);
+	Tea3->names = { "tea" };
+	Tea3->SetParent(Inside, Cup3);
+	Tea3->AddAdjective(Taste, "smooth");
+	Tea3->AddAdjective(Visual, "green");
+	World::Instance().AddEntity(Tea3);
+
+	Entity_Readable* Note = new Entity_Readable(English, "This is a note.", 0);
+	Note->SetEntityData(GetUniqueID(), true, 0.0f, 1.0f, 0.0f);
+	Note->names = { "note" };
+	Note->SetParent(On, Table);
+	World::Instance().AddEntity(Note);
