@@ -34,7 +34,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 			else if (input == "load") {
 
 				int numfiles = 0;
-				std::filesystem::create_directory("Data/Saves/");
+				std::filesystem::create_directory(GameLoader::Instance().GetDirectory()+"Data/Saves/");
 				for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
 					if (p.is_directory())numfiles++;
 				}
@@ -46,15 +46,15 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 
 				mainMenuStage = 2;
 				textdisplay->addLog("which file?");
-				for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
+				for (auto& p : std::filesystem::recursive_directory_iterator(GameLoader::Instance().GetDirectory() + "Data/Saves")) {
 					if (p.is_directory())textdisplay->addLog("     -"+p.path().filename().string());
 				}
 				return;
 			}
 			else if (input == "delete") {
 				int numfiles = 0;
-				std::filesystem::create_directory("Data/Saves/");
-				for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
+				std::filesystem::create_directory(GameLoader::Instance().GetDirectory() + "Data/Saves/");
+				for (auto& p : std::filesystem::recursive_directory_iterator(GameLoader::Instance().GetDirectory() + "Data/Saves")) {
 					if (p.is_directory())numfiles++;
 				}
 				if (numfiles == 0) {
@@ -65,7 +65,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 
 				mainMenuStage = 3;
 				textdisplay->addLog("which file?");
-					for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
+					for (auto& p : std::filesystem::recursive_directory_iterator(GameLoader::Instance().GetDirectory() + "Data/Saves")) {
 						if (p.is_directory())textdisplay->addLog("     -" + p.path().filename().string());
 					}
 				return;

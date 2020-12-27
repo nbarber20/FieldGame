@@ -50,6 +50,12 @@ void Entity_Living::WriteToJson(PrettyWriter<StringBuffer>* writer)
 	writer->Bool(unconscious);
 	writer->Key("dead");
 	writer->Bool(dead);
+	writer->Key("healthThresholds");
+	writer->StartArray();
+	for (int i = 0; i < healthThresholds.size(); i++) {
+		writer->Int(healthThresholds[i]);
+	}
+	writer->EndArray();
 }
 
 void Entity_Living::ReadFromJson(Value& v)
@@ -61,7 +67,7 @@ void Entity_Living::ReadFromJson(Value& v)
 	//TODO spoken
 	//TODO written
 	strength = v["strength"].GetDouble();
-	healthStatus = (HealthStatus)v["strength"].GetInt();
+	healthStatus = (HealthStatus)v["healthStatus"].GetInt();
 	nourishment = v["nourishment"].GetDouble();
 	hydration = v["hydration"].GetDouble();
 	maxNourishment = v["maxNourishment"].GetDouble();
@@ -73,6 +79,11 @@ void Entity_Living::ReadFromJson(Value& v)
 	resistance = v["resistance"].GetDouble();
 	unconscious = v["unconscious"].GetBool();
 	dead = v["dead"].GetBool();
+
+	healthThresholds.clear();
+	for (int i = 0; i < v["healthThresholds"].Size(); i++) {
+		healthThresholds.push_back(v["healthThresholds"][i].GetInt());
+	}
 }
 
 void Entity_Living::WriteData(std::fstream* output)

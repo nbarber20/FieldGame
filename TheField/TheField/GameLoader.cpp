@@ -27,6 +27,7 @@
 #include "ObservationManager.h"
 #include "MechanismBehavior.h"
 
+
 void GameLoader::Setup()
 {
 	BehaviorTree* RootAnimalBehavior = new BehaviorTree("RootAnimalBehavior", true);
@@ -79,7 +80,7 @@ bool GameLoader::LoadAll(std::string filename)
 {
 	currentFilename = filename;
 
-	std::fstream file("Data/Saves/" + currentFilename + "/Player.bin", std::ios::in | std::ios::binary);
+	std::fstream file(GetDirectory() + "Data/Saves/" + currentFilename + "/Player.bin", std::ios::in | std::ios::binary);
 	if (!file) {
 		return false;
 	}
@@ -93,9 +94,11 @@ bool GameLoader::LoadAll(std::string filename)
 	return true;
 }
 
-Entity* GameLoader::SpawnPrefab(std::string filename, Position p, Entity* parent)
+Entity* GameLoader::SpawnPrefab(std::string filename, Position p, Entity* parent , bool fullPath)
 {
-	std::fstream file("Data/Prefabs/" + filename + ".bin", std::ios::in | std::ios::binary);
+	std::string filePath = GetDirectory() + "Data/Prefabs/" + filename + ".bin";
+	if (fullPath)filePath = filename;
+	std::fstream file(filePath, std::ios::in | std::ios::binary);
 	if (!file) {
 		ThrowFileError("Error loading prefab");
 	}
@@ -114,7 +117,12 @@ Entity* GameLoader::SpawnPrefab(std::string filename, Position p, Entity* parent
 
 void GameLoader::SavePrefab(Entity* e, std::string filename)
 {
-	std::fstream file("Data/Prefabs/" + filename + ".bin", std::ios::out | std::ios::binary);
+	SavePrefabToPath(e, GetDirectory() + "Data/Prefabs/" + filename + ".bin");
+}
+
+void GameLoader::SavePrefabToPath(Entity* e, std::string path)
+{
+	std::fstream file(path, std::ios::out | std::ios::binary);
 	if (!file) {
 		ThrowFileError("Error saving prefab");
 	}
@@ -161,7 +169,8 @@ void GameLoader::LoadTiles()
 BehaviorTree* GameLoader::LoadBehaviorTree(std::string filename)
 {
 	BehaviorTree* tree = new BehaviorTree(filename,false);
-	std::fstream file("Data/BehaviorData/" + filename + ".bin", std::ios::in | std::ios::binary);
+	std::string s = GetDirectory() + "Data/BehaviorData/" + filename + ".bin";
+	std::fstream file(s, std::ios::in | std::ios::binary);
 	if (!file) {
 		ThrowFileError("Error loading BehaviorTree");
 	}
@@ -192,7 +201,7 @@ BehaviorTree* GameLoader::LoadBehaviorTree(std::string filename)
 
 void GameLoader::SaveBehaviorTree(BehaviorTree* tree)
 {
-	std::fstream file("Data/BehaviorData/" + tree->treeName + ".bin", std::ios::out | std::ios::binary);
+	std::fstream file(GetDirectory() + "Data/BehaviorData/" + tree->treeName + ".bin", std::ios::out | std::ios::binary);
 	if (!file) {
 		ThrowFileError("Error saving BehaviorTree");
 	}
@@ -222,7 +231,7 @@ void GameLoader::SaveBehaviorTree(BehaviorTree* tree)
 
 void GameLoader::SavePlayer()
 {
-	std::fstream file("Data/Saves/" + currentFilename + "/Player.bin", std::ios::out | std::ios::binary);
+	std::fstream file(GetDirectory() + "Data/Saves/" + currentFilename + "/Player.bin", std::ios::out | std::ios::binary);
 	if (!file) {
 		errorCount++;
 		if (errorCount > 3) {
@@ -288,14 +297,14 @@ void GameLoader::SavePlayer()
 
 void GameLoader::LoadPlayer(bool getLoadedTiles)
 {
-	std::fstream file("Data/Saves/" + currentFilename + "/Player.bin", std::ios::in | std::ios::binary);
+	std::fstream file(GetDirectory() + "Data/Saves/" + currentFilename + "/Player.bin", std::ios::in | std::ios::binary);
 	if (!file) {
 		errorCount++;
 		if (errorCount > 3) {
 			ThrowFileError("Error loading player");
 		}
 		else {
-			CopyGameFile("Data/WorldData/Player.bin", "Data/Saves/" + currentFilename + "/Player.bin");
+			CopyGameFile(GetDirectory() + "Data/WorldData/Player.bin", GetDirectory() + "Data/Saves/" + currentFilename + "/Player.bin");
 			LoadPlayer(getLoadedTiles);
 			return;
 		}
@@ -348,17 +357,16 @@ void GameLoader::LoadPlayer(bool getLoadedTiles)
 }
 
 void  GameLoader::SaveTile(int tileID) {
-	std::fstream file("Data/Saves/" + currentFilename + "/" + std::to_string(tileID) + ".bin", std::ios::out | std::ios::binary);
+
+	SaveTile(GetDirectory() + "Data/Saves/" + currentFilename + "/" + std::to_string(tileID) + ".bin",tileID);
+	
+}
+
+void GameLoader::SaveTile(std::string filename,int tileID)
+{
+	std::fstream file(filename, std::ios::out | std::ios::binary);
 	if (!file) {
-		errorCount++;
-		if (errorCount > 3) {
-			ThrowFileError("Error saving tile data");
-		}
-		else {
-			CopyGameFile("Data/WorldData/" + std::to_string(tileID) + ".bin", "Data/Saves/" + currentFilename + "/" + std::to_string(tileID) + ".bin");
-			SaveTile(tileID);
-			return;
-		}
+		ThrowFileError("Error saving tile data");
 	}
 	else {
 		errorCount = 0;
@@ -411,16 +419,24 @@ void  GameLoader::SaveTile(int tileID) {
 void GameLoader::LoadTile(int tileID)
 {
 	if (tileID < 0)return;
-	std::fstream file("Data/Saves/" + currentFilename + "/" + std::to_string(tileID) + ".bin", std::ios::in | std::ios::binary);
+	LoadTile(GetDirectory() + "Data/Saves/" + currentFilename + "/" + std::to_string(tileID) + ".bin", GetDirectory() + "Data/WorldData/" + std::to_string(tileID) + ".bin");
+}
+
+void GameLoader::LoadTile(std::string filename, std::string copyFile)
+{
+
+	std::fstream file(filename, std::ios::in | std::ios::binary);
 	if (!file) {
 		errorCount++;
 		if (errorCount > 3) {
 			ThrowFileError("Error loading tile data");
 		}
 		else {
-			CopyGameFile("Data/WorldData/" + std::to_string(tileID) + ".bin", "Data/Saves/" + currentFilename + "/" + std::to_string(tileID) + ".bin");
-			LoadTile(tileID);
-			return;
+			if (copyFile != "") {
+				CopyGameFile(copyFile, filename);
+				LoadTile(filename, "");
+				return;
+			}
 		}
 	}
 	else {
@@ -456,13 +472,13 @@ void GameLoader::LoadTile(int tileID)
 
 bool GameLoader::CreateNewGameFile(std::string filename)
 {
-	std::filesystem::create_directory("Data/Saves/");
-	if (std::filesystem::create_directory("Data/Saves/" + filename) == false)
+	std::filesystem::create_directory(GetDirectory() + "Data/Saves/");
+	if (std::filesystem::create_directory(GetDirectory() + "Data/Saves/" + filename) == false)
 	{
 		return false;
 	}
 	currentFilename = filename;
-	CopyGameFile("Data/WorldData/Player.bin", "Data/Saves/" + currentFilename + "/Player.bin");
+	CopyGameFile(GetDirectory() + "Data/WorldData/Player.bin", GetDirectory() + "Data/Saves/" + currentFilename + "/Player.bin");
 	LoadPlayer(true);
 	LoadTile(0);
 	World::Instance().SetupParents();
@@ -472,8 +488,8 @@ bool GameLoader::CreateNewGameFile(std::string filename)
 
 bool GameLoader::DeleteGameFile(std::string filename)
 {
-	std::filesystem::create_directory("Data/Saves/");
-	if (std::filesystem::remove_all("Data/Saves/" + filename) == false)
+	std::filesystem::create_directory(GetDirectory() + "Data/Saves/");
+	if (std::filesystem::remove_all(GetDirectory() + "Data/Saves/" + filename) == false)
 	{
 		return false;
 	}
@@ -617,4 +633,14 @@ BehaviorNode* GameLoader::GenBehaviorNode(int hash)
 		//UNDEFINED
 		return new BehaviorNode();
 	}		
+}
+
+std::string GameLoader::GetDirectory()
+{
+	char result[MAX_PATH];
+	std::string path = std::string(result, GetModuleFileNameA(NULL, result, MAX_PATH));
+	std::replace(path.begin(), path.end(), '\\', '/');
+	path = path.substr(0, path.find_last_of('/'));
+	path += '/';
+	return path;
 }

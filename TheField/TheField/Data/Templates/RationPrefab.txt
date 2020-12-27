@@ -1,6 +1,0 @@
-
-	Entity_Food* Ration = new Entity_Food();
-	Ration->SetEntityData(GetUniqueID(), true, 0.0f, 10.0f, 0.1f);
-	Ration->names = { "ration" };
-	Ration->nutritionalValue = 50;
-	SavePrefab(Ration, "ration");

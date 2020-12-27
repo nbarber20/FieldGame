@@ -12,7 +12,6 @@ void Entity::WriteToJson(PrettyWriter<StringBuffer>* writer)
 	if (parent.second != nullptr) {
 		parentEntityID = parent.second->uniqueEntityID;
 	}
-	parentEntityDir = (int)parent.first;
 	writer->Key("parentEntityID");
 	writer->Int(parentEntityID);
 	writer->Key("parentEntityDir");
@@ -23,12 +22,49 @@ void Entity::WriteToJson(PrettyWriter<StringBuffer>* writer)
 	writer->Int(worldID);
 	writer->Key("uniqueEntityID");
 	writer->Int(uniqueEntityID);
-	writer->Key("worldActive");
-	writer->Bool(worldActive);
 	writer->Key("names");
 	writer->StartArray();
 	for (int i = 0; i < names.size(); i++) {
 		writer->String(names[i].c_str(), static_cast<SizeType>(names[i].length()));
+	}
+	writer->EndArray();
+	writer->Key("individualName");
+	writer->String(individualName.c_str(), static_cast<SizeType>(individualName.length()));
+	writer->Key("lookInfo");
+	writer->String(lookInfo.c_str(), static_cast<SizeType>(lookInfo.length()));
+	writer->Key("size");
+	writer->Double(size);
+	writer->Key("weight");
+	writer->Double(weight);
+	writer->Key("internalVolume");
+	writer->Double(internalVolume);
+	writer->Key("visibleInsides");
+	writer->Bool(visibleInsides);
+	writer->Key("countable");
+	writer->Bool(countable);
+	writer->Key("attachedToParent");
+	writer->Bool(attachedToParent);
+	writer->Key("rotation");
+	writer->Int(rotation);
+	writer->Key("facingDirection");
+	writer->Int(facingDirection);
+	writer->Key("playerAccessible");
+	writer->Bool(playerAccessible);
+	
+
+	writer->Key("adjectives");
+	writer->StartArray();
+	for (int i = 0; i < adjectives.size(); i++) {
+		writer->StartObject();
+		writer->Key("adjectivePos");
+		writer->Int(adjectives[i].first);
+		writer->Key("adjectiveList");
+		writer->StartArray();
+		for (int j = 0; j < adjectives[i].second.size(); j++) {
+			writer->String(adjectives[i].second[j].c_str(), static_cast<SizeType>(adjectives[i].second[j].length()));
+		}
+		writer->EndArray();
+		writer->EndObject();
 	}
 	writer->EndArray();
 }
@@ -40,9 +76,28 @@ void Entity::ReadFromJson(Value& v)
 	parentEntityDir = v["parentEntityDir"].GetInt();
 	worldActive = v["worldActive"].GetBool();
 	uniqueEntityID = v["uniqueEntityID"].GetInt();
-	worldActive = v["worldActive"].GetBool();
+	names.clear();
 	for (int i = 0; i < v["names"].Size(); i++) {
 		names.push_back(v["names"][i].GetString());
+	}
+	individualName = v["individualName"].GetString();
+	lookInfo = v["lookInfo"].GetString();
+	size = v["size"].GetDouble();
+	weight = v["weight"].GetDouble();
+	weight = v["internalVolume"].GetDouble();
+	visibleInsides = v["visibleInsides"].GetBool();
+	countable = v["countable"].GetBool();
+	attachedToParent = v["attachedToParent"].GetBool();
+	rotation = (Rotation)v["rotation"].GetInt();
+	facingDirection = (FacingDirection)v["facingDirection"].GetInt();
+	playerAccessible = v["playerAccessible"].GetBool();
+
+	adjectives.clear();
+	for (int i = 0; i < v["adjectives"].Size(); i++) {
+		Position adjPos = (Position)v["adjectives"][i]["adjectivePos"].GetInt();
+		for (int j = 0; j < v["adjectives"][i]["adjectiveList"].Size(); j++) {
+			this->AddAdjective(adjPos, v["adjectives"][i]["adjectiveList"][j].GetString());
+		}
 	}
 }
 
@@ -75,7 +130,6 @@ void Entity::WriteData(std::fstream* output)
 	}
 	output->write((char*)&(parent.first), sizeof(int));
 	output->write((char*)&playerAccessible, sizeof(bool));
-	//TODO adjectives
 	int adjectivesCount = adjectives.size();
 	output->write((char*)&(adjectivesCount), sizeof(int));
 	for (int i = 0; i < adjectivesCount; i++) {
@@ -92,7 +146,8 @@ void Entity::ReadData(std::fstream* input)
 {
 	input->read((char*)&worldID, sizeof(int));
 	input->read((char*)& uniqueEntityID, sizeof(int));
-	input->read((char*)& worldActive, sizeof(bool));
+	input->read((char*)&worldActive, sizeof(bool));
+	names.clear();
 	int nameSize;
 	input->read((char*)&nameSize, sizeof(int));
 	for (int i = 0; i < nameSize; i++) {
@@ -111,8 +166,6 @@ void Entity::ReadData(std::fstream* input)
 	input->read((char*)&parentEntityID, sizeof(int));
 	input->read((char*)&parentEntityDir, sizeof(int));
 	input->read((char*)&playerAccessible, sizeof(bool));
-
-	//TODO adjectives
 	int adjectivesCount;
 	input->read((char*)&(adjectivesCount), sizeof(int));
 	for (int i = 0; i < adjectivesCount; i++) {

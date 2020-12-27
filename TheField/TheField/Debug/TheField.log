@@ -1,0 +1,21 @@
+﻿  LevelEditor.cpp
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\BehaviorTree.h(14,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\BehaviorTree.h(15,1): warning C4150: deletion of pointer to incomplete type 'BehaviorNode'; no destructor called
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\BehaviorTree.h(5): message : see declaration of 'BehaviorNode'
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\Entity_Living.h(107,32): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\Entity_Living.h(49,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\LevelEditor.cpp(83,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\LevelEditor.cpp(132,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\LevelEditor.cpp(205,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\LevelEditor.cpp(207,56): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\LevelEditor.cpp(207,47): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\LevelEditor.cpp(210,77): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\LevelEditor.cpp(210,53): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\LevelEditor.cpp(223,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\LevelEditor.cpp(288,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\TheField\LevelEditor.cpp(423,20): warning C4018: '<': signed/unsigned mismatch
+  TheField.vcxproj -> C:\Users\nbarb\Documents\GitHub\FieldGame\TheField\Debug\TheField.exe

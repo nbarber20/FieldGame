@@ -1,7 +1,0 @@
-
-	BehaviorTree* spawnWater = new BehaviorTree("SpawnWater", false);
-	BehaviorNode* nodestart = new BehaviorNode();
-	spawnWater->AddNode(nodestart, nullptr);
-	BehaviorNode_SpawnPrefab* spawn = new BehaviorNode_SpawnPrefab("water",Inside,false);
-	spawnWater->AddNode(spawn, nodestart);
-	SaveBehaviorTree(spawnWater);

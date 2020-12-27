@@ -25,6 +25,12 @@
     <Filter Include="Header Files\Observations">
       <UniqueIdentifier>{f029c1f5-e971-42c2-8106-5a6cc21cc228}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\LevelEditor">
+      <UniqueIdentifier>{808281f8-3e9b-4317-af32-e7a352c0091c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LevelEditor">
+      <UniqueIdentifier>{984a52f8-4c62-4a16-94e8-abe343e954d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -93,9 +99,6 @@
     <ClInclude Include="Entity_Firearm.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="LevelEditor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -122,6 +125,12 @@
     </ClInclude>
     <ClInclude Include="Entity_Dispenser.h">
       <Filter>Header Files\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelEditor.h">
+      <Filter>Header Files\LevelEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelEditor_Widget.h">
+      <Filter>Header Files\LevelEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -185,9 +194,6 @@
     <ClCompile Include="Entity_Firearm.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="LevelEditor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GameLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -205,6 +211,12 @@
     </ClCompile>
     <ClCompile Include="Entity_groundTile.cpp">
       <Filter>Source Files\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelEditor.cpp">
+      <Filter>Source Files\LevelEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="TextDisplay.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
