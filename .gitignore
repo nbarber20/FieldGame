@@ -3,4 +3,5 @@ TheField/TheField/x64/
 TheField/.vs/
 TheField/x64/
 TheField/TheField/TheField.vcxproj
-!TheField/TheField/Data/Saves/Development/
+TheField/TheField/Debug/
+TheField/TheField/Release
