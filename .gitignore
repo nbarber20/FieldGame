@@ -5,3 +5,10 @@ TheField/x64/
 TheField/TheField/TheField.vcxproj
 TheField/TheField/Debug/
 TheField/TheField/Release
+TheField/Release/TheFields.exe
+TheField/Release/TheFields.iobj
+TheField/Release/TheFields.ipdb
+TheField/Release/TheFields.pdb
+TheField/Debug/TheFields.exe
+TheField/Debug/TheFields.ilk
+TheField/Debug/TheFields.pdb
