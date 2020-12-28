@@ -25,13 +25,13 @@ void Entity::WriteToJson(PrettyWriter<StringBuffer>* writer)
 	writer->Key("names");
 	writer->StartArray();
 	for (int i = 0; i < names.size(); i++) {
-		writer->String(names[i].c_str(), static_cast<SizeType>(names[i].length()));
+		writer->String(names[i].c_str());
 	}
 	writer->EndArray();
 	writer->Key("individualName");
-	writer->String(individualName.c_str(), static_cast<SizeType>(individualName.length()));
+	writer->String(individualName.c_str());
 	writer->Key("lookInfo");
-	writer->String(lookInfo.c_str(), static_cast<SizeType>(lookInfo.length()));
+	writer->String(lookInfo.c_str());
 	writer->Key("size");
 	writer->Double(size);
 	writer->Key("weight");
@@ -55,16 +55,10 @@ void Entity::WriteToJson(PrettyWriter<StringBuffer>* writer)
 	writer->Key("adjectives");
 	writer->StartArray();
 	for (int i = 0; i < adjectives.size(); i++) {
-		writer->StartObject();
-		writer->Key("adjectivePos");
-		writer->Int(adjectives[i].first);
-		writer->Key("adjectiveList");
-		writer->StartArray();
-		for (int j = 0; j < adjectives[i].second.size(); j++) {
-			writer->String(adjectives[i].second[j].c_str(), static_cast<SizeType>(adjectives[i].second[j].length()));
+		for (int j = 0; j < adjectives[i].second.size();j++) {
+			std::string adj = std::to_string(adjectives[i].first) + "_" + adjectives[i].second[j];
+			writer->String(adj.c_str());
 		}
-		writer->EndArray();
-		writer->EndObject();
 	}
 	writer->EndArray();
 }
@@ -94,9 +88,12 @@ void Entity::ReadFromJson(Value& v)
 
 	adjectives.clear();
 	for (int i = 0; i < v["adjectives"].Size(); i++) {
-		Position adjPos = (Position)v["adjectives"][i]["adjectivePos"].GetInt();
-		for (int j = 0; j < v["adjectives"][i]["adjectiveList"].Size(); j++) {
-			this->AddAdjective(adjPos, v["adjectives"][i]["adjectiveList"][j].GetString());
+		std::string adjFull = v["adjectives"][i].GetString();
+		if (adjFull.find_last_of('_') < adjFull.length()) {
+			Position p = (Position)std::stoi(adjFull.substr(0, adjFull.find_last_of('_')));
+			std::string adj = adjFull.substr(adjFull.find_last_of('_') + 1, adjFull.size());
+
+			AddAdjective(p, adj);
 		}
 	}
 }

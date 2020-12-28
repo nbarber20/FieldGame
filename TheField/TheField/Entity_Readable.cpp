@@ -4,16 +4,33 @@
 #include "Entity_Living.h"
 
 #pragma region Serialization
+
+void Entity_Readable::WriteToJson(PrettyWriter<StringBuffer>* writer)
+{
+	Entity_Constructed::WriteToJson(writer);
+	writer->Key("requiredLanguage");
+	writer->Int(requiredLanguage);
+	writer->Key("text");
+	writer->String(text.c_str());
+}
+
+void Entity_Readable::ReadFromJson(Value& v)
+{
+	Entity_Constructed::ReadFromJson(v);
+	requiredLanguage = (Languages)v["requiredLanguage"].GetInt();
+	text = v["text"].GetString();
+}
+
 void Entity_Readable::WriteData(std::fstream* output)
 {
-	Entity::WriteData(output);
+	Entity_Constructed::WriteData(output);
 	output->write((char*)&requiredLanguage, sizeof(int));
 	WriteStringData(text, output);
 }
 
 void Entity_Readable::ReadData(std::fstream* input)
 {
-	Entity::ReadData(input);
+	Entity_Constructed::ReadData(input);
 	input->read((char*)&requiredLanguage, sizeof(int));
 	text = ReadStringData(input);
 }

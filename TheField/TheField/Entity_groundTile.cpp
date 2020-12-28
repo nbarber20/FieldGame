@@ -6,19 +6,19 @@ void Entity_GroundTile::WriteToJson(PrettyWriter<StringBuffer>* writer)
 {
 	Entity::WriteToJson(writer);
 	writer->Key("toNorthF");
-	writer->String(toNorth.first.c_str(), static_cast<SizeType>(toNorth.first.length()));
+	writer->String(toNorth.first.c_str());
 	writer->Key("toNorthS");
 	writer->Int(toNorth.second);
 	writer->Key("toEastF");
-	writer->String(toEast.first.c_str(), static_cast<SizeType>(toEast.first.length()));
+	writer->String(toEast.first.c_str());
 	writer->Key("toEastS");
 	writer->Int(toEast.second);
 	writer->Key("toSouthF");
-	writer->String(toSouth.first.c_str(), static_cast<SizeType>(toSouth.first.length()));
+	writer->String(toSouth.first.c_str());
 	writer->Key("toSouthS");
 	writer->Int(toSouth.second);
 	writer->Key("toWestF");
-	writer->String(toWest.first.c_str(), static_cast<SizeType>(toWest.first.length()));
+	writer->String(toWest.first.c_str());
 	writer->Key("toWestS");
 	writer->Int(toWest.second);
 }

@@ -8,9 +8,9 @@ void Entity_Event::WriteToJson(PrettyWriter<StringBuffer>* writer)
 {
 	Entity::WriteToJson(writer);
 	writer->Key("EventImageFile");
-	writer->String(eventImageFile.c_str(), static_cast<SizeType>(eventImageFile.length()));
+	writer->String(eventImageFile.c_str());
 	writer->Key("EventText");
-	writer->String(eventText.c_str(), static_cast<SizeType>(eventText.length()));
+	writer->String(eventText.c_str());
 }
 
 void Entity_Event::ReadFromJson(Value& v)

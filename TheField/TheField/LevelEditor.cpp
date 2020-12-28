@@ -33,7 +33,7 @@ void LevelEditor::SetupSceneView()
 {
 	scrollOffset = 0;
 	widgets.clear();
-	widgets.push_back(new Widget("New", sf::Vector2i(650, 0), widget150));
+	widgets.push_back(new WidgetNewBtn("New", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetLoadBIN("Load", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetSaveBIN("Save", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetLoadJSON("LoadJSON", sf::Vector2i(650, 0), widget150));
@@ -75,7 +75,7 @@ void LevelEditor::SetupEntityView(Entity* e)
 
 void LevelEditor::ParseObject(Value::MemberIterator i, int depth)
 {
-	if (i->name == "hash" || i->name == "parentEntityID" || i->name == "worldID" || i->name == "uniqueEntityID") {
+	if (i->name == "hash" || i->name == "parentEntityID" || i->name == "worldID" || i->name == "uniqueEntityID" || i->name == "behaviorTreesWaitReturn") {
 		return;
 	}
 	widgets.push_back(new Widget(i->name.GetString(), sf::Vector2i(depth, 0), widget250));
@@ -94,20 +94,13 @@ void LevelEditor::ParseObject(Value::MemberIterator i, int depth)
 			else if (i->value.GetArray()[j].IsDouble()) {
 				widgets.push_back(new WidgetTextEntry(i,i->name.GetString(), j, WidgetTextEntry::ARRAYDOUBLE, std::to_string(i->value.GetArray()[j].GetDouble()), sf::Vector2i(depth+150, 0), widget250));
 			}
-			else if (i->value.GetArray()[j].IsObject()) {
-				for (auto p = i->value.GetArray()[j].MemberBegin(); p != i->value.GetArray()[j].MemberEnd(); ++p) {
-
-					ParseObject(p, depth+150);
-				}
-				//TODO NOT WORKING
-				widgets.push_back(new WidgetAddKeyToArray(i->name.GetString(), 0, WidgetTextEntry::ARRAYSTRING, "", sf::Vector2i(depth + 150, 0), widgetPlus));
-				widgets.push_back(new WidgetRemoveKeyFromArray(i->name.GetString(), 0, WidgetTextEntry::ARRAYSTRING, "", sf::Vector2i(depth + 150, 0), widgetMinus));
+		}
+		if (i->name != "savedTargetsID" && i->name != "savedTargetsWorldID" && i->name!= "behaviorsSecondPerson" && i->name != "behaviorssThirdPerson" && i->name != "behaviorssThirdPerson") {
+			widgets.push_back(new WidgetAddKeyToArray(i, i->name.GetString(), 0, WidgetTextEntry::ARRAYSTRING, "", sf::Vector2i(depth + 150, 0), widgetPlus));
+			if (i->value.GetArray().Size() != 0) {
+				widgets.push_back(new WidgetRemoveKeyFromArray(i, i->name.GetString(), 0, WidgetTextEntry::ARRAYSTRING, "", sf::Vector2i(depth + 150, 0), widgetMinus));
 			}
-		}
-		if (i->value.GetArray().Size() != 0 && i->value.GetArray()[0].IsString()) {
-			widgets.push_back(new WidgetAddKeyToArray(i->name.GetString(), 0, WidgetTextEntry::ARRAYSTRING, "", sf::Vector2i(depth + 150, 0), widgetPlus));
-			widgets.push_back(new WidgetRemoveKeyFromArray(i->name.GetString(), 0, WidgetTextEntry::ARRAYSTRING, "", sf::Vector2i(depth + 150, 0), widgetMinus));
-		}
+		}		
 	}
 	else {
 		if (i->value.IsString()) {
@@ -229,7 +222,10 @@ void LevelEditor::AddPrefabToLevelEditor(WidgetEntity* parent)
 {
 	std::string fileName = Openfilename();
 	std::replace(fileName.begin(), fileName.end(), '\\', '/');
-	AddEntityToLevelEditor(parent,GameLoader::Instance().SpawnPrefab(fileName, Inside, parent->entity,true));
+	Entity* toAdd = GameLoader::Instance().SpawnPrefab(fileName, Inside, parent->entity, true);
+	if (toAdd != nullptr) {
+		AddEntityToLevelEditor(parent,toAdd);
+	}
 }
 
 void LevelEditor::RemovePrefabFromoLevelEditor(WidgetEntity* parent)
@@ -254,8 +250,8 @@ WidgetEntity* LevelEditor::AddEntityToLevelEditor(WidgetEntity* parent, Entity* 
 		auto it = std::find(widgets.begin(), widgets.end(), parent);
 		WidgetEntity* newEntity = new WidgetEntity(e, name, sf::Vector2i(parent->screenOffset.x + 48, 0), widget250);
 		auto it2 = widgets.insert(it + 1, newEntity);
-		widgets.insert(it2 + 1, new WidgetRemovePrefabBtn(newEntity, "", sf::Vector2i(parent->screenOffset.x + 48, 0), widgetMinus));
-		widgets.insert(it2 + 1, new WidgetAddPrefabBtn(newEntity, "", sf::Vector2i(parent->screenOffset.x + 48, 0), widgetPlus));
+		auto it3 = widgets.insert(it2 + 1, new WidgetRemovePrefabBtn(newEntity, "", sf::Vector2i(parent->screenOffset.x + 48, 0), widgetMinus));
+		widgets.insert(it3 + 1, new WidgetAddPrefabBtn(newEntity, "", sf::Vector2i(parent->screenOffset.x + 48, 0), widgetPlus));
 		return newEntity;
 	}
 }
@@ -265,9 +261,11 @@ void LevelEditor::LoadBinIntoLevelEditor()
 	std::string toLoad = Openfilename();
 	World::Instance().ClearEntities();
 	GameLoader::Instance().LoadTile(toLoad, "");
-	GameLoader::Instance().loadedTiles = { World::Instance().GetEntities()[0]->worldID };
-	World::Instance().SetupParents();
-	SetupSceneView();
+	if (World::Instance().GetEntities().size() > 0) {
+		GameLoader::Instance().loadedTiles = { World::Instance().GetEntities()[0]->worldID };
+		World::Instance().SetupParents();
+		SetupSceneView();
+	}
 }
 
 void LevelEditor::LoadJSONIntoLevelEditor()
@@ -280,20 +278,23 @@ void LevelEditor::LoadJSONIntoLevelEditor()
 	FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 
 	Document document;
-	document.ParseStream(is);
-	fclose(fp);
-
-	const Value& entities = document["entities"];
-	assert(entities.IsArray());
-	for (int i = 0; i < entities.Size(); i++) {
-		int b = document["entities"][i]["hash"].GetInt();
-		Entity* e = GameLoader::Instance().GenEntity(b);
-		e->ReadFromJson(document["entities"][i]);
-		World::Instance().AddEntity(e);
+	if (document.ParseStream(is).HasParseError()==false) {
+		if (document.HasMember("entities")) {
+			const Value& entities = document["entities"];
+			if (entities.IsArray()) {
+				for (int i = 0; i < entities.Size(); i++) {
+					int b = document["entities"][i]["hash"].GetInt();
+					Entity* e = GameLoader::Instance().GenEntity(b);
+					e->ReadFromJson(document["entities"][i]);
+					World::Instance().AddEntity(e);
+				}
+				GameLoader::Instance().loadedTiles = { World::Instance().GetEntities()[0]->worldID };
+				World::Instance().SetupParents();
+				SetupSceneView();
+			}
+		}
 	}
-	GameLoader::Instance().loadedTiles = { World::Instance().GetEntities()[0]->worldID };
-	World::Instance().SetupParents();
-	SetupSceneView();
+	fclose(fp);
 }
 
 void LevelEditor::EditTextBox(WidgetTextEntry* entryBox)
@@ -304,29 +305,21 @@ void LevelEditor::EditTextBox(WidgetTextEntry* entryBox)
 
 void LevelEditor::AddElementToJSONArray(WidgetAddKeyToArray* btn)
 {
-	if (btn->d == WidgetTextEntry::ARRAYARRAYSTRING) {
-		Value::MemberIterator itr = entitydocument.FindMember(btn->key.c_str());
-		Document::AllocatorType& a = entitydocument.GetAllocator();
-		itr->value.GetArray()[btn->index].GetArray().PushBack(Value("EMPTY"), a);
-		SaveEntityView();
-		SetupEntityView(editingEntity);
-	}
-	else {
-		Value::MemberIterator itr = entitydocument.FindMember(btn->key.c_str());
-		Document::AllocatorType& a = entitydocument.GetAllocator();
-		itr->value.GetArray().PushBack(Value("EMPTY"), a);
-		SaveEntityView();
-		SetupEntityView(editingEntity);
-	}
+	Value::MemberIterator itr = btn->member;
+	Document::AllocatorType& a = entitydocument.GetAllocator();
+	itr->value.GetArray().PushBack(Value("0_EMPTY"), a); //TODO fix
+	SaveEntityView();
+	SetupEntityView(editingEntity);
 }
 
 void LevelEditor::SubElemenFromJSONArray(WidgetRemoveKeyFromArray* btn)
 {
-	Value::MemberIterator itr = entitydocument.FindMember(btn->key.c_str());
+	Value::MemberIterator itr = btn->member;
 	itr->value.GetArray().Erase(itr->value.GetArray().End()-1);
 	SaveEntityView();
 	SetupEntityView(editingEntity);
 }
+
 
 void LevelEditor::SaveEntityViewToPrefab()
 {

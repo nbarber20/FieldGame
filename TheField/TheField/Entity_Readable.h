@@ -12,6 +12,8 @@ public:
 		this->text;
 	};
 	virtual ~Entity_Readable() {};
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
+	virtual void ReadFromJson(Value& v);
 	virtual void WriteData(std::fstream* output);
 	virtual void ReadData(std::fstream* input);
 

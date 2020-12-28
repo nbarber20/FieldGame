@@ -2,6 +2,7 @@
 #include <string>
 #include "Entity_Mechanisim.h"
 #include "BehaviorTree.h"
+
 struct MechanismBehavior {
 	std::string activationKey;
 	std::string secondPersonActivation;

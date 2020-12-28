@@ -7,14 +7,14 @@
 
 void Entity_Container::WriteToJson(PrettyWriter<StringBuffer>* writer)
 {
-	Entity::WriteToJson(writer);
+	Entity_Constructed::WriteToJson(writer);
 	writer->Key("permiability");
 	writer->Double(permiability);
 }
 
 void Entity_Container::ReadFromJson(Value& v)
 {
-	Entity::ReadFromJson(v);
+	Entity_Constructed::ReadFromJson(v);
 	permiability = v["permiability"].GetDouble();
 }
 

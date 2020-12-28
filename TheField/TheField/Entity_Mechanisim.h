@@ -7,8 +7,10 @@ public:
 	
 	Entity_Mechanisim() {
 		serializationID = 11;
-	};
-	virtual ~Entity_Mechanisim();
+	}
+	virtual ~Entity_Mechanisim() {}
+	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
+	virtual void ReadFromJson(Value& v);
 	virtual void WriteData(std::fstream* output);
 	virtual void ReadData(std::fstream* input);
 

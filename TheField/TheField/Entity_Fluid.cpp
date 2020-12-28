@@ -16,7 +16,7 @@ void Entity_Fluid::ReadFromJson(Value& v)
 {
 	Entity::ReadFromJson(v);
 	hydration = v["hydration"].GetInt();
-	swallowable = v["writer"].GetString();
+	swallowable = v["swallowable"].GetBool();
 }
 
 void Entity_Fluid::WriteData(std::fstream* output)

@@ -7,7 +7,7 @@ void Entity_Dispenser::WriteToJson(PrettyWriter<StringBuffer>* writer)
 {
 	Entity::WriteToJson(writer);
 	writer->Key("prefabName");
-	writer->String(prefabName.c_str(), static_cast<SizeType>(prefabName.length()));
+	writer->String(prefabName.c_str());
 	writer->Key("dispenserType");
 	writer->Int(dispenserType);
 }

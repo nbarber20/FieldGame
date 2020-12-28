@@ -16,6 +16,8 @@ public:
 	virtual void ReadData(std::fstream* input);
 
 	void NoticePickpocket(Entity* thief);
+
+	//TODO save dialogTree seperate like behavior trees
 	DialogTree* dialogTree;
 };
 

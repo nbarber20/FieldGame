@@ -36,7 +36,16 @@ public:
 	}
 	Entity* entity;
 };
+class WidgetNewBtn : public Widget {
+public:
+	WidgetNewBtn( std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
+		buttonWidth = 150;
+	}
 
+	virtual void OnClick(LevelEditor* editor) {
+		editor->SetupNew();
+	}
+};
 class WidgetAddPrefabBtn : public Widget {
 public:
 	WidgetAddPrefabBtn(WidgetEntity* parent, std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
@@ -202,11 +211,12 @@ public:
 
 class WidgetAddKeyToArray : public Widget {
 public:
-	WidgetAddKeyToArray(std::string key, int index, WidgetTextEntry::dataType d, std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
+	WidgetAddKeyToArray(Value::MemberIterator member, std::string key, int index, WidgetTextEntry::dataType d, std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
 		buttonWidth = 45;
 		this->d = d;
 		this->index = index;
 		this->key = key;
+		this->member = member;
 	}
 
 	virtual void OnClick(LevelEditor* editor) {
@@ -215,14 +225,16 @@ public:
 	std::string key;
 	int index;
 	WidgetTextEntry::dataType d;
+	Value::MemberIterator member;
 };
 class WidgetRemoveKeyFromArray : public Widget {
 public:
-	WidgetRemoveKeyFromArray(std::string key, int index, WidgetTextEntry::dataType d, std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
+	WidgetRemoveKeyFromArray(Value::MemberIterator member, std::string key, int index, WidgetTextEntry::dataType d, std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
 		buttonWidth = 45; 
 		this->d = d;
 		this->key = key;
 		this->index = index;
+		this->member = member;
 	}
 
 	virtual void OnClick(LevelEditor* editor) {
@@ -231,4 +243,5 @@ public:
 	std::string key;
 	int index;
 	WidgetTextEntry::dataType d;
+	Value::MemberIterator member;
 };

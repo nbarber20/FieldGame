@@ -41,6 +41,7 @@ public:
 	Entity* currentGroundTile;
 	std::string currentFilename = "null";
 
+	bool exitOnFailure = true;
 private:
 	int uniqueID = 0;
 	int errorCount = 0;

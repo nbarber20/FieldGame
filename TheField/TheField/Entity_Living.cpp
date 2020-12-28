@@ -20,8 +20,21 @@ void Entity_Living::WriteToJson(PrettyWriter<StringBuffer>* writer)
 	writer->Int((int)homePosition);
 	writer->Key("homeWorldID");
 	writer->Int((int)homeWorldID);
-	//TODO spoken
-	//TODO written
+
+	writer->Key("spokenLanguage");
+	writer->StartArray();
+	for (int i = 0; i < spokenLanguage.size(); i++) {
+		std::string s = std::to_string((int)spokenLanguage[i]);
+		writer->String(s.c_str());
+	}
+	writer->EndArray();
+	writer->Key("readingLanguage");
+	writer->StartArray();
+	for (int i = 0; i < readingLanguage.size(); i++) {
+		std::string s = std::to_string((int)readingLanguage[i]);
+		writer->String(s.c_str());
+	}
+	writer->EndArray();
 	writer->Key("strength");
 	writer->Double(strength);
 	writer->Key("healthStatus");
@@ -56,6 +69,53 @@ void Entity_Living::WriteToJson(PrettyWriter<StringBuffer>* writer)
 		writer->Int(healthThresholds[i]);
 	}
 	writer->EndArray();
+
+
+	writer->Key("behaviorTrees");
+	writer->StartArray();
+	for (int i = 0; i < behaviorTrees.size(); i++) {
+		writer->String(behaviorTrees[i]->treeName.c_str());
+	}
+	writer->EndArray();
+
+	writer->Key("behaviorTreesWaitReturn");
+	writer->StartArray();
+	for (int i = 0; i < behaviorTrees.size(); i++) {
+		writer->Int(behaviorTrees[i]->waitReturnIndex);
+	}
+	writer->EndArray();
+
+	writer->Key("unarmedDamageType");
+	writer->Int(unarmedDamageType);
+	writer->Key("unarmedDamageMultiplier");
+	writer->Double(unarmedDamageMultiplier);
+	writer->Key("unarmedDamageLethalityLevel");
+	writer->Int(unarmedDamageLethalityLevel);
+	writer->Key("behaviorState");
+	writer->Int(behaviorState);
+
+	writer->Key("savedTargets");
+	writer->StartArray();
+	for (int i = 0; i < savedTargets.size(); i++) {
+		writer->String(savedTargets[i].Name.c_str());
+	}
+	writer->EndArray();
+
+
+	writer->Key("savedTargetsID");
+	writer->StartArray();
+	for (int i = 0; i < savedTargets.size(); i++) {
+		writer->Int(savedTargets[i].EntityID);
+	}
+	writer->EndArray();
+
+	writer->Key("savedTargetsWorldID");
+	writer->StartArray();
+	for (int i = 0; i < savedTargets.size(); i++) {
+		writer->Int(savedTargets[i].WorldID);
+	}
+	writer->EndArray();
+
 }
 
 void Entity_Living::ReadFromJson(Value& v)
@@ -64,8 +124,15 @@ void Entity_Living::ReadFromJson(Value& v)
 	homeID = v["homeID"].GetInt();
 	homePosition = (Position)v["homePosition"].GetInt();
 	homeWorldID = v["homeWorldID"].GetInt();
-	//TODO spoken
-	//TODO written
+
+	spokenLanguage.clear();
+	for (int i = 0; i < v["spokenLanguage"].Size(); i++) {
+		spokenLanguage.push_back((Languages)std::stoi(v["spokenLanguage"][i].GetString()));
+	}
+	readingLanguage.clear();
+	for (int i = 0; i < v["readingLanguage"].Size(); i++) {
+		readingLanguage.push_back((Languages)std::stoi(v["readingLanguage"][i].GetString()));
+	}
 	strength = v["strength"].GetDouble();
 	healthStatus = (HealthStatus)v["healthStatus"].GetInt();
 	nourishment = v["nourishment"].GetDouble();
@@ -83,6 +150,32 @@ void Entity_Living::ReadFromJson(Value& v)
 	healthThresholds.clear();
 	for (int i = 0; i < v["healthThresholds"].Size(); i++) {
 		healthThresholds.push_back(v["healthThresholds"][i].GetInt());
+	}
+
+	behaviorTrees.clear();
+	for (int i = 0; i < v["behaviorTrees"].Size(); i++) {
+		BehaviorTree* tree = GameLoader::Instance().LoadBehaviorTree(v["behaviorTrees"][i].GetString());
+		tree->parentEntity = this;
+		behaviorTrees.push_back(tree);
+	}
+	for (int i = 0; i < v["behaviorTreesWaitReturn"].Size(); i++) {
+		behaviorTrees[i]->waitReturnIndex = v["behaviorTreesWaitReturn"][i].GetInt();
+	}
+
+	unarmedDamageType = (DamageType)v["unarmedDamageType"].GetInt();
+	unarmedDamageMultiplier = v["unarmedDamageMultiplier"].GetDouble();
+	unarmedDamageLethalityLevel = v["unarmedDamageLethalityLevel"].GetInt();
+	behaviorState = (BehaviorState)v["behaviorState"].GetInt();
+
+	savedTargets.clear();
+	for (int i = 0; i < v["savedTargets"].Size(); i++) {
+		SetSavedTarget(v["savedTargets"][i].GetString(), nullptr);
+	}
+	for (int i = 0; i < v["savedTargetsID"].Size(); i++) {
+		savedTargets[i].EntityID = v["savedTargetsID"][i].GetInt();
+	}
+	for (int i = 0; i < v["savedTargetsWorldID"].Size(); i++) {
+		savedTargets[i].WorldID = v["savedTargetsWorldID"][i].GetInt();
 	}
 }
 
@@ -140,6 +233,8 @@ void Entity_Living::WriteData(std::fstream* output)
 void Entity_Living::ReadData(std::fstream* input)
 {
 	Entity::ReadData(input);
+
+	spokenLanguage.clear();
 	int spokenLanguageLen;
 	input->read((char*)&spokenLanguageLen, sizeof(int));
 	for (int i = 0; i < spokenLanguageLen; i++) {
@@ -148,6 +243,7 @@ void Entity_Living::ReadData(std::fstream* input)
 		spokenLanguage.push_back((Languages)spokenLang);
 	}
 
+	readingLanguage.clear();
 	int readingLanguageLen;
 	input->read((char*)&readingLanguageLen, sizeof(int));
 	for (int j = 0; j < readingLanguageLen; j++) {
@@ -175,6 +271,8 @@ void Entity_Living::ReadData(std::fstream* input)
 	input->read((char*)&unconscious, sizeof(bool));
 	input->read((char*)&dead, sizeof(bool));
 
+
+	behaviorTrees.clear();
 	int numTrees;
 	input->read((char*)&numTrees, sizeof(int));
 	for (int i = 0; i < numTrees; i++) {
@@ -187,7 +285,7 @@ void Entity_Living::ReadData(std::fstream* input)
 		tree->waitReturnIndex = waitReturnIndex;
 	}
 
-
+	savedTargets.clear();
 	int numSavedTargets;
 	input->read((char*)&numSavedTargets, sizeof(int));
 	for (int i = 0; i < numSavedTargets; i++) {
@@ -540,8 +638,10 @@ void Entity_Living::SetSavedTarget(std::string newTargetName, Entity* newTarget)
 {
 	SavedTargetVariables t;
 	t.Name = newTargetName;
-	t.EntityID = newTarget->uniqueEntityID;
-	t.WorldID = newTarget->worldID;
+	if (newTarget != nullptr) {
+		t.EntityID = newTarget->uniqueEntityID;
+		t.WorldID = newTarget->worldID;
+	}
 	savedTargets.push_back(t);
 }
 

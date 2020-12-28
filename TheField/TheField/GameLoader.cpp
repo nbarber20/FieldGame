@@ -106,11 +106,16 @@ Entity* GameLoader::SpawnPrefab(std::string filename, Position p, Entity* parent
 		int hash;
 		file.read((char*)&hash, sizeof(int));
 		Entity* e = GenEntity(hash);
-		e->ReadData(&file);
-		int index = World::Instance().AddEntity(e);
-		e->SetParentOverride(p, parent);
-		file.close();
-		return e;
+		try {
+			e->ReadData(&file);
+			int index = World::Instance().AddEntity(e);
+			e->SetParentOverride(p, parent);
+			file.close();
+			return e;
+		}
+		catch (...) {
+			return nullptr;
+		}
 	}
 	return nullptr;
 }
@@ -519,7 +524,9 @@ void GameLoader::ThrowFileError(std::string error)
 	//TODO asses
 	errorCount = 0;
 	MessageBoxA(NULL, error.c_str(), "ERROR", MB_OK);
-	exit(EXIT_FAILURE);
+	if (exitOnFailure == true) {
+		exit(EXIT_FAILURE);
+	}
 }
 
 Entity* GameLoader::GenEntity(int hash)

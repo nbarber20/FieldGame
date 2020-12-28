@@ -7,11 +7,20 @@
 void Entity_Weapon::WriteToJson(PrettyWriter<StringBuffer>* writer)
 {
 	Entity::WriteToJson(writer);
+	writer->Key("damageType");
+	writer->Int(damageType);
+	writer->Key("damageMultiplier");
+	writer->Double(damageMultiplier);
+	writer->Key("damageLethalityLevel");
+	writer->Int(damageLethalityLevel);
 }
 
 void Entity_Weapon::ReadFromJson(Value& v)
 {
 	Entity::ReadFromJson(v);
+	damageType = (Entity_Living::DamageType)v["damageType"].GetInt();
+	damageMultiplier = v["damageMultiplier"].GetDouble();
+	damageLethalityLevel = v["damageLethalityLevel"].GetInt();
 }
 
 void Entity_Weapon::WriteData(std::fstream* output)

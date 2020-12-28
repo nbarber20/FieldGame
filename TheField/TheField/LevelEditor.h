@@ -14,6 +14,8 @@ class Widget;
 class WidgetTextEntry;
 class WidgetAddKeyToArray;
 class WidgetRemoveKeyFromArray;
+class WidgetAddMemberToArray;
+class WidgetRemoveMemberFromArray;
 class LevelEditor
 {
 public:
