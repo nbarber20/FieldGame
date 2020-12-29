@@ -38,8 +38,10 @@ void LevelEditor::SetupSceneView()
 	widgets.push_back(new WidgetSaveBIN("Save", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetLoadJSON("LoadJSON", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetSaveJSON("SaveJSON", sf::Vector2i(650, 0), widget150));
+	widgets.push_back(new WidgetWorldIDTextEntry(std::to_string(GameLoader::Instance().loadedTiles[0]), sf::Vector2i(0, 0), widget150));
 	AddEntityChildrenToLevelEditor(World::Instance().GetEntities()[0],nullptr);
 	widgets.push_back(new WidgetBackToTop("BackToTop", sf::Vector2i(650, 0), widget150));
+	view = SceneView;
 }
 
 void LevelEditor::SetupEntityView(Entity* e)
@@ -54,6 +56,7 @@ void LevelEditor::SetupEntityView(Entity* e)
 	writer.StartObject();
 	writer.Key("hash");
 	writer.Int(e->serializationID);
+	e->worldID = GameLoader::Instance().loadedTiles[0];
 	e->WriteToJson(&writer);
 	writer.EndObject();
 
@@ -75,7 +78,7 @@ void LevelEditor::SetupEntityView(Entity* e)
 
 void LevelEditor::ParseObject(Value::MemberIterator i, int depth)
 {
-	if (i->name == "hash" || i->name == "parentEntityID" || i->name == "worldID" || i->name == "uniqueEntityID" || i->name == "behaviorTreesWaitReturn") {
+	if (i->name == "hash" || i->name == "parentEntityID" || i->name == "uniqueEntityID" || i->name == "behaviorTreesWaitReturn") {
 		return;
 	}
 	widgets.push_back(new Widget(i->name.GetString(), sf::Vector2i(depth, 0), widget250));
@@ -133,10 +136,17 @@ void LevelEditor::ClickEditor(sf::Vector2f pos)
 
 void LevelEditor::SaveInputData()
 {
+	if (currentTextBoxWorldID != nullptr && view == SceneView) {
+		GameLoader::Instance().loadedTiles = { std::stoi(currentTextBoxWorldID->name) };
+	}
 	if (currentTextBox != nullptr && view == EntityView) {
 		Value::MemberIterator itr = currentTextBox->member;
 
 		if (currentTextBox->d == WidgetTextEntry::STRING) {
+			if (currentTextBox->name.length() <= 0) {
+				currentTextBox->name = "";
+				currentTextBox->c = "";
+			}
 			itr->value.SetString(currentTextBox->c, static_cast<SizeType>(currentTextBox->name.length()));
 			currentTextBox->name = itr->value.GetString();
 		}
@@ -183,12 +193,18 @@ void LevelEditor::InputCharacter(char c)
 	if (currentTextBox != nullptr && view == EntityView) {
 		currentTextBox->InputData(c);
 	}
+	if (currentTextBoxWorldID != nullptr && view == SceneView) {
+		currentTextBoxWorldID->InputData(c);
+	}
 }
 
 void LevelEditor::RemoveCharacter()
 {
 	if (currentTextBox != nullptr && view == EntityView) {
 		currentTextBox->name = currentTextBox->name.substr(0, currentTextBox->name.size() - 1);
+	}
+	if (currentTextBoxWorldID != nullptr && view == SceneView) {
+		currentTextBoxWorldID->name = currentTextBoxWorldID->name.substr(0, currentTextBoxWorldID->name.size() - 1);
 	}
 }
 
@@ -295,6 +311,11 @@ void LevelEditor::LoadJSONIntoLevelEditor()
 		}
 	}
 	fclose(fp);
+}
+
+void LevelEditor::EditWorldIDTextBox(WidgetWorldIDTextEntry* entryBox)
+{
+	currentTextBoxWorldID = entryBox;
 }
 
 void LevelEditor::EditTextBox(WidgetTextEntry* entryBox)

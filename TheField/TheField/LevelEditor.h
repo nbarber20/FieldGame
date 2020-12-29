@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include <SFML/Graphics.hpp>
 #include <windows.h>
 #include "rapidjson/document.h"
@@ -16,6 +16,7 @@ class WidgetAddKeyToArray;
 class WidgetRemoveKeyFromArray;
 class WidgetAddMemberToArray;
 class WidgetRemoveMemberFromArray;
+class WidgetWorldIDTextEntry;
 class LevelEditor
 {
 public:
@@ -51,6 +52,7 @@ public:
 
 	void LoadBinIntoLevelEditor();
 	void LoadJSONIntoLevelEditor();
+	void EditWorldIDTextBox(WidgetWorldIDTextEntry* entryBox);
 	void EditTextBox(WidgetTextEntry* entryBox);
 	void AddElementToJSONArray(WidgetAddKeyToArray* btn);
 	void SubElemenFromJSONArray(WidgetRemoveKeyFromArray* btn);
@@ -83,6 +85,7 @@ public:
 
 	Entity* editingEntity;
 	EditorView view;
+	WidgetWorldIDTextEntry* currentTextBoxWorldID;
 	WidgetTextEntry* currentTextBox;
 
 	Document entitydocument;

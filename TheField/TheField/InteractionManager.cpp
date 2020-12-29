@@ -35,7 +35,7 @@ void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 
 				int numfiles = 0;
 				std::filesystem::create_directory(GameLoader::Instance().GetDirectory()+"Data/Saves/");
-				for (auto& p : std::filesystem::recursive_directory_iterator("Data/Saves")) {
+				for (auto& p : std::filesystem::recursive_directory_iterator(GameLoader::Instance().GetDirectory() + "Data/Saves")) {
 					if (p.is_directory())numfiles++;
 				}
 				if (numfiles == 0) {

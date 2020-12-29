@@ -5,17 +5,25 @@
 #pragma region Serialization
 void Entity_Npc::WriteData(std::fstream* output)
 {
-	Entity_Living::WriteData(output);
-	dialogTree->WriteData(output);
+	Entity_Living::WriteData(output); 
+	bool hasDialog = dialogTree != nullptr;
+	output->write((char*)&hasDialog, sizeof(bool));
+	if (hasDialog) {
+		dialogTree->WriteData(output);
+	}
 
 }
 
 void Entity_Npc::ReadData(std::fstream* input)
 {
 	Entity_Living::ReadData(input);
-	dialogTree = new DialogTree();
-	dialogTree->ReadData(input);
-	dialogTree->LivingSource = this;
+	bool hasDialog;
+	input->read((char*)&hasDialog, sizeof(bool));
+	if (hasDialog) {
+		dialogTree = new DialogTree();
+		dialogTree->ReadData(input);
+		dialogTree->LivingSource = this;
+	}
 }
 #pragma endregion
 

@@ -30,35 +30,10 @@
 
 void GameLoader::Setup()
 {
-	BehaviorTree* RootAnimalBehavior = new BehaviorTree("RootAnimalBehavior", true);
-	BehaviorNode* start = new BehaviorNode();
-	RootAnimalBehavior->AddNode(start, nullptr);
 
-	BehaviorNode_Selector* GetWaterOrFoodSelector = new BehaviorNode_Selector();
-	RootAnimalBehavior->AddNode(GetWaterOrFoodSelector, start);
-
-	//WaterGraze
-	BehaviorNode_Sequence* GetWater = new BehaviorNode_Sequence();
-	RootAnimalBehavior->AddNode(GetWater, GetWaterOrFoodSelector);
-
-	BehaviorNode_Living_IfThirsty* WaterCheck = new BehaviorNode_Living_IfThirsty(100);
-	RootAnimalBehavior->AddNode(WaterCheck, GetWater);
-
-	BehaviorNode_Graze* WaterGraze = new BehaviorNode_Graze();
-	RootAnimalBehavior->AddNode(WaterGraze, GetWater);
-
-	//FoodGraze
-	BehaviorNode_Sequence* GetFood = new BehaviorNode_Sequence();
-	RootAnimalBehavior->AddNode(GetWater, GetWaterOrFoodSelector);
-
-	BehaviorNode_Living_IfHungry* FoodCheck = new BehaviorNode_Living_IfHungry(100);
-	RootAnimalBehavior->AddNode(FoodCheck, GetFood);
-
-	BehaviorNode_Graze* FoodGraze = new BehaviorNode_Graze();
-	RootAnimalBehavior->AddNode(FoodGraze, GetFood);
-
-
-	SaveBehaviorTree(RootAnimalBehavior);
+	Entity_Weapon* prefab = new Entity_Weapon(Entity_Living::Blunt,0,0);
+	prefab->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
+	GameLoader::Instance().SavePrefab(prefab,"ROOT_Weapon");
 }
 
 

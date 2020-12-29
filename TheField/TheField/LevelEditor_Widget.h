@@ -143,7 +143,18 @@ public:
 };
 
 
-
+class WidgetWorldIDTextEntry : public Widget {
+public:
+	WidgetWorldIDTextEntry(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
+		buttonWidth = 250;
+	}
+	virtual void OnClick(LevelEditor* editor) {
+		editor->EditWorldIDTextBox(this);
+	}
+	virtual void InputData(char i) {
+		name += i;
+	}
+};
 
 class WidgetTextEntry : public Widget {
 public:
