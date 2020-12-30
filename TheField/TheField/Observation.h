@@ -73,3 +73,12 @@ public:
 	}
 	std::string statusString;
 };
+
+
+class Observation_Sound : public Observation {
+public:
+	Observation_Sound(std::string sound, Entity* referenceEntity, int depth = 0) :Observation(referenceEntity, depth) {
+		this->sound = sound;
+	}
+	std::string sound;
+};

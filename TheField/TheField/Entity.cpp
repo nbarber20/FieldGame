@@ -248,6 +248,11 @@ void Entity::Face(FacingDirection r)
 	ObservationManager::Instance().MakeObservation(new Observation_Status(ObservationManager::Instance().FacingDirectionToString(facingDirection), this));
 }
 
+void Entity::MakeSound(std::string sound)
+{
+	ObservationManager::Instance().MakeObservation(new Observation_Status(sound,this));
+}
+
 bool Entity::SetParent(Position pos, Entity* newParent)
 {
 	return SetParent(pos, newParent, 0, false,true);

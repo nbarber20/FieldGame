@@ -86,6 +86,7 @@ public:
 	virtual void Rotate(Rotation r);
 	void FaceClockWise();
 	void Face(FacingDirection r);
+	void MakeSound(std::string sound);
 	virtual bool SetParent(Position pos, Entity* newParent);
 	virtual bool SetParentOverride(Position pos, Entity* newParent);
 	virtual bool SetParent(Position pos, Entity* newParent, int roomIndex, bool attach, bool logObeservation);

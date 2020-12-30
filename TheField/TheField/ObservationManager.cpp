@@ -123,6 +123,29 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 				textDisplay->addLog(GetNameAndParticle(observation_Status->referenceEntity) + " is " + observation_Status->statusString);
 			}
 		}
+
+		Observation_Sound* observation_Sound = dynamic_cast<Observation_Sound*>(observations[i]);
+		if (observation_Sound) {
+			//TODO get vision?
+			if (observation_Status->referenceEntity->IsChildOf(playerEntity->parent.second)) {
+				//Player can see entity
+				if (StartsWithVowel(observation_Sound->sound)) {
+					textDisplay->addLog(GetNameAndParticle(observation_Status->referenceEntity) + " makes an " + observation_Sound->sound + " sound");
+				}
+				else {
+					textDisplay->addLog(GetNameAndParticle(observation_Status->referenceEntity) + " makes a " + observation_Sound->sound + " sound");
+				}
+			}
+			else {
+				if (StartsWithVowel(observation_Sound->sound)) {
+					textDisplay->addLog("You hear an " + observation_Sound->sound + " sound");
+				}
+				else {
+					textDisplay->addLog("You hear a " + observation_Sound->sound + " sound");
+				}
+
+			}
+		}
 	}
 }
 
