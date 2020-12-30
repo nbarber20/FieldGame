@@ -12,8 +12,8 @@ public:
 	virtual ~Entity_Npc() {
 		delete dialogTree;
 	}
-	virtual void WriteData(std::fstream* output);
-	virtual void ReadData(std::fstream* input);
+	void WriteData(std::fstream* output) override;
+	void ReadData(std::fstream* input) override;
 
 	void NoticePickpocket(Entity* thief);
 

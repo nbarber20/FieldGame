@@ -7,20 +7,20 @@ public:
 		this->name = name;
 		SerializationID = 12;
 	};
-	virtual void WriteData(std::fstream* output) {
+	void WriteData(std::fstream* output) override {
 		WriteStringData(name, output);
 	};
-	virtual void ReadData(std::fstream* input) {
+	void ReadData(std::fstream* input) override {
 		name = ReadStringData(input);
 	};
-	virtual BehaviorStatus Execute() {
+	BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			std::vector<Entity*> entities = living->GetVisibleEntities(true, true, true,true);
-			for (int i = 0; i < entities.size(); i++) {
-				for (int n = 0; n < entities[i]->names.size(); n++) {
-					if (entities[i]->names[n] == name) {
-						living->target = entities[i];
+			for (auto & entity: entities) {
+				for (int n = 0; n < entity->names.size(); n++) {
+					if (entity->names[n] == name) {
+						living->target = entity;
 						return SUCCEEDED;
 					}
 				}
@@ -39,13 +39,13 @@ public:
 		this->name = name;
 		SerializationID = 13;
 	};
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 		WriteStringData(name, output);
 	};
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 		name = ReadStringData(input);
 	};
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			if (living->GetSavedTarget(name)) {
@@ -64,11 +64,11 @@ public:
 	BehaviorNode_Living_ReturnHome() {
 		SerializationID = 20;
 	};
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 	};
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 	};
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			Entity* e = World::Instance().GetEntityByID(living->homeID, living->homeWorldID);
@@ -85,20 +85,20 @@ public:
 		this->name = name;
 		SerializationID = 14;
 	};
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 		WriteStringData(name, output);
 	};
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 		name = ReadStringData(input);
 	};
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			std::vector<Entity*> entities = living->GetVisibleEntities(true, true, true, true);
-			for (int i = 0; i < entities.size(); i++) {
-				for (int n = 0; n < entities[i]->names.size(); n++) {
-					if (entities[i]->names[n] == name) {
-						living->subTarget = entities[i];
+			for (auto & entity: entities) {
+				for (int n = 0; n < entity->names.size(); n++) {
+					if (entity->names[n] == name) {
+						living->subTarget = entity;
 						return SUCCEEDED;
 					}
 				}
@@ -117,13 +117,13 @@ public:
 		this->s = s;
 		SerializationID = 15;
 	};
-	virtual void WriteData(std::fstream* output) {
+	void WriteData(std::fstream* output) override {
 		output->write((char*)&(s), sizeof(int));
 	};
-	virtual void ReadData(std::fstream* input) {
+	void ReadData(std::fstream* input) override {
 		input->read((char*)&(s), sizeof(int));
 	};
-	virtual BehaviorStatus Execute() {
+	BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			living->behaviorState = s;
@@ -141,13 +141,13 @@ public:
 		SerializationID = 16;
 		this->sourceWeapon = sourceWeapon;
 	};
-	virtual void WriteData(std::fstream* output) {
+	void WriteData(std::fstream* output) override {
 		output->write((char*)&(sourceWeapon), sizeof(bool));
 	};
-	virtual void ReadData(std::fstream* input) {
+	void ReadData(std::fstream* input) override {
 		input->read((char*)&(sourceWeapon), sizeof(bool));
 	};
-	virtual BehaviorStatus Execute() {
+	BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			if (living->behaviorState == Entity_Living::Defensive || living->behaviorState == Entity_Living::Enraged) {
@@ -169,13 +169,13 @@ public:
 		this->threshold = threshold;
 		SerializationID = 19;
 	};
-	virtual void WriteData(std::fstream* output) {
+	void WriteData(std::fstream* output) override {
 		output->write((char*)&threshold,sizeof(int));
 	};
-	virtual void ReadData(std::fstream* input) {
+	void ReadData(std::fstream* input) override {
 		input->read((char*)&threshold, sizeof(int));
 	};
-	virtual BehaviorStatus Execute() {
+	BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			if (living->hydration < threshold) {
@@ -195,13 +195,13 @@ public:
 		this->threshold = threshold;
 		SerializationID = 23;
 	};
-	virtual void WriteData(std::fstream* output) {
+	void WriteData(std::fstream* output) override {
 		output->write((char*)&threshold, sizeof(int));
 	};
-	virtual void ReadData(std::fstream* input) {
+	void ReadData(std::fstream* input) override {
 		input->read((char*)&threshold, sizeof(int));
 	};
-	virtual BehaviorStatus Execute() {
+	BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			if (living->nourishment < threshold) {
@@ -220,11 +220,11 @@ public:
 	BehaviorNode_Living_DrinkTarget() {
 		SerializationID = 17;
 	};
-	virtual void WriteData(std::fstream* output) {
+	void WriteData(std::fstream* output) override {
 	};
-	virtual void ReadData(std::fstream* input) {
+	void ReadData(std::fstream* input) override {
 	};
-	virtual BehaviorStatus Execute() {
+	BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			Entity_Fluid* fluid = dynamic_cast<Entity_Fluid*>(treeParent->parentEntity->target);
@@ -242,11 +242,11 @@ public:
 	BehaviorNode_Living_EatTarget() {
 		SerializationID = 24;
 	};
-	virtual void WriteData(std::fstream* output) {
+	void WriteData(std::fstream* output) override {
 	};
-	virtual void ReadData(std::fstream* input) {
+	void ReadData(std::fstream* input) override {
 	};
-	virtual BehaviorStatus Execute() {
+	BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			Entity_Food* food = dynamic_cast<Entity_Food*>(treeParent->parentEntity->target);
@@ -265,19 +265,19 @@ public:
 		SerializationID = 18;
 		this->hash = hash;
 	};
-	virtual void WriteData(std::fstream* output) {
+	void WriteData(std::fstream* output) override {
 		output->write((char*)&hash, sizeof(int));
 	};
-	virtual void ReadData(std::fstream* input) {
+	void ReadData(std::fstream* input) override {
 		input->read((char*)&hash, sizeof(int));
 	};
-	virtual BehaviorStatus Execute() {
+	BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			std::vector<Entity*> entities = living->GetVisibleEntities(false,false,true, true);
-			for (int i = 0; i < entities.size(); i++) {
-				if (entities[i]->serializationID == hash) {
-					treeParent->parentEntity->target = entities[i];
+			for (auto & entity: entities) {
+				if (entity->serializationID == hash) {
+					treeParent->parentEntity->target = entity;
 					return SUCCEEDED;
 				}
 			}
@@ -295,11 +295,11 @@ public:
 	BehaviorNode_Graze() {
 		SerializationID = 25;
 	};
-	virtual void WriteData(std::fstream* output) {
+	void WriteData(std::fstream* output) override {
 	};
-	virtual void ReadData(std::fstream* input) {
+	void ReadData(std::fstream* input) override {
 	};
-	virtual BehaviorStatus Execute() {
+	BehaviorStatus Execute() override {
 		Entity_Living* living = dynamic_cast<Entity_Living*>(treeParent->parentEntity);
 		if (living) {
 			living->Graze();

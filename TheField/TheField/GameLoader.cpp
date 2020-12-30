@@ -46,8 +46,8 @@ int GameLoader::GetUniqueID()
 void GameLoader::SaveAll()
 {
 	SavePlayer();
-	for (int i = 0; i < loadedTiles.size(); i++) {
-		SaveTile(loadedTiles[i]);
+	for (int loadedTile : loadedTiles) {
+		SaveTile(loadedTile);
 	}
 }
 
@@ -61,8 +61,8 @@ bool GameLoader::LoadAll(std::string filename)
 	}
 	else {
 		LoadPlayer(true);
-		for (int i = 0; i < loadedTiles.size(); i++) {
-			LoadTile(loadedTiles[i]);
+		for (int loadedTile : loadedTiles) {
+			LoadTile(loadedTile);
 		}
 		World::Instance().SetupParents();
 	}
@@ -117,23 +117,23 @@ void GameLoader::SavePrefabToPath(Entity* e, std::string path)
 
 void GameLoader::UnloadTiles()
 {
-	for (int i = 0; i < loadedTiles.size(); i++) {
-		SaveTile(loadedTiles[i]);
+	for (int loadedTile : loadedTiles) {
+		SaveTile(loadedTile);
 	}
 
 
 	std::vector<int> newTiles;
 	std::vector<Entity*> entities = World::Instance().GetEntities();
-	for (int i = 0; i < entities.size(); i++) {
-		Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
-		if (p == NULL) {
-			if (entities[i]->worldActive == true) {
-				if (std::find(loadedTiles.begin(), loadedTiles.end(), entities[i]->worldID) == loadedTiles.end()) {
-					newTiles.push_back(entities[i]->worldID);
+	for (auto & entity : entities) {
+		Entity_Player* p = dynamic_cast<Entity_Player*>(entity);
+		if (p == nullptr) {
+			if (entity->worldActive == true) {
+				if (std::find(loadedTiles.begin(), loadedTiles.end(), entity->worldID) == loadedTiles.end()) {
+					newTiles.push_back(entity->worldID);
 				}
 			}
 		}
-		delete entities[i];
+		delete entity;
 	}
 	World::Instance().ClearEntities();
 	loadedTiles = newTiles;
@@ -141,8 +141,8 @@ void GameLoader::UnloadTiles()
 
 void GameLoader::LoadTiles()
 {
-	for (int i = 0; i < loadedTiles.size(); i++) {
-		LoadTile(loadedTiles[i]);
+	for (int loadedTile : loadedTiles) {
+		LoadTile(loadedTile);
 	}
 }
 
@@ -241,30 +241,30 @@ void GameLoader::SavePlayer()
 
 		std::vector<Entity*> entities = World::Instance().GetEntities();
 		int numEntities = 0;
-		for (int i = 0; i < entities.size(); i++) {
-			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
+		for (auto & entity : entities) {
+			Entity_Player* p = dynamic_cast<Entity_Player*>(entity);
 			if (p) {
 				numEntities++;
 			}
-			else if (entities[i]->IsChildOf(World::Instance().playerEntity) == true) {
+			else if (entity->IsChildOf(World::Instance().playerEntity) == true) {
 				numEntities++;
 			}
 		}
 
 		file.write((char*)&numEntities, sizeof(int));
-		for (int i = 0; i < entities.size(); i++) {
-			Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
+		for (auto & entity : entities) {
+			Entity_Player* p = dynamic_cast<Entity_Player*>(entity);
 			if (p) {
-				entities[i]->worldID = -1;
-				int hash = entities[i]->serializationID;
+				entity->worldID = -1;
+				int hash = entity->serializationID;
 				file.write((char*)&hash,sizeof(int));
-				entities[i]->WriteData(&file);
+				entity->WriteData(&file);
 			}
-			else if (entities[i]->IsChildOf(World::Instance().playerEntity) == true) {
-				entities[i]->worldID = -1;
-				int hash = entities[i]->serializationID;
+			else if (entity->IsChildOf(World::Instance().playerEntity) == true) {
+				entity->worldID = -1;
+				int hash = entity->serializationID;
 				file.write((char*)&hash, sizeof(int));
-				entities[i]->WriteData(&file);
+				entity->WriteData(&file);
 			}
 		}
 		file.flush();
@@ -353,37 +353,37 @@ void GameLoader::SaveTile(std::string filename,int tileID)
 		file.clear();
 		int numEntities = 0;
 		std::vector<Entity*> entities = World::Instance().GetEntities();
-		for (int i = 0; i < entities.size(); i++) {
-			if (World::Instance().playerEntity == NULL) {
+		for (auto & entity: entities) {
+			if (World::Instance().playerEntity == nullptr) {
 				numEntities++;
 			}
 			else
 			{
-				Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
-				if (p == NULL) {
-					if (entities[i]->IsChildOf(World::Instance().playerEntity) == false) {
+				Entity_Player* p = dynamic_cast<Entity_Player*>(entity);
+				if (p == nullptr) {
+					if (entity->IsChildOf(World::Instance().playerEntity) == false) {
 						numEntities++;
 					}
 				}
 			}
 		}
 		file.write((char*)&numEntities, sizeof(int));
-		for (int i = 0; i < entities.size(); i++) {
-			if (World::Instance().playerEntity == NULL) {
-				entities[i]->worldID = tileID;
-				int hash = entities[i]->serializationID;
+		for (auto & entity: entities) {
+			if (World::Instance().playerEntity == nullptr) {
+				entity->worldID = tileID;
+				int hash = entity->serializationID;
 				file.write((char*)&hash, sizeof(int));
-				entities[i]->WriteData(&file);
+				entity->WriteData(&file);
 			}
 			else
 			{
-				Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
-				if (p == NULL) {
-					if (entities[i]->IsChildOf(World::Instance().playerEntity) == false) {
-						entities[i]->worldID = tileID;
-						int hash = entities[i]->serializationID;
+				Entity_Player* p = dynamic_cast<Entity_Player*>(entity);
+				if (p == nullptr) {
+					if (entity->IsChildOf(World::Instance().playerEntity) == false) {
+						entity->worldID = tileID;
+						int hash = entity->serializationID;
 						file.write((char*)&hash, sizeof(int));
-						entities[i]->WriteData(&file);
+						entity->WriteData(&file);
 					}
 				}
 			}
@@ -412,7 +412,7 @@ void GameLoader::LoadTile(std::string filename, std::string copyFile)
 			ThrowFileError("Error loading tile data");
 		}
 		else {
-			if (copyFile != "") {
+			if (!copyFile.empty()) {
 				CopyGameFile(copyFile, filename);
 				LoadTile(filename, "");
 				return;
@@ -498,7 +498,7 @@ void GameLoader::ThrowFileError(std::string error)
 {
 	//TODO asses
 	errorCount = 0;
-	MessageBoxA(NULL, error.c_str(), "ERROR", MB_OK);
+	MessageBoxA(nullptr, error.c_str(), "ERROR", MB_OK);
 	if (exitOnFailure == true) {
 		exit(EXIT_FAILURE);
 	}
@@ -620,7 +620,7 @@ BehaviorNode* GameLoader::GenBehaviorNode(int hash)
 std::string GameLoader::GetDirectory()
 {
 	char result[MAX_PATH];
-	std::string path = std::string(result, GetModuleFileNameA(NULL, result, MAX_PATH));
+	std::string path = std::string(result, GetModuleFileNameA(nullptr, result, MAX_PATH));
 	std::replace(path.begin(), path.end(), '\\', '/');
 	path = path.substr(0, path.find_last_of('/'));
 	path += '/';

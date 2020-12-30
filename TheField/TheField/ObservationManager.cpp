@@ -9,43 +9,43 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 	Constants constants;
 
 	Observation* lastObservation = nullptr;
-	for (int i = 0; i < observations.size(); i++) {		
+	for (auto & observation : observations) {		
 		
-		if (observations[i]->displayed == true)continue;
-		observations[i]->displayed = true;
+		if (observation->displayed == true)continue;
+		observation->displayed = true;
 
 		//Headers
 		Observation_Look* observation_OldLook = dynamic_cast<Observation_Look*>(lastObservation);
-		Observation_Look* observation_NewLook = dynamic_cast<Observation_Look*>(observations[i]);
+		Observation_Look* observation_NewLook = dynamic_cast<Observation_Look*>(observation);
 		if (observation_NewLook && observation_OldLook == nullptr) {
 			textDisplay->addLog("You see: "); 
 		}
 
-		lastObservation = observations[i];
+		lastObservation = observation;
 
 
 
 		std::string depthTab = "";
-		if (observations[i]->depth > 0) {
+		if (observation->depth > 0) {
 			for (int i = 0; i < observations[i]->depth; i++) {
 				depthTab += "   ";
 			}
 			depthTab += "-";
 		}
 
-		Observation_Image* observation_Image = dynamic_cast<Observation_Image*>(observations[i]);
+		Observation_Image* observation_Image = dynamic_cast<Observation_Image*>(observation);
 		if (observation_Image) {
 			textDisplay->addImage(observation_Image->imageFile);
 			continue;
 		}
 
-		Observation_Direct* observation_Direct = dynamic_cast<Observation_Direct*>(observations[i]);
+		Observation_Direct* observation_Direct = dynamic_cast<Observation_Direct*>(observation);
 		if (observation_Direct) {
 			textDisplay->addLog(observation_Direct->text);
 			continue;
 		}
 
-		Observation_Look* observation_Look = dynamic_cast<Observation_Look*>(observations[i]);
+		Observation_Look* observation_Look = dynamic_cast<Observation_Look*>(observation);
 		if (observation_Look) {
 			if (observation_Look->directional) {
 				textDisplay->addLog(GetIndefNameAndParticle(observation_Look->referenceEntity) + " to the " + FacingDirectionToString(observation_Look->direction));
@@ -69,7 +69,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 			continue;
 		}
 
-		Observation_Movement* observation_Movement = dynamic_cast<Observation_Movement*>(observations[i]);
+		Observation_Movement* observation_Movement = dynamic_cast<Observation_Movement*>(observation);
 		if (observation_Movement) {
 			bool containsNoun;
 			std::string preposition = getPreposition(observation_Movement->referenceEntity->parent.first, &containsNoun, observation_Movement->referenceEntity == playerEntity);
@@ -103,7 +103,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 			}
 		}
 
-		Observation_Action* observation_Action = dynamic_cast<Observation_Action*>(observations[i]);
+		Observation_Action* observation_Action = dynamic_cast<Observation_Action*>(observation);
 		if (observation_Action) {
 			if (observation_Action->referenceEntity == playerEntity) {
 				textDisplay->addLog("you " + observation_Action->SecPersonverb + " " + GetNameAndParticle(observation_Action->target));
@@ -114,7 +114,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 			continue;
 		}
 
-		Observation_Status* observation_Status = dynamic_cast<Observation_Status*>(observations[i]);
+		Observation_Status* observation_Status = dynamic_cast<Observation_Status*>(observation);
 		if (observation_Status) {
 			if (observation_Status->referenceEntity == playerEntity) {
 				textDisplay->addLog("you are " + observation_Status->statusString);
@@ -124,7 +124,7 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 			}
 		}
 
-		Observation_Sound* observation_Sound = dynamic_cast<Observation_Sound*>(observations[i]);
+		Observation_Sound* observation_Sound = dynamic_cast<Observation_Sound*>(observation);
 		if (observation_Sound) {
 			//TODO get vision?
 			if (observation_Status->referenceEntity->IsChildOf(playerEntity->parent.second)) {
@@ -164,8 +164,8 @@ bool ObservationManager::StartsWithVowel(std::string input)
 {
 	if (input.length() == 0) return false;
 	std::string vowels = "aeiou";
-	for (int i = 0; i < vowels.length(); i++) {
-		if (vowels.at(i) == input.at(0)) {
+	for (char vowel : vowels) {
+		if (vowel == input.at(0)) {
 			return true;
 		}
 	}
@@ -181,10 +181,10 @@ std::string ObservationManager::GetNameAndParticle(Entity* e)
 {
 
 	if (e == nullptr)return "";
-	if (e->names.size() == 0)return "";
+	if (e->names.empty())return "";
 
 	std::vector<std::string> adjs = e->GetAdjectivesBlacklisted({ Taste });
-	if (adjs.size() == 0)
+	if (adjs.empty())
 	{
 		if (e->countable) {
 			return	"the " + e->names[0];
@@ -206,10 +206,10 @@ std::string ObservationManager::GetNameAndParticle(Entity* e)
 std::string ObservationManager::GetIndefNameAndParticle(Entity* e)
 {
 	if (e == nullptr)return "";
-	if (e->names.size() == 0)return "";
+	if (e->names.empty())return "";
 	std::vector<std::string> adjs = e->GetAdjectivesBlacklisted({ Taste });
 	if (e->countable) {
-		if (adjs.size() == 0) {
+		if (adjs.empty()) {
 			if (StartsWithVowel(e->names[0])) {
 				return "an " + e->names[0];
 			}
@@ -228,7 +228,7 @@ std::string ObservationManager::GetIndefNameAndParticle(Entity* e)
 		}
 	}
 	else {
-		if (adjs.size() == 0) {
+		if (adjs.empty()) {
 			return e->names[0];
 		}
 		else {

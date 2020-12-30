@@ -11,7 +11,6 @@ public:
 		return INSTANCE;
 	}
 	GameLoader() {};
-	void BackToTop();
 	void Setup();
 	int GetUniqueID();
 	void SaveAll();

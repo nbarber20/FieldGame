@@ -36,8 +36,8 @@ void World::RemoveEntity(Entity* e)
 }
 void World::Tick()
 {
-	for (int i = 0; i < entities.size(); i++) {
-		entities[i]->Tick();
+	for (auto & entitie : entities) {
+		entitie->Tick();
 	}
 	worldTime+=constants.daySpeed;
 	if (worldTime > 75.f) {
@@ -66,9 +66,9 @@ Entity* World::GetEntityByID(int id, int worldID)
 		GameLoader::Instance().LoadTile(worldID);
 		SetupParents();
 	}
-	for (int i = 0; i < entities.size(); i++) {
-		if (entities[i]->uniqueEntityID == id && entities[i]->worldID == worldID) {
-			return entities[i];
+	for (auto & entitie : entities) {
+		if (entitie->uniqueEntityID == id && entitie->worldID == worldID) {
+			return entitie;
 		}
 	}
 	return nullptr;
@@ -95,20 +95,20 @@ void World::MoveToTile(int tileName)
 void World::SetupParents()
 {
 	//Set parents
-	for (int i = 0; i < entities.size(); i++) {
-		if (entities[i]->worldID != -1) {
-			entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, entities[i]->worldID));
+	for (auto & entitie : entities) {
+		if (entitie->worldID != -1) {
+			entitie->SetParentOverride((Position)entitie->parentEntityDir, GetEntityByID(entitie->parentEntityID, entitie->worldID));
 		}
 		else {
-			if (entities[i] == playerEntity) {
-				entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, GameLoader::Instance().currentPlayerTile));
+			if (entitie == playerEntity) {
+				entitie->SetParentOverride((Position)entitie->parentEntityDir, GetEntityByID(entitie->parentEntityID, GameLoader::Instance().currentPlayerTile));
 			}
 			else {
-				if (entities[i]->parentEntityID == playerEntity->uniqueEntityID) {
-					entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, playerEntity);
+				if (entitie->parentEntityID == playerEntity->uniqueEntityID) {
+					entitie->SetParentOverride((Position)entitie->parentEntityDir, playerEntity);
 				}
 				else {
-					entities[i]->SetParentOverride((Position)entities[i]->parentEntityDir, GetEntityByID(entities[i]->parentEntityID, -1));
+					entitie->SetParentOverride((Position)entitie->parentEntityDir, GetEntityByID(entitie->parentEntityID, -1));
 				}
 			}
 		}

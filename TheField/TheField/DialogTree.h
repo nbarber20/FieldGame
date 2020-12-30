@@ -36,7 +36,7 @@ public:
 				output->write((char*)&(TreeNodes[i].responses[j].second), sizeof(int));
 			}
 
-			if (TreeNodes[i].behaviorTree != "") {
+			if (!TreeNodes[i].behaviorTree.empty()) {
 
 				std::string name = TreeNodes[i].behaviorTree;
 				size_t len = name.size();
@@ -108,7 +108,7 @@ public:
 			return EVENT_EXIT;
 		}
 		currentIndex = TreeNodes[currentIndex].responses[chosenResponse].second;
-		if (TreeNodes[currentIndex].behaviorTree != "") {
+		if (!TreeNodes[currentIndex].behaviorTree.empty()) {
 			LivingSource->AddBehavior(GameLoader::Instance().LoadBehaviorTree(TreeNodes[currentIndex].behaviorTree));
 		}
 		if (TreeNodes[currentIndex].event == EVENT_EXIT) {

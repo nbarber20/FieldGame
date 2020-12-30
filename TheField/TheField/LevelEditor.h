@@ -62,7 +62,7 @@ public:
 	void SaveEntityViewToPrefab();
 	void SaveEntityView();
 
-	std::string Openfilename(HWND owner = NULL);
+	std::string Openfilename(HWND owner = nullptr);
 
 
 	void SaveToBin();

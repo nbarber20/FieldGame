@@ -7,13 +7,13 @@ public:
 		this->serializationID = 8;
 	};
 	virtual ~Entity_GroundTile() {};
-	virtual Entity_GroundTile* Clone() {
+	Entity_GroundTile* Clone() override {
 		return new Entity_GroundTile(*this);
 	}
-	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
-	virtual void ReadFromJson(Value& v);
-	virtual void WriteData(std::fstream* output);
-	virtual void ReadData(std::fstream* input);
+	void WriteToJson(PrettyWriter<StringBuffer>* writer) override;
+	void ReadFromJson(Value& v) override;
+	void WriteData(std::fstream* output) override;
+	void ReadData(std::fstream* input) override;
 
 //TODO make protected?
 	std::pair<std::string, int> toNorth = std::make_pair("",-1);

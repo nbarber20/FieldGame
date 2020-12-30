@@ -120,9 +120,6 @@
     <ClInclude Include="ObservationManager.h">
       <Filter>Header Files\Observations</Filter>
     </ClInclude>
-    <ClInclude Include="Observation.h">
-      <Filter>Header Files\Observations</Filter>
-    </ClInclude>
     <ClInclude Include="Entity_Dispenser.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
@@ -131,6 +128,15 @@
     </ClInclude>
     <ClInclude Include="LevelEditor_Widget.h">
       <Filter>Header Files\LevelEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="MechanismBehavior.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Observation.h">
+      <Filter>Header Files\Observations</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -218,5 +224,15 @@
     <ClCompile Include="TextDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TheField.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

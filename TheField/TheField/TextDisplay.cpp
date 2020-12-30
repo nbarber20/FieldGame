@@ -6,16 +6,16 @@ void TextDisplay::DisplayText(float scrollPos, sf::Text* displayTex, sf::Sprite*
 {
 
 	int yOffset = 0;
-	for (int i = 0; i < logs.size(); i++) {
-		if (logs[i].tex != nullptr) {
-			sprite->setTexture(*logs[i].tex);
+	for (auto & log : logs) {
+		if (log.tex != nullptr) {
+			sprite->setTexture(*log.tex);
 			sprite->setPosition(200, scrollPos + yOffset);
 			window->draw(*sprite);
 			yOffset += 160;
 		}
 		else {
 			displayTex->setPosition(0, scrollPos + yOffset);
-			displayTex->setString(logs[i].logText);
+			displayTex->setString(log.logText);
 			window->draw(*displayTex);
 			yOffset += 20;
 		}

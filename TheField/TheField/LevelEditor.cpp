@@ -125,9 +125,9 @@ void LevelEditor::ParseObject(Value::MemberIterator i, int depth)
 void LevelEditor::ClickEditor(sf::Vector2f pos)
 {
 	int ypos = 0;
-	for (int i = 0; i < widgets.size(); i++) {
-		if (pos.x > widgets[i]->screenOffset.x && pos.x < widgets[i]->screenOffset.x + widgets[i]->buttonWidth && pos.y > ypos + scrollOffset && pos.y < ypos + scrollOffset + 48) {
-			widgets[i]->OnClick(this);
+	for (auto & widget : widgets) {
+		if (pos.x > widget->screenOffset.x && pos.x < widget->screenOffset.x + widget->buttonWidth && pos.y > ypos + scrollOffset && pos.y < ypos + scrollOffset + 48) {
+			widget->OnClick(this);
 			return;
 		}
 		ypos += 48;
@@ -211,13 +211,13 @@ void LevelEditor::RemoveCharacter()
 void LevelEditor::DrawEditor(sf::Text* displayTex, sf::Sprite* sprite, sf::RenderWindow* window)
 {
 	int ypos = 0;
-	for (int i = 0; i < widgets.size(); i++) {
-		sprite->setTexture(*widgets[i]->texture);
-		sprite->setPosition(widgets[i]->screenOffset.x, ypos + scrollOffset);
-		sprite->setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(widgets[i]->texture->getSize().x, widgets[i]->texture->getSize().y)));
+	for (auto & widget : widgets) {
+		sprite->setTexture(*widget->texture);
+		sprite->setPosition(widget->screenOffset.x, ypos + scrollOffset);
+		sprite->setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(widget->texture->getSize().x, widget->texture->getSize().y)));
 		sprite->setScale(sf::Vector2f(1, 1));
-		displayTex->setPosition(widgets[i]->screenOffset.x+6, ypos + scrollOffset +12);
-		displayTex->setString(widgets[i]->name);
+		displayTex->setPosition(widget->screenOffset.x+6, ypos + scrollOffset +12);
+		displayTex->setString(widget->name);
 		window->draw(*sprite);
 		window->draw(*displayTex);
 		ypos+=48;
@@ -229,8 +229,8 @@ void LevelEditor::AddEntityChildrenToLevelEditor(Entity* e, WidgetEntity* curren
 
 	WidgetEntity* newChild = AddEntityToLevelEditor(currentParent, e);
 	std::vector<Entity*> entityChildren = e->GetInventory();
-	for (int i = 0; i < entityChildren.size(); i++) {
-		AddEntityChildrenToLevelEditor(entityChildren[i], newChild);
+	for (auto & i : entityChildren) {
+		AddEntityChildrenToLevelEditor(i, newChild);
 	}
 }
 
@@ -254,7 +254,7 @@ WidgetEntity* LevelEditor::AddEntityToLevelEditor(WidgetEntity* parent, Entity* 
 {
 
 	std::string name = "Unnamed";
-	if (e->names.size() > 0)name = e->names[0];
+	if (!e->names.empty()) name = e->names[0];
 	if (parent == nullptr) {
 		WidgetEntity* newEntity = new WidgetEntity(e, name, sf::Vector2i(0, 0), widget250);
 		widgets.push_back(newEntity);
@@ -277,7 +277,7 @@ void LevelEditor::LoadBinIntoLevelEditor()
 	std::string toLoad = Openfilename();
 	World::Instance().ClearEntities();
 	GameLoader::Instance().LoadTile(toLoad, "");
-	if (World::Instance().GetEntities().size() > 0) {
+	if (!World::Instance().GetEntities().empty()) {
 		GameLoader::Instance().loadedTiles = { World::Instance().GetEntities()[0]->worldID };
 		World::Instance().SetupParents();
 		SetupSceneView();
@@ -434,13 +434,13 @@ void LevelEditor::SaveToJSON()
 	writer.StartObject();
 	writer.Key("entities");
 	writer.StartArray();
-	for (int i = 0; i < entities.size(); i++) {
+	for (auto & entity : entities) {
 		writer.StartObject();
 
 		writer.Key("hash");
-		writer.Int(entities[i]->serializationID);
+		writer.Int(entity->serializationID);
 
-		entities[i]->WriteToJson(&writer);
+		entity->WriteToJson(&writer);
 		writer.EndObject();
 	}
 	writer.EndArray();

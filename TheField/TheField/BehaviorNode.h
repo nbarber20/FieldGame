@@ -75,13 +75,13 @@ public:
 		waitTime = 0;
 		waitTimeout = timeout;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 		output->write((char*)&waitTimeout, sizeof(int));
 	}
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 		input->read((char*)&waitTimeout, sizeof(int));
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		for (int i = index; i < subNodes.size(); i++) {
 			BehaviorStatus s = subNodes[i]->Execute();
 			if (s == WAITING) {
@@ -116,7 +116,7 @@ public:
 		SerializationID = 2;
 		maxSubNodes = 2;
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		BehaviorStatus first = subNodes[0]->Execute();
 		if (first == FAILED) {
 			return subNodes[1]->Execute();
@@ -132,13 +132,13 @@ public:
 		SerializationID = 3;
 		maxSubNodes = -1;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 	}
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 	}
-	virtual BehaviorStatus Execute() {
-		for (int i = 0; i < subNodes.size(); i++) {
-			BehaviorStatus s = subNodes[i]->Execute();
+	virtual BehaviorStatus Execute() override {
+		for (auto & subNode : subNodes) {
+			BehaviorStatus s = subNode->Execute();
 		}
 		return SUCCEEDED;
 	}
@@ -154,15 +154,15 @@ public:
 		this->time = time;
 		this->current = time;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 		output->write((char*)&time, sizeof(int));
 	}
 
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 		input->read((char*)&time, sizeof(int));
 		this->current = time;
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		if (current > 0) {
 			current--;
 			return WAITING;
@@ -185,14 +185,14 @@ public:
 		SerializationID = 6;
 		this->observationString = observationString;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override{
 		WriteStringData(observationString, output);
 	}
 
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 		observationString = ReadStringData(input);
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		ObservationManager::Instance().MakeObservation(new Observation_Direct(observationString, nullptr));
 		return SUCCEEDED;
 	}
@@ -208,14 +208,14 @@ public:
 		SerializationID = 6; 
 		this->observationString = observationString;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 		WriteStringData(observationString, output);
 	}
 
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 		observationString = ReadStringData(input);
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		//TODO Make work
 		return WAITING;
 	}
@@ -230,17 +230,17 @@ public:
 		SerializationID = 7;
 		this->hash = hash;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 		output->write((char*)&hash, sizeof(int));
 	}
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 		input->read((char*)&hash, sizeof(int));
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		std::vector<Entity*> entities = treeParent->parentEntity->target->GetInventory();
-		for (int i = 0; i < entities.size(); i++) {
-			if (entities[i]->serializationID == hash) {
-				treeParent->parentEntity->target = entities[i];
+		for (auto & entity: entities) {
+			if (entity->serializationID == hash) {
+				treeParent->parentEntity->target = entity;
 				return SUCCEEDED;
 			}
 		}
@@ -261,13 +261,13 @@ public:
 		SerializationID = 8;
 		this->key = key;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 		WriteStringData(key, output);
 	}
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input)override {
 		key = ReadStringData(input);
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 
 		Entity* target = treeParent->parentEntity->target;
 		Entity_Mechanisim* mechanismTarget = dynamic_cast<Entity_Mechanisim*>(target);
@@ -291,11 +291,11 @@ public:
 	BehaviorNode_MoveToTarget() {
 		SerializationID = 9;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 	}
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		Entity* target = treeParent->parentEntity->target;
 		if (target != nullptr) {
 			treeParent->parentEntity->SetParent(target->parent.first, target->parent.second);
@@ -315,14 +315,14 @@ public:
 	virtual ~BehaviorNode_RunSubTree() {
 		delete tree;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 
 		size_t len = tree->treeName.size();
 		output->write((char*)&(len), sizeof(size_t));
 		output->write(tree->treeName.c_str(), len);
 	}
 
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 		size_t namelen;
 		input->read((char*)&namelen, sizeof(size_t));
 		char* temp = new char[namelen + 1];
@@ -330,7 +330,7 @@ public:
 		temp[namelen] = '\0';
 		tree = GameLoader::Instance().LoadBehaviorTree(temp);
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		tree->Tick();
 		if (tree->waiting)return WAITING;
 		return SUCCEEDED;
@@ -349,17 +349,17 @@ public:
 		this->p = p;
 		this->sametile = sametile;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 		WriteStringData(name, output);
 		output->write((char*)&p, sizeof(int));
 		output->write((char*)&sametile, sizeof(bool));
 	}
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 		name = ReadStringData(input);
 		input->read((char*)&p, sizeof(int));
 		input->read((char*)&sametile, sizeof(bool));
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		if (sametile) {
 			GameLoader::Instance().SpawnPrefab(name, p, treeParent->parentEntity->parent.second);
 		}
@@ -381,19 +381,19 @@ public:
 		SerializationID = 21;
 		this->type = type;
 	}
-	virtual void WriteData(std::fstream* output) {
+	virtual void WriteData(std::fstream* output) override {
 		output->write((char*)&type, sizeof(int));
 	}
-	virtual void ReadData(std::fstream* input) {
+	virtual void ReadData(std::fstream* input) override {
 		input->read((char*)&type, sizeof(int));
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		std::vector<Entity*> entities = treeParent->parentEntity->GetVisibleEntities(true,true,true,true);
-		for (int i = 0; i < entities.size(); i++) {
-			Entity_Dispenser* disp = dynamic_cast<Entity_Dispenser*>(entities[i]);
+		for (auto & entity: entities) {
+			Entity_Dispenser* disp = dynamic_cast<Entity_Dispenser*>(entity);
 			if (disp) {
 				if (disp->GetDispenserType() == type) {
-					treeParent->parentEntity->target = entities[i];
+					treeParent->parentEntity->target = entity;
 					return SUCCEEDED;
 				}
 			}
@@ -410,7 +410,7 @@ public:
 	BehaviorNode_UseDispenserAndTargetDispensed() {
 		SerializationID = 22;
 	}
-	virtual BehaviorStatus Execute() {
+	virtual BehaviorStatus Execute() override {
 		Entity_Dispenser* disp = dynamic_cast<Entity_Dispenser*>(treeParent->parentEntity->target);
 		if (disp) {
 			treeParent->parentEntity->target = disp->DispenseEntity();

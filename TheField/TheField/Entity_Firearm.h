@@ -10,12 +10,12 @@ public:
 		this->clipType = type;
 	};
 	virtual ~Entity_Firearm() {};
-	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
-	virtual void ReadFromJson(Value& v);
-	virtual void WriteData(std::fstream* output);
-	virtual void ReadData(std::fstream* input);
+	void WriteToJson(PrettyWriter<StringBuffer>* writer) override;
+	void ReadFromJson(Value& v) override;
+	void WriteData(std::fstream* output) override;
+	void ReadData(std::fstream* input) override;
 
-	virtual bool Attack(Entity* source, Entity* target) override;
+	bool Attack(Entity* source, Entity* target) override;
 	void Reload(Entity* clip);
 protected:
 	Entity_Clip::ClipType clipType;

@@ -11,16 +11,16 @@ public:
 	}
 	virtual ~Entity_Fluid() {}
 
-	virtual Entity_Fluid* Clone() {
+	Entity_Fluid* Clone() override {
 		return new Entity_Fluid(*this);
 	}
-	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
-	virtual void ReadFromJson(Value& v);
-	virtual void WriteData(std::fstream* output);
-	virtual void ReadData(std::fstream* input);
+	void WriteToJson(PrettyWriter<StringBuffer>* writer) override;
+	void ReadFromJson(Value& v) override;
+	void WriteData(std::fstream* output) override;
+	void ReadData(std::fstream* input) override;
 
-	virtual void Tick() override;
-	virtual void Rotate(Rotation r) override;
+	void Tick() override;
+	void Rotate(Rotation r) override;
 	Entity* SplitFluid(float fluidToRemove);
 	void MixFluid(Entity* toMixWith);
 	float GetHydration();

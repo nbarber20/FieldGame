@@ -8,13 +8,13 @@ public:
 		this->permiability = permiability;
 	}
 	virtual ~Entity_Container() {}
-	virtual Entity_Container* Clone() {
+	Entity_Container* Clone() override {
 		return new Entity_Container(*this);
 	}
-	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
-	virtual void ReadFromJson(Value& v);
-	virtual void WriteData(std::fstream* output);
-	virtual void ReadData(std::fstream* input);
+	void WriteToJson(PrettyWriter<StringBuffer>* writer) override;
+	void ReadFromJson(Value& v) override;
+	void WriteData(std::fstream* output) override;
+	void ReadData(std::fstream* input) override;
 
 	virtual void Tick() override;
 	virtual bool PourInto(Entity* target);

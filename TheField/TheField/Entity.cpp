@@ -24,8 +24,8 @@ void Entity::WriteToJson(PrettyWriter<StringBuffer>* writer)
 	writer->Int(uniqueEntityID);
 	writer->Key("names");
 	writer->StartArray();
-	for (int i = 0; i < names.size(); i++) {
-		writer->String(names[i].c_str());
+	for (auto & name : names) {
+		writer->String(name.c_str());
 	}
 	writer->EndArray();
 	writer->Key("individualName");
@@ -54,9 +54,9 @@ void Entity::WriteToJson(PrettyWriter<StringBuffer>* writer)
 
 	writer->Key("adjectives");
 	writer->StartArray();
-	for (int i = 0; i < adjectives.size(); i++) {
-		for (int j = 0; j < adjectives[i].second.size();j++) {
-			std::string adj = std::to_string(adjectives[i].first) + "_" + adjectives[i].second[j];
+	for (auto & adjective : adjectives) {
+		for (int j = 0; j < adjective.second.size();j++) {
+			std::string adj = std::to_string(adjective.first) + "_" + adjective.second[j];
 			writer->String(adj.c_str());
 		}
 	}
@@ -297,9 +297,9 @@ Entity* Entity::SplitEntity()
 std::vector<Entity*> Entity::GetInventory()
 {
 	std::vector<Entity*> entities;
-	for (int x = 0; x < children.size(); x++) {
-		for (int y = 0; y < children[x].second.size(); y++) {
-			entities.push_back(children[x].second[y]);
+	for (auto & x : children) {
+		for (auto y : x.second) {
+			entities.push_back(y);
 		}
 	}
 	return entities;
@@ -308,10 +308,10 @@ std::vector<Entity*> Entity::GetInventory()
 std::vector<Entity*> Entity::GetInventory(Position p)
 {
 	std::vector<Entity*> e;
-	for (int x = 0; x < children.size(); x++) {
-		if (children[x].first == p) {
-			for (int y = 0; y < children[x].second.size(); y++) {
-				e.push_back(children[x].second[y]);
+	for (auto & x : children) {
+		if (x.first == p) {
+			for (auto y : x.second) {
+				e.push_back(y);
 			}
 		}
 	}
@@ -333,9 +333,9 @@ float Entity::GetInternalVoidSPace()
 
 void Entity::DropAllChildren()
 {
-	for (int x = 0; x < children.size(); x++) {
-		for (int y = 0; y < children[x].second.size(); y++) {
-			children[x].second[y]->parent = this->parent;
+	for (auto & x : children) {
+		for (auto & y : x.second) {
+			y->parent = this->parent;
 		}
 	}
 }
@@ -367,9 +367,9 @@ void Entity::RemoveAdjective(std::string s)
 std::vector<std::string> Entity::GetAdjectives()
 {
 	std::vector<std::string> ad;
-	for (int x = 0; x < adjectives.size(); x++) {
-		for (int y = 0; y < adjectives[x].second.size(); y++) {
-			ad.push_back(adjectives[x].second[y]);
+	for (auto & adjective : adjectives) {
+		for (const auto & y : adjective.second) {
+			ad.push_back(y);
 		}
 	}
 	return ad;
@@ -378,10 +378,10 @@ std::vector<std::string> Entity::GetAdjectives()
 std::vector<std::string> Entity::GetAdjectives(Position p)
 {
 	std::vector<std::string> ad;
-	for (int x = 0; x < adjectives.size(); x++) {
-		if (adjectives[x].first == p) {
-			for (int y = 0; y < adjectives[x].second.size(); y++) {
-				ad.push_back(adjectives[x].second[y]);
+	for (auto & adjective : adjectives) {
+		if (adjective.first == p) {
+			for (const auto & y : adjective.second) {
+				ad.push_back(y);
 			}
 		}
 	}
@@ -391,10 +391,10 @@ std::vector<std::string> Entity::GetAdjectives(Position p)
 std::vector<std::string> Entity::GetAdjectivesBlacklisted(std::vector<Position> p)
 {
 	std::vector<std::string> ad;
-	for (int x = 0; x < adjectives.size(); x++) {
-		if (std::find(p.begin(), p.end(), adjectives[x].first) == p.end()) {
-			for (int y = 0; y < adjectives[x].second.size(); y++) {
-				ad.push_back(adjectives[x].second[y]);
+	for (auto & adjective : adjectives) {
+		if (std::find(p.begin(), p.end(), adjective.first) == p.end()) {
+			for (const auto & y : adjective.second) {
+				ad.push_back(y);
 			}
 		}
 	}
@@ -403,9 +403,9 @@ std::vector<std::string> Entity::GetAdjectivesBlacklisted(std::vector<Position> 
 
 bool Entity::CheckforNameMatch(Entity* toCompare)
 {
-	for (int i = 0; i < names.size(); i++) {
-		for (int j = 0; j < toCompare->names.size(); j++) {
-			if (names[i] == toCompare->names[j])return true;
+	for (const auto & name : names) {
+		for (const auto & j : toCompare->names) {
+			if (name == j)return true;
 		}
 	}
 	return false;
@@ -459,21 +459,21 @@ std::vector<Entity*> Entity::GetVisibleEntities(bool getsurrounding, bool getPar
 	std::vector<Entity*> visible;
 	if (getSelf) {
 		std::vector<Entity*> onPerson = GetInventory();
-		for (int i = 0; i < onPerson.size(); i++) {
-			if (onPerson[i] != this) {
-				visible.push_back(onPerson[i]);
-				std::vector<Entity*> subEntity = onPerson[i]->GetInventory();
-				for (int j = 0; j < subEntity.size(); j++) {
-					if (seeInside == false && onPerson[i]->visibleInsides == false && subEntity[j]->parent.first == Inside) {
+		for (auto & i : onPerson) {
+			if (i != this) {
+				visible.push_back(i);
+				std::vector<Entity*> subEntity = i->GetInventory();
+				for (auto & j : subEntity) {
+					if (seeInside == false && i->visibleInsides == false && j->parent.first == Inside) {
 						continue;
 					}
-					visible.push_back(subEntity[j]);
-					std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
-					for (int k = 0; k < subEntity2.size(); k++) {
-						if (seeInside == false && subEntity[j]->visibleInsides == false && subEntity2[k]->parent.first == Inside) {
+					visible.push_back(j);
+					std::vector<Entity*> subEntity2 = j->GetInventory();
+					for (auto & k : subEntity2) {
+						if (seeInside == false && j->visibleInsides == false && k->parent.first == Inside) {
 							continue;
 						}
-						visible.push_back(subEntity2[k]);
+						visible.push_back(k);
 					}
 				}
 			}
@@ -481,21 +481,21 @@ std::vector<Entity*> Entity::GetVisibleEntities(bool getsurrounding, bool getPar
 	}
 	if (getsurrounding&& this->parent.second!=nullptr) {
 		std::vector<Entity*> withintile = (parent.second)->GetInventory();
-		for (int i = 0; i < withintile.size(); i++) {
-			if (withintile[i] != this) {
-				visible.push_back(withintile[i]);
-				std::vector<Entity*> subEntity = withintile[i]->GetInventory();
-				for (int j = 0; j < subEntity.size(); j++) {
-					if (seeInside == false && withintile[i]->visibleInsides == false && (subEntity[j]->parent.first == Inside || subEntity[j]->parent.first == OnFloor)) {
+		for (auto & i : withintile) {
+			if (i != this) {
+				visible.push_back(i);
+				std::vector<Entity*> subEntity = i->GetInventory();
+				for (auto & j : subEntity) {
+					if (seeInside == false && i->visibleInsides == false && (j->parent.first == Inside || j->parent.first == OnFloor)) {
 						continue;
 					}
-					visible.push_back(subEntity[j]);
-					std::vector<Entity*> subEntity2 = subEntity[j]->GetInventory();
-					for (int k = 0; k < subEntity2.size(); k++) {
-						if (seeInside == false && subEntity[j]->visibleInsides == false && (subEntity2[k]->parent.first == Inside || subEntity[j]->parent.first == OnFloor)) {
+					visible.push_back(j);
+					std::vector<Entity*> subEntity2 = j->GetInventory();
+					for (auto & k : subEntity2) {
+						if (seeInside == false && j->visibleInsides == false && (k->parent.first == Inside || j->parent.first == OnFloor)) {
 							continue;
 						}
-						visible.push_back(subEntity2[k]);
+						visible.push_back(k);
 					}
 				}
 			}
@@ -513,9 +513,9 @@ std::vector<Entity*> Entity::GetVisibleEntities(bool getsurrounding, bool getPar
 
 void Entity::AddChild(Position pos, Entity* toAdd, int roomIndex)
 {
-	for (int x = 0; x < children.size(); x++) {
-		if (children[x].first == pos) {
-			children[x].second.push_back(toAdd);
+	for (auto & x : children) {
+		if (x.first == pos) {
+			x.second.push_back(toAdd);
 			return;
 		}
 	}
@@ -526,10 +526,10 @@ void Entity::AddChild(Position pos, Entity* toAdd, int roomIndex)
 
 bool Entity::RemoveChild(Entity* toRemove)
 {
-	for (int x = 0; x < children.size(); x++) {
-		for (int y = 0; y < children[x].second.size(); y++) {
-			if (std::find(children[x].second.begin(), children[x].second.end(), toRemove) != children[x].second.end()) {
-				children[x].second.erase(std::remove(children[x].second.begin(), children[x].second.end(), toRemove), children[x].second.end());
+	for (auto & x : children) {
+		for (auto & y : x.second) {
+			if (std::find(x.second.begin(), x.second.end(), toRemove) != x.second.end()) {
+				x.second.erase(std::remove(x.second.begin(), x.second.end(), toRemove), x.second.end());
 				return true;
 			}
 		}

@@ -13,21 +13,21 @@ public:
 		readingLanguage.push_back(English);
 	};
 	virtual ~Entity_Player() {};
-	virtual void Tick() override;
-
-	virtual Entity_Player* Clone() {
+	Entity_Player* Clone() override {
 		return new Entity_Player(*this);
 	}
-	virtual void CheckForEvents();
-	virtual void Look();
-	virtual void LookSelf();
-	virtual void Look(Entity* subject);
-	virtual Entity* FindEntityByName(std::string entityName);
-	virtual Entity* FindEntityByName(std::string entityName, std::string adjective);
-	virtual Entity* FindEntityByName(std::string entityName, Position realitivePosition, std::string realitiveEntityName);
-	virtual Entity* FindEntityByName(std::string entityName, std::string adjective, std::vector<Position> positionBlacklist);
-	virtual bool TryMove(Entity* e, Position toPos, Entity* toEntity);
-	virtual bool Enter(Entity* e);
-	virtual bool Exit(Entity* e);
+	void Tick() override;
+
+	void CheckForEvents();
+	void Look();
+	void LookSelf();
+	void Look(Entity* subject);
+	Entity* FindEntityByName(std::string entityName);
+	Entity* FindEntityByName(std::string entityName, std::string adjective);
+	Entity* FindEntityByName(std::string entityName, Position realitivePosition, std::string realitiveEntityName);
+	Entity* FindEntityByName(std::string entityName, std::string adjective, std::vector<Position> positionBlacklist);
+	bool TryMove(Entity* e, Position toPos, Entity* toEntity);
+	bool Enter(Entity* e);
+	bool Exit(Entity* e);
 };
 

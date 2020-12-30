@@ -9,10 +9,10 @@ public:
 		this->prefabName = prefabName;
 	}
 	virtual ~Entity_Dispenser() {}
-	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
-	virtual void ReadFromJson(Value& v);
-	virtual void WriteData(std::fstream* output);
-	virtual void ReadData(std::fstream* input);
+	void WriteToJson(PrettyWriter<StringBuffer>* writer) override;
+	void ReadFromJson(Value& v) override;
+	void WriteData(std::fstream* output) override;
+	void ReadData(std::fstream* input) override;
 
 	Entity* DispenseEntity();
 	int GetDispenserType();

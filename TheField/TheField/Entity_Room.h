@@ -8,7 +8,9 @@ public:
 		this->visibleInsides = false;
 	};
 	virtual ~Entity_Room() {};
-	virtual void WriteData(std::fstream* output);
-	virtual void ReadData(std::fstream* input);
+	void WriteToJson(PrettyWriter<StringBuffer>* writer) override;
+	void ReadFromJson(Value& v) override;
+	void WriteData(std::fstream* output) override;
+	void ReadData(std::fstream* input) override;
 };
 

@@ -2,6 +2,17 @@
 #include "Entity_Room.h"
 
 #pragma region Serialization
+
+void Entity_Room::WriteToJson(PrettyWriter<StringBuffer>* writer)
+{
+	//TODO
+}
+
+void Entity_Room::ReadFromJson(Value& v)
+{
+	//TODO
+}
+
 void Entity_Room::WriteData(std::fstream* output)
 {
 	Entity::WriteData(output);

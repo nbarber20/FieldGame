@@ -31,7 +31,7 @@ public:
 		buttonWidth = 250;
 	}
 
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->SetupEntityView(entity);
 	}
 	Entity* entity;
@@ -42,7 +42,7 @@ public:
 		buttonWidth = 150;
 	}
 
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->SetupNew();
 	}
 };
@@ -53,7 +53,7 @@ public:
 		buttonWidth = 45;
 	}
 
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->AddPrefabToLevelEditor(parent);
 	}
 	WidgetEntity* parent;
@@ -65,7 +65,7 @@ public:
 		buttonWidth = 45;
 	}
 
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->RemovePrefabFromoLevelEditor(parent);
 	}
 	WidgetEntity* parent;
@@ -77,7 +77,7 @@ public:
 	WidgetLoadBIN(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
 		buttonWidth = 150;
 	}
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->LoadBinIntoLevelEditor();
 	}
 };
@@ -87,7 +87,7 @@ public:
 	WidgetLoadJSON(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
 		buttonWidth = 150;
 	}
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->LoadJSONIntoLevelEditor();
 	}
 };
@@ -97,7 +97,7 @@ public:
 	WidgetSaveBIN(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
 		buttonWidth = 150;
 	}
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->SaveToBin();
 	}
 };
@@ -107,7 +107,7 @@ public:
 	WidgetSaveJSON(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
 		buttonWidth = 150;
 	}
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->SaveToJSON();
 	}
 };
@@ -117,7 +117,7 @@ public:
 	WidgetSaveEntitySettings(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
 		buttonWidth = 150;
 	}
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->SaveEntityView();
 	}
 };
@@ -127,7 +127,7 @@ public:
 	WidgetSaveEntityToPrefab(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
 		buttonWidth = 150;
 	}
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->SaveEntityViewToPrefab();
 	}
 };
@@ -137,7 +137,7 @@ public:
 	WidgetBackToTop(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
 		buttonWidth = 150;
 	}
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->BackToTop();
 	}
 };
@@ -148,7 +148,7 @@ public:
 	WidgetWorldIDTextEntry(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
 		buttonWidth = 250;
 	}
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->EditWorldIDTextBox(this);
 	}
 	virtual void InputData(char i) {
@@ -180,7 +180,7 @@ public:
 	virtual ~WidgetTextEntry() {
 		delete c;
 	}
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->EditTextBox(this);
 	}
 	virtual void InputData(char i) {
@@ -230,7 +230,7 @@ public:
 		this->member = member;
 	}
 
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->AddElementToJSONArray(this);
 	}
 	std::string key;
@@ -248,7 +248,7 @@ public:
 		this->member = member;
 	}
 
-	virtual void OnClick(LevelEditor* editor) {
+	void OnClick(LevelEditor* editor) override {
 		editor->SubElemenFromJSONArray(this);
 	}
 	std::string key;

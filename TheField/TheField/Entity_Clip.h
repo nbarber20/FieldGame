@@ -15,10 +15,10 @@ public:
 		this->clipSize = clipSize;
 	}
 	virtual ~Entity_Clip() {}
-	virtual void WriteToJson(PrettyWriter<StringBuffer>* writer);
-	virtual void ReadFromJson(Value& v);
-	virtual void WriteData(std::fstream* output);
-	virtual void ReadData(std::fstream* input);
+	void WriteToJson(PrettyWriter<StringBuffer>* writer) override;
+	void ReadFromJson(Value& v) override;
+	void WriteData(std::fstream* output) override;
+	void ReadData(std::fstream* input) override;
 
 	int FireBullet(int toRemove);
 	ClipType GetClipType();

@@ -523,7 +523,7 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 
 std::string InteractionManager::GetHelp(std::string HelpPage)
 {
-	if (HelpPage == "") {
+	if (HelpPage.empty()) {
 		return "Commands should be a verb, followed by a subject. Some commands also require a subject and target. Try out some of the following commands: look, enter, go (direction), talk, take, drop, put";
 	}
 	//TODO add more help pages.
