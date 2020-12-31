@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include "BehaviorTree.h"
-#include "GameLoader.h"
+#include "Entity_Living.h"
 class DialogTree
 {
 public:
@@ -20,25 +20,25 @@ public:
 
 	DialogTree() {};
 	~DialogTree() {
-		TreeNodes.clear();
+		treeNodes.clear();
 	};
 
 	void WriteData(std::fstream* output) {
-		int TreeNodesSize = TreeNodes.size();
+		int TreeNodesSize = treeNodes.size();
 		output->write((char*)&TreeNodesSize, sizeof(int));
 		for (int i = 0; i < TreeNodesSize; i++) {
-			WriteStringData(TreeNodes[i].dialog, output);
-			output->write((char*)&(TreeNodes[i].event), sizeof(int));
-			int TreeNodeResponseSize = TreeNodes[i].responses.size();
+			WriteStringData(treeNodes[i].dialog, output);
+			output->write((char*)&(treeNodes[i].event), sizeof(int));
+			int TreeNodeResponseSize = treeNodes[i].responses.size();
 			output->write((char*)&(TreeNodeResponseSize), sizeof(int));
 			for (int j = 0; j < TreeNodeResponseSize; j++) {
-				WriteStringData(TreeNodes[i].responses[j].first, output);
-				output->write((char*)&(TreeNodes[i].responses[j].second), sizeof(int));
+				WriteStringData(treeNodes[i].responses[j].first, output);
+				output->write((char*)&(treeNodes[i].responses[j].second), sizeof(int));
 			}
 
-			if (!TreeNodes[i].behaviorTree.empty()) {
+			if (!treeNodes[i].behaviorTree.empty()) {
 
-				std::string name = TreeNodes[i].behaviorTree;
+				std::string name = treeNodes[i].behaviorTree;
 				size_t len = name.size();
 				output->write((char*)&(len), sizeof(size_t));
 				output->write(name.c_str(), len);
@@ -83,7 +83,7 @@ public:
 				node.behaviorTree = temp;
 			}
 
-			TreeNodes.push_back(node);
+			treeNodes.push_back(node);
 
 		}
 	};
@@ -102,26 +102,11 @@ public:
 		return temp;
 	}
 
-	DialogTreeEvent Respond(int chosenResponse) {
-		if (chosenResponse < 0 || chosenResponse >= TreeNodes[currentIndex].responses.size()) {
-			currentIndex = 0;
-			return EVENT_EXIT;
-		}
-		currentIndex = TreeNodes[currentIndex].responses[chosenResponse].second;
-		if (!TreeNodes[currentIndex].behaviorTree.empty()) {
-			LivingSource->AddBehavior(GameLoader::Instance().LoadBehaviorTree(TreeNodes[currentIndex].behaviorTree));
-		}
-		if (TreeNodes[currentIndex].event == EVENT_EXIT) {
-			currentIndex = 0;
-		}
+	DialogTreeEvent Respond(int chosenResponse);
 
-		return TreeNodes[currentIndex].event;
-	}
-
-
-
-	std::vector<DialogTree::DialogNode> TreeNodes;
-	Entity_Living* LivingSource;
+	std::string treeName;
+	std::vector<DialogTree::DialogNode> treeNodes;
+	Entity_Living* livingSource;
 	int currentIndex = 0;
 };
 

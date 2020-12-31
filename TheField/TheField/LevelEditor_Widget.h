@@ -71,6 +71,24 @@ public:
 	WidgetEntity* parent;
 };
 
+class WidgetConvertDialog : public Widget {
+public:
+	WidgetConvertDialog(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
+		buttonWidth = 150;
+	}
+	void OnClick(LevelEditor* editor) override {
+		editor->ConvertDialog();
+	}
+}; 
+class WidgetConvertBehavior : public Widget {
+public:
+	WidgetConvertBehavior(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
+		buttonWidth = 150;
+	}
+	void OnClick(LevelEditor* editor) override {
+		editor->ConvertBehavior();
+	}
+};
 
 class WidgetLoadBIN : public Widget {
 public:
@@ -81,7 +99,6 @@ public:
 		editor->LoadBinIntoLevelEditor();
 	}
 };
-
 class WidgetLoadJSON : public Widget {
 public:
 	WidgetLoadJSON(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {

@@ -2,6 +2,8 @@
 #include <string.h>
 #include "Entity.h"
 #include "BehaviorTree.h"
+
+class DialogTree;
 class GameLoader
 {
 public:
@@ -18,6 +20,9 @@ public:
 	Entity* SpawnPrefab(std::string filename, Position p, Entity* parent, bool fullPath = false);
 	void SavePrefab(Entity* e, std::string filename);
 	void SavePrefabToPath(Entity* e, std::string path);
+	DialogTree* LoadDialogTree(std::string filename, bool fullPath = false);
+	void SaveDialogTree(DialogTree* treeToSave);
+	void SaveDialogTreeToPath(std::string filePath, DialogTree* treeToSave);
 	void UnloadTiles();
 	void LoadTiles();
 	BehaviorTree* LoadBehaviorTree(std::string filename);

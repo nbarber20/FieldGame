@@ -17,7 +17,6 @@ public:
 
 	void NoticePickpocket(Entity* thief);
 
-	//TODO save dialogTree seperate like behavior trees
 	DialogTree* dialogTree;
 };
 

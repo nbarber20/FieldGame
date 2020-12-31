@@ -752,16 +752,16 @@ void InteractionManager::EnterWorldInteraction()
 
 void InteractionManager::LogDialog() 
 {
-	ObservationManager::Instance().MakeObservation(new Observation_Direct(currentDialogTree->TreeNodes[currentDialogTree->currentIndex].dialog, nullptr));
+	ObservationManager::Instance().MakeObservation(new Observation_Direct(currentDialogTree->treeNodes[currentDialogTree->currentIndex].dialog, nullptr));
 
-	for (int i = 0; i < currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses.size() + 1; i++) {
+	for (int i = 0; i < currentDialogTree->treeNodes[currentDialogTree->currentIndex].responses.size() + 1; i++) {
 
 		std::string c = "a";
 		if (i == 1) c = "b";
 		if (i == 2) c = "c";
 		if (i == 3) c = "d";
-		if (i < currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses.size()) {
-			std::string s = c + "): " + currentDialogTree->TreeNodes[currentDialogTree->currentIndex].responses[i].first;
+		if (i < currentDialogTree->treeNodes[currentDialogTree->currentIndex].responses.size()) {
+			std::string s = c + "): " + currentDialogTree->treeNodes[currentDialogTree->currentIndex].responses[i].first;
 			ObservationManager::Instance().MakeObservation(new Observation_Direct(s, nullptr));
 		}
 		else {

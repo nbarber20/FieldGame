@@ -12,7 +12,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
-
 #pragma warning(disable : 4996)
 
 void LevelEditor::SetupNew()
@@ -33,6 +32,8 @@ void LevelEditor::SetupSceneView()
 {
 	scrollOffset = 0;
 	widgets.clear();
+	widgets.push_back(new WidgetConvertDialog("DialogConverter", sf::Vector2i(650, 0), widget150));
+	widgets.push_back(new WidgetConvertBehavior("BehaviorConverter", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetNewBtn("New", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetLoadBIN("Load", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetSaveBIN("Save", sf::Vector2i(650, 0), widget150));
@@ -379,51 +380,6 @@ void LevelEditor::SaveToBin()
 {
 	GameLoader::Instance().SaveTile(Openfilename(), GameLoader::Instance().loadedTiles[0]);
 }
-/*
-
-void LevelEditor::LoadFromJSON()
-{
-	std::string s = Openfilename();
-	FILE* fp = fopen(s.c_str(), "rb"); // non-Windows use "r"
-
-	char readBuffer[65536];
-	FileReadStream is(fp, readBuffer, sizeof(readBuffer));
-
-	Document document;
-	document.ParseStream(is);
-	fclose(fp);
-
-	const Value& entities = document["entities"];
-	assert(entities.IsArray());
-	for (int i = 0; i < entities.Size();i++) {
-		int b = document["entities"][i]["hash"].GetInt();
-		Entity* e = GameLoader::Instance().GenEntity(b);
-		e->ReadFromJson(document["entities"][i]);
-		World::Instance().AddEntity(e);
-	}
-	World::Instance().SetupParents();
-}
-
-void LevelEditor::LoadPlayerFromJSON()
-{
-	FILE* fp = fopen("Data/LevelEditor/Player.json", "rb"); // non-Windows use "r"
-
-	char readBuffer[65536];
-	FileReadStream is(fp, readBuffer, sizeof(readBuffer));
-
-	Document document;
-	document.ParseStream(is);
-	fclose(fp);
-	const Value& entities = document["entities"];
-	assert(entities.IsArray());
-	for (int i = 0; i < entities.Size(); i++) {
-		int b = document["entities"][i]["hash"].GetInt();
-		Entity* e = GameLoader::Instance().GenEntity(b);
-		e->ReadFromJson(document["entities"][i]);
-		World::Instance().AddEntity(e);
-	}
-	World::Instance().SetupParents();
-}*/
 
 void LevelEditor::SaveToJSON()
 {
@@ -452,53 +408,16 @@ void LevelEditor::SaveToJSON()
 	file << sb.GetString();
 	file.close();
 }
-/*
-void LevelEditor::SavePlayerToJSON()
+
+void LevelEditor::ConvertDialog()
 {
-	std::vector<Entity*> entities = World::Instance().GetEntities();
-
-	StringBuffer sb;
-	PrettyWriter<StringBuffer> writer(sb);
-	writer.StartObject();
-	writer.Key("entities");
-	writer.StartArray();
-	
-
-	for (int i = 0; i < entities.size(); i++) {
-		Entity_Player* p = dynamic_cast<Entity_Player*>(entities[i]);
-		if (p) {
-			entities[i]->worldID = GameLoader::Instance().currentPlayerTile;
-
-			writer.Key("hash");
-			writer.Int(entities[i]->serializationID);
-			writer.StartObject();
-			entities[i]->WriteToJson(&writer);
-			writer.EndObject();
-		}
-		else if (entities[i]->IsChildOf(World::Instance().playerEntity) == true) {
-			entities[i]->worldID = -1;
-
-			writer.Key("hash");
-			writer.Int(entities[i]->serializationID);
-			writer.StartObject();
-			entities[i]->WriteToJson(&writer);
-			writer.EndObject();
-		}
-	}
-	writer.EndArray();
-	writer.EndObject();
-
-	std::fstream file("Data/LevelEditor/Player.json", std::ios::out);
-	file << sb.GetString();
-	file.close();
+	std::string from = Openfilename();
+	GameLoader::Instance().SaveDialogTree(treeLoader.ConvertDialogTree(from));
 }
 
-void LevelEditor::SaveToFile(bool savePlayer)
+void LevelEditor::ConvertBehavior()
 {
-	if (savePlayer) {
-		GameLoader::Instance().SavePlayer();
-	}
-	World::Instance().Tick();
-	GameLoader::Instance().UnloadTiles();
+	std::string from = Openfilename();
+	std::string to = Openfilename();
+	treeLoader.ConvertBehaviorTree(from);
 }
-*/

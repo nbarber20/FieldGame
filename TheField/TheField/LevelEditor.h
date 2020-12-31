@@ -7,7 +7,8 @@
 #include "rapidjson/filereadstream.h"
 #include "GameLoader.h"
 #include "Entity.h"
-
+#include "TreeLoader.h"
+ 
 using namespace rapidjson;
 class WidgetEntity;
 class Widget;
@@ -67,9 +68,8 @@ public:
 
 	void SaveToBin();
 	void SaveToJSON();
-	//void SavePlayerToJSON();
-	//void SaveToFile(bool savePlayer);
-
+	void ConvertDialog();
+	void ConvertBehavior();
 
 	void BackToTop()
 	{
@@ -90,6 +90,6 @@ public:
 
 	Document entitydocument;
 	int scrollOffset = 0;
-
+	TreeLoader treeLoader;
 };
 

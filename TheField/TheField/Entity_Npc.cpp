@@ -9,7 +9,7 @@ void Entity_Npc::WriteData(std::fstream* output)
 	bool hasDialog = dialogTree != nullptr;
 	output->write((char*)&hasDialog, sizeof(bool));
 	if (hasDialog) {
-		dialogTree->WriteData(output);
+		WriteStringData(dialogTree->treeName,output);
 	}
 
 }
@@ -20,9 +20,7 @@ void Entity_Npc::ReadData(std::fstream* input)
 	bool hasDialog;
 	input->read((char*)&hasDialog, sizeof(bool));
 	if (hasDialog) {
-		dialogTree = new DialogTree();
-		dialogTree->ReadData(input);
-		dialogTree->LivingSource = this;
+		dialogTree = GameLoader::Instance().LoadDialogTree(ReadStringData(input));
 	}
 }
 #pragma endregion

@@ -16,9 +16,6 @@
     <Filter Include="Header Files\Entity">
       <UniqueIdentifier>{d9fa4780-66f3-4b56-b601-b3f21dc3a808}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Entity">
-      <UniqueIdentifier>{f86d20c6-b0f8-4687-ac54-6e4c93995ca0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Behaviors">
       <UniqueIdentifier>{8aee249c-a5e0-4bc4-8031-d0b042aabc80}</UniqueIdentifier>
     </Filter>
@@ -30,6 +27,9 @@
     </Filter>
     <Filter Include="Source Files\LevelEditor">
       <UniqueIdentifier>{984a52f8-4c62-4a16-94e8-abe343e954d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity">
+      <UniqueIdentifier>{f86d20c6-b0f8-4687-ac54-6e4c93995ca0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +138,9 @@
     <ClInclude Include="Observation.h">
       <Filter>Header Files\Observations</Filter>
     </ClInclude>
+    <ClInclude Include="TreeLoader.h">
+      <Filter>Header Files\LevelEditor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -200,12 +203,6 @@
     <ClCompile Include="Entity_Firearm.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="GameLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BehaviorTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Entity_Weapon.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
@@ -222,6 +219,18 @@
       <Filter>Source Files\LevelEditor</Filter>
     </ClCompile>
     <ClCompile Include="TextDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BehaviorTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TreeLoader.cpp">
+      <Filter>Source Files\LevelEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

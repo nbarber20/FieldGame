@@ -26,14 +26,11 @@
 #include "BehaviorNode_Living.h"
 #include "ObservationManager.h"
 #include "MechanismBehavior.h"
-
+#include "DialogTree.h"
 
 void GameLoader::Setup()
 {
 
-	Entity_Weapon* prefab = new Entity_Weapon(Entity_Living::Blunt,0,0);
-	prefab->SetEntityData(GetUniqueID(), false, 0.0f, 0.0f, 0.0f);
-	GameLoader::Instance().SavePrefab(prefab,"ROOT_Weapon");
 }
 
 
@@ -89,6 +86,7 @@ Entity* GameLoader::SpawnPrefab(std::string filename, Position p, Entity* parent
 			return e;
 		}
 		catch (...) {
+			ThrowFileError("Error loading prefab");
 			return nullptr;
 		}
 	}
@@ -111,6 +109,50 @@ void GameLoader::SavePrefabToPath(Entity* e, std::string path)
 		int hash = e->serializationID;
 		file.write((char*)&hash, sizeof(int));
 		e->WriteData(&file);
+		file.close();
+	}
+}
+
+DialogTree* GameLoader::LoadDialogTree(std::string filename, bool fullPath)
+{
+	std::string filePath = GetDirectory() + "Data/DialogTrees/" + filename + ".bin";
+	if (fullPath)filePath = filename;
+	std::fstream file(filePath, std::ios::in | std::ios::binary);
+	if (!file) {
+		ThrowFileError("Error loading dialog tree");
+	}
+	else {
+		int hash;
+		file.read((char*)&hash, sizeof(int));
+		DialogTree* tree = new DialogTree();
+		try {
+			tree->ReadData(&file);
+			file.close();
+			return tree;
+		}
+		catch (...) {
+			ThrowFileError("Error loading dialog tree");
+			return nullptr;
+		}
+	}
+	return nullptr;
+}
+
+void GameLoader::SaveDialogTree(DialogTree* treeToSave)
+{
+
+	SaveDialogTreeToPath(GetDirectory() + "Data/DialogTrees/" + treeToSave->treeName + ".bin", treeToSave);
+}
+
+void GameLoader::SaveDialogTreeToPath(std::string filePath, DialogTree* treeToSave)
+{
+	std::fstream file(filePath, std::ios::out | std::ios::binary);
+	if (!file) {
+		ThrowFileError("Error saving prefab");
+	}
+	else {
+		file.clear();
+		treeToSave->WriteData(&file);
 		file.close();
 	}
 }
