@@ -1,6 +1,4 @@
-
 	currentFilename = "Development";
-	std::filesystem::create_directory("Data/Saves/" + currentFilename);
 	int worldID = 3;
 
 	Entity_GroundTile* Ground = new Entity_GroundTile();
@@ -31,14 +29,7 @@
 	NPC->AddAdjective(Visual, "masked");
 	NPC->SetParent(On, Horse);
 	NPC->AddBehavior(LoadBehaviorTree("RootHumanBehavior"));
-
-	DialogTree* tree = new DialogTree();
-	DialogTree::DialogNode node1;
-	node1.dialog = "The masked man shouts: \"anomaly research, stand back!\"";
-	tree->TreeNodes.push_back(node1);
-
-	//Finish npc setup
-	NPC->dialogTree = tree;
+	NPC->AddDialogTree(LoadDialogTree("FarmerTest"));
 	World::Instance().AddEntity(NPC);
 
 
@@ -56,13 +47,7 @@
 	NPC2->AddAdjective(Visual, "armed");
 	NPC2->SetParent(On, Horse2);
 	NPC2->AddBehavior(LoadBehaviorTree("RootHumanBehavior"));
-	DialogTree* tree2 = new DialogTree();
-	DialogTree::DialogNode node12;
-	node12.dialog = "The armed man shouts: \"anomaly research, stand back!\"";
-	tree2->TreeNodes.push_back(node12);
-
-	//Finish npc setup
-	NPC2->dialogTree = tree2;
+	NPC2->AddDialogTree(LoadDialogTree("FarmerTest"));
 	World::Instance().AddEntity(NPC2);
 
 	Entity_Firearm* Ak47 = new Entity_Firearm(Entity_Clip::MachineGun, Entity_Living::Piercing, .8f, 3);
@@ -116,3 +101,5 @@
 	canteen2->playerAccessible = false;
 	canteen2->SetParentOverride(Inside, NPC2);
 	World::Instance().AddEntity(canteen2);
+
+	UnloadTiles();

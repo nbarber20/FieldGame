@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29215.179
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1321
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TheField", "TheField\TheField.vcxproj", "{C0957866-E13D-48AD-8CEF-4F57FB48BAF8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TheFields", "TheField\TheField.vcxproj", "{C0957866-E13D-48AD-8CEF-4F57FB48BAF8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LevelEditor", "LevelEditor\LevelEditor.vcxproj", "{C01C05D4-A765-42B7-B9D4-BE96EBCFD86C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TheFieldsLib", "TheFieldsLib\TheFieldsLib.vcxproj", "{1EBD1E13-A6FD-4767-B301-22EEE01FB5A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,22 @@ Global
 		{C0957866-E13D-48AD-8CEF-4F57FB48BAF8}.Release|x64.Build.0 = Release|Win32
 		{C0957866-E13D-48AD-8CEF-4F57FB48BAF8}.Release|x86.ActiveCfg = Release|x64
 		{C0957866-E13D-48AD-8CEF-4F57FB48BAF8}.Release|x86.Build.0 = Release|x64
+		{C01C05D4-A765-42B7-B9D4-BE96EBCFD86C}.Debug|x64.ActiveCfg = Debug|x64
+		{C01C05D4-A765-42B7-B9D4-BE96EBCFD86C}.Debug|x64.Build.0 = Debug|x64
+		{C01C05D4-A765-42B7-B9D4-BE96EBCFD86C}.Debug|x86.ActiveCfg = Debug|Win32
+		{C01C05D4-A765-42B7-B9D4-BE96EBCFD86C}.Debug|x86.Build.0 = Debug|Win32
+		{C01C05D4-A765-42B7-B9D4-BE96EBCFD86C}.Release|x64.ActiveCfg = Release|x64
+		{C01C05D4-A765-42B7-B9D4-BE96EBCFD86C}.Release|x64.Build.0 = Release|x64
+		{C01C05D4-A765-42B7-B9D4-BE96EBCFD86C}.Release|x86.ActiveCfg = Release|Win32
+		{C01C05D4-A765-42B7-B9D4-BE96EBCFD86C}.Release|x86.Build.0 = Release|Win32
+		{1EBD1E13-A6FD-4767-B301-22EEE01FB5A2}.Debug|x64.ActiveCfg = Debug|x64
+		{1EBD1E13-A6FD-4767-B301-22EEE01FB5A2}.Debug|x64.Build.0 = Debug|x64
+		{1EBD1E13-A6FD-4767-B301-22EEE01FB5A2}.Debug|x86.ActiveCfg = Debug|Win32
+		{1EBD1E13-A6FD-4767-B301-22EEE01FB5A2}.Debug|x86.Build.0 = Debug|Win32
+		{1EBD1E13-A6FD-4767-B301-22EEE01FB5A2}.Release|x64.ActiveCfg = Release|x64
+		{1EBD1E13-A6FD-4767-B301-22EEE01FB5A2}.Release|x64.Build.0 = Release|x64
+		{1EBD1E13-A6FD-4767-B301-22EEE01FB5A2}.Release|x86.ActiveCfg = Release|Win32
+		{1EBD1E13-A6FD-4767-B301-22EEE01FB5A2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

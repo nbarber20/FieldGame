@@ -1,5 +1,4 @@
-currentFilename = "Development";
-	std::filesystem::create_directory("Data/Saves/" + currentFilename);
+	currentFilename = "Development";
 	int worldID = 1;
 
 	Entity_GroundTile* Ground = new Entity_GroundTile();
@@ -49,22 +48,9 @@ currentFilename = "Development";
 	NPC->SetSavedTarget("WaterSourceMechanism", WaterPump);
 	NPC->SetParent(OnFloor, House, 0, false, false);
 
-	//Make Tree
-	DialogTree* tree = new DialogTree();
-	DialogTree::DialogNode node1;
-	node1.dialog = "The man greets you kindly, welcoming you to his humble farmhouse.";
-	node1.responses.push_back(std::make_pair("Greet the man", 1));
-	node1.responses.push_back(std::make_pair("Insult the man", 2));
-	DialogTree::DialogNode node2;
-	node2.dialog = "The man offers you food and supplies, whats his is yours.";
-	DialogTree::DialogNode node3;
-	node3.dialog = "The man takes offense to your insult and kindly asks you to leave.";
-	tree->TreeNodes.push_back(node1);
-	tree->TreeNodes.push_back(node2);
-	tree->TreeNodes.push_back(node3);
 
 	//Finish npc setup
-	NPC->dialogTree = tree;
+	NPC->AddDialogTree(LoadDialogTree("FarmerTree"));
 	World::Instance().AddEntity(NPC);
 
 	Entity_Event* EnterHouseEvent = new Entity_Event("Upon entering the farm house, a warm feeling rushes over you. The environment around you has changed from harsh to cozy and comfortable.");
@@ -148,3 +134,5 @@ currentFilename = "Development";
 	Note->names = { "note" };
 	Note->SetParent(On, Table);
 	World::Instance().AddEntity(Note);
+
+	UnloadTiles();
