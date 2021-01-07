@@ -11,9 +11,6 @@ public:
 		this->texture = texture;
 		this->name = name;
 	}
-	virtual ~Widget() {
-		delete texture;
-	}
 	virtual void OnClick(LevelEditor* editor) {
 
 	}

@@ -76,13 +76,15 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 
 			Entity_Room* isLastRoom = dynamic_cast<Entity_Room*>(observation_Movement->lastParent);
 			Entity_Room* isInRoom = dynamic_cast<Entity_Room*>(observation_Movement->referenceEntity->parent.second);
-			if (isLastRoom && isInRoom==nullptr) {
-				containsNoun = true;
-				preposition = "outside";
-			}
-			else if (isLastRoom==nullptr && isInRoom) {
-				containsNoun = true;
-				preposition = "inside";
+			if (observation_Movement->lastParent->IsChildOf(observation_Movement->referenceEntity->parent.second) == false) {
+				if (isLastRoom && isInRoom == nullptr) {
+					containsNoun = true;
+					preposition = "outside";
+				}
+				else if (isLastRoom == nullptr && isInRoom) {
+					containsNoun = true;
+					preposition = "inside";
+				}
 			}
 
 			if (observation_Movement->referenceEntity == playerEntity) {
@@ -252,7 +254,7 @@ std::string ObservationManager::RotationToString(Rotation r)
 	case UpsideDown:
 		return "upsideDown";
 	case Tipped:
-		return "tipped";
+		return "tipped over";
 	}
 	return "ERROR";
 }

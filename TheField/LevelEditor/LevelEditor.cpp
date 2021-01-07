@@ -17,10 +17,18 @@
 
 #pragma warning(disable : 4996)
 
+void LevelEditor::ClearWidgets()
+{
+	for (int i = 0; i < widgets.size(); i++) {
+		delete widgets[i];
+	}
+	widgets.clear();
+	widgets.shrink_to_fit();
+}
+
 void LevelEditor::SetupNew()
 {
-
-	widgets.clear();
+	ClearWidgets();
 	World::Instance().ClearEntities();
 	Entity_GroundTile* Ground = new Entity_GroundTile();
 	Ground->SetEntityData(GameLoader::Instance().GetUniqueID(), false, 0.0f, 60000.0f, 0.0f);
@@ -34,7 +42,7 @@ void LevelEditor::SetupNew()
 void LevelEditor::SetupSceneView()
 {
 	scrollOffset = 0;
-	widgets.clear();
+	ClearWidgets();
 	widgets.push_back(new WidgetConvertDialog("DialogConverter", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetConvertBehavior("BehaviorConverter", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetNewBtn("New", sf::Vector2i(650, 0), widget150));
@@ -68,7 +76,7 @@ void LevelEditor::SetupEntityView(Entity* e)
 	entitydocument.Parse(s.c_str());
 
 
-	widgets.clear();
+	ClearWidgets();
 	widgets.push_back(new WidgetSaveEntityToPrefab("SavePrefab", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetSaveEntitySettings("Save", sf::Vector2i(650, 0), widget150));
 	for (auto i = entitydocument.MemberBegin(); i != entitydocument.MemberEnd(); ++i)

@@ -78,7 +78,7 @@ void Entity::ReadFromJson(Value& v)
 	lookInfo = v["lookInfo"].GetString();
 	size = v["size"].GetDouble();
 	weight = v["weight"].GetDouble();
-	weight = v["internalVolume"].GetDouble();
+	internalVolume = v["internalVolume"].GetDouble();
 	visibleInsides = v["visibleInsides"].GetBool();
 	countable = v["countable"].GetBool();
 	attachedToParent = v["attachedToParent"].GetBool();
@@ -217,7 +217,7 @@ void Entity::Rotate(Rotation r)
 			object->Rotate(Tipped);
 		}
 	}		
-	ObservationManager::Instance().MakeObservation(new Observation_Status("facing "+ ObservationManager::Instance().RotationToString(r),this));
+	ObservationManager::Instance().MakeObservation(new Observation_Status(ObservationManager::Instance().RotationToString(r),this));
 }
 
 void Entity::FaceClockWise()
@@ -245,7 +245,7 @@ void Entity::FaceClockWise()
 void Entity::Face(FacingDirection r)
 {
 	facingDirection = r;
-	ObservationManager::Instance().MakeObservation(new Observation_Status(ObservationManager::Instance().FacingDirectionToString(facingDirection), this));
+	ObservationManager::Instance().MakeObservation(new Observation_Status("facing " + ObservationManager::Instance().FacingDirectionToString(facingDirection), this));
 }
 
 void Entity::MakeSound(std::string sound)

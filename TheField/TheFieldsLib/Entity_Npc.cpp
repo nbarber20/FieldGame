@@ -8,13 +8,20 @@ void Entity_Npc::WriteToJson(PrettyWriter<StringBuffer>* writer)
 {
 	Entity_Living::WriteToJson(writer);
 	writer->Key("dialogTree");
-	writer->String(dialogTree->treeName.c_str());
+	if (dialogTree != nullptr) {
+		writer->String(dialogTree->treeName.c_str());
+	}
+	else {
+		writer->String("");
+	}
 }
 
 void Entity_Npc::ReadFromJson(Value& v)
 {
 	Entity_Living::ReadFromJson(v);
-	GameLoader::Instance().LoadDialogTree(v["dialogTree"].GetString());
+	if (v["dialogTree"].GetString() != "") {
+		dialogTree = GameLoader::Instance().LoadDialogTree(v["dialogTree"].GetString());
+	}
 }
 
 void Entity_Npc::WriteData(std::fstream* output)

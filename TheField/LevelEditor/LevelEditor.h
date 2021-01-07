@@ -37,6 +37,7 @@ public:
 	};
 	~LevelEditor() {};
 
+	void ClearWidgets();
 	void SetupNew();
 	void SetupSceneView();
 	void SetupEntityView(Entity* e);
