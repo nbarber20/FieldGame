@@ -3,7 +3,24 @@
 #include <World.h>
 #include <GameLoader.h>
 #include <Entity.h>
+#include <Entity_Anomaly.h>
+#include <Entity_Clip.h>
+#include <Entity_Constructed.h>
+#include <Entity_Container.h>
+#include <Entity_Dispenser.h>
+#include <Entity_Doorway.h>
+#include <Entity_Event.h>
+#include <Entity_Firearm.h>
+#include <Entity_Fluid.h>
+#include <Entity_Food.h>
 #include <Entity_GroundTile.h>
+#include <Entity_Interior.h>
+#include <Entity_Living.h>
+#include <Entity_Mechanisim.h>
+#include <Entity_Npc.h>
+#include <Entity_Readable.h>
+#include <Entity_Room.h>
+#include <Entity_Weapon.h>
 #include "LevelEditor_Widget.h"
 #include <vector>
 #include <cstdio>
@@ -43,6 +60,7 @@ void LevelEditor::SetupSceneView()
 {
 	scrollOffset = 0;
 	ClearWidgets();
+	widgets.push_back(new WidgetUpdateRootPrefabs("Update Root Prefabs", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetConvertDialog("DialogConverter", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetConvertBehavior("BehaviorConverter", sf::Vector2i(650, 0), widget150));
 	widgets.push_back(new WidgetNewBtn("New", sf::Vector2i(650, 0), widget150));
@@ -353,6 +371,28 @@ void LevelEditor::SubElemenFromJSONArray(WidgetRemoveKeyFromArray* btn)
 	SetupEntityView(editingEntity);
 }
 
+
+void LevelEditor::UpdateRootPrefabs()
+{
+	GameLoader::Instance().SavePrefab(new Entity(), "ROOT_Entity");
+	GameLoader::Instance().SavePrefab(new Entity_Anomaly(), "ROOT_Anomaly");
+	GameLoader::Instance().SavePrefab(new Entity_Clip(7, 7, Entity_Clip::Pistol), "ROOT_Clip");
+	GameLoader::Instance().SavePrefab(new Entity_Constructed(50, false), "ROOT_Constructed");
+	GameLoader::Instance().SavePrefab(new Entity_Container(0,50,false), "ROOT_Container");
+	GameLoader::Instance().SavePrefab(new Entity_Dispenser(0,"ROOT_entity"), "ROOT_Dispenser");
+	GameLoader::Instance().SavePrefab(new Entity_Doorway(-1,FacingDirection::North), "ROOT_Doorway");
+	GameLoader::Instance().SavePrefab(new Entity_Event(""), "ROOT_Event");
+	GameLoader::Instance().SavePrefab(new Entity_Firearm(Entity_Clip::Pistol, Entity_Living::Piercing, 1, 1), "ROOT_Firearm");
+	GameLoader::Instance().SavePrefab(new Entity_Fluid(10), "ROOT_Fluid");
+	GameLoader::Instance().SavePrefab(new Entity_Food(10), "ROOT_Food");
+	GameLoader::Instance().SavePrefab(new Entity_GroundTile(), "ROOT_Food");
+	GameLoader::Instance().SavePrefab(new Entity_Living(), "ROOT_Living");
+	GameLoader::Instance().SavePrefab(new Entity_Mechanisim(), "ROOT_Mechanism");
+	GameLoader::Instance().SavePrefab(new Entity_Npc(), "ROOT_Npc");
+	GameLoader::Instance().SavePrefab(new Entity_Readable(Languages::English, "", 100), "ROOT_Readable");
+	GameLoader::Instance().SavePrefab(new Entity_Weapon(Entity_Living::Piercing, 1, 1), "ROOT_Weapon");
+
+}
 
 void LevelEditor::SaveEntityViewToPrefab()
 {

@@ -21,6 +21,7 @@
 #include "Entity_Firearm.h"
 #include "Entity_Room.h"
 #include "Entity_Dispenser.h"
+#include "Entity_Doorway.h"
 #include "BehaviorTree.h"
 #include "BehaviorNode.h"
 #include "BehaviorNode_Living.h"
@@ -31,6 +32,10 @@
 
 void GameLoader::Setup()
 {
+	Entity_Npc* NPC = new Entity_Npc();
+	NPC->SetEntityData(GetUniqueID(), false, 0.0f, 3783.0f, 150.0f);
+	NPC->names = { "person" };
+	SavePrefab(NPC, "ROOT_NPC");
 }
 
 
@@ -589,7 +594,9 @@ Entity* GameLoader::GenEntity(int hash)
 		case 16:
 			return new Entity_Anomaly();
 		case 17:
-			return new Entity_Dispenser(0,"");
+			return new Entity_Dispenser(0, "");
+		case 18:
+			return new Entity_Doorway(-1,FacingDirection::North);
 		default:
 			//UNDEFINED
 			return new Entity();

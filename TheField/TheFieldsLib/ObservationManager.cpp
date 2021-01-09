@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include "Entity.h"
 #include "Entity_Room.h"
+#include "Entity_Doorway.h"
 void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* textDisplay)
 {
 	Constants constants;
@@ -47,8 +48,17 @@ void ObservationManager::CompileObservations(Entity* playerEntity, TextDisplay* 
 
 		Observation_Look* observation_Look = dynamic_cast<Observation_Look*>(observation);
 		if (observation_Look) {
+			Entity_Doorway* doorTest = dynamic_cast<Entity_Doorway*>(observation_Look->referenceEntity);
 			if (observation_Look->directional) {
 				textDisplay->addLog(GetIndefNameAndParticle(observation_Look->referenceEntity) + " to the " + FacingDirectionToString(observation_Look->direction));
+			}
+			else if (doorTest) {
+				if (!doorTest->doorInfo.empty()) {
+					textDisplay->addLog(GetIndefNameAndParticle(doorTest) + " leading to " + doorTest->doorInfo + " to the " + FacingDirectionToString(doorTest->doorDirection));
+				}
+				else {
+					textDisplay->addLog(GetIndefNameAndParticle(doorTest) + " to the " + FacingDirectionToString(doorTest->doorDirection));
+				}
 			}
 			else {
 				if (observation_Look->depth > 0 || observation_Look->referenceEntity->size < constants.smallItemMaxThreshold)

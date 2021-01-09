@@ -36,7 +36,6 @@ public:
 		widget250->loadFromFile(GameLoader::Instance().GetDirectory() + "Data/LevelEditor/UI/Widget_250.png");
 	};
 	~LevelEditor() {};
-
 	void ClearWidgets();
 	void SetupNew();
 	void SetupSceneView();
@@ -58,6 +57,7 @@ public:
 	void EditTextBox(WidgetTextEntry* entryBox);
 	void AddElementToJSONArray(WidgetAddKeyToArray* btn);
 	void SubElemenFromJSONArray(WidgetRemoveKeyFromArray* btn);
+	void UpdateRootPrefabs();
 
 
 

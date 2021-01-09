@@ -65,6 +65,7 @@ int main() {
 	LevelEditor levelEditor;
 	GameLoader::Instance().exitOnFailure = false;
 	levelEditor.SetupNew();
+
 	
 	while (window.isOpen())
 	{

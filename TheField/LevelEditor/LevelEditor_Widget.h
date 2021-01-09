@@ -87,6 +87,16 @@ public:
 	}
 };
 
+class WidgetUpdateRootPrefabs : public Widget {
+public:
+	WidgetUpdateRootPrefabs(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {
+		buttonWidth = 150;
+	}
+	void OnClick(LevelEditor* editor) override {
+		editor->UpdateRootPrefabs();
+	}
+};
+
 class WidgetLoadBIN : public Widget {
 public:
 	WidgetLoadBIN(std::string name, sf::Vector2i screenOffset, sf::Texture* texture) :Widget(name, screenOffset, texture) {

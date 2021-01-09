@@ -10,6 +10,7 @@
 #include "Entity_Mechanisim.h"
 #include "Entity_GroundTile.h"
 #include "Entity_Firearm.h"
+#include "Entity_Doorway.h"
 #include <filesystem>
 void InteractionManager::Update(std::string input, TextDisplay* textdisplay)
 {
@@ -300,14 +301,34 @@ InteractionManager::InputError InteractionManager::AttemptPlayerCommand(Entity_P
 				}
 			}
 		}
-		
+
+		std::vector<Entity*> visible  = player->GetVisibleEntities(true, false, false);
+		for (auto entity : visible)
+		{
+			Entity_Doorway* doorTest = dynamic_cast<Entity_Doorway*>(entity);
+			if (doorTest) {
+
+				World::Instance().MoveToTile(doorTest->toTile);
+				World::Instance().playerEntity->Look();
+				return Success;
+			}
+		}		
 		return Impossible;
 	}
 	else if (verb == "enter") {
 		if (subject) {
-			if (player->Enter(subject)) {
-				player->Look();
+			Entity_Doorway* doorTest = dynamic_cast<Entity_Doorway*>(subject);
+			if (doorTest) {
+
+				World::Instance().MoveToTile(doorTest->toTile);
+				World::Instance().playerEntity->Look();
 				return Success;
+			}
+			else {
+				if (player->Enter(subject)) {
+					player->Look();
+					return Success;
+				}
 			}
 			return Impossible;
 		}
@@ -544,6 +565,9 @@ std::string InteractionManager::GetVerb(Entity_Player* player, int index)
 	}
 	if (splitInput[index] == "go") {
 		if (FindParticleInput("in")) {
+			return "enter";
+		}
+		if (FindParticleInput("through")) {
 			return "enter";
 		}
 		if (FindParticleInput("outside")) {

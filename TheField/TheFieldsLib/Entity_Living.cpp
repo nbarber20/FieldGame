@@ -228,6 +228,12 @@ void Entity_Living::WriteData(std::fstream* output)
 		output->write((char*)&savedTargets[i].EntityID, sizeof(int));
 		output->write((char*)&savedTargets[i].WorldID, sizeof(int));
 	}
+
+	int numHealthThresholds = healthThresholds.size();
+	output->write((char*)&numHealthThresholds, sizeof(int));
+	for (int i = 0; i < numHealthThresholds; i++) {
+		output->write((char*)&healthThresholds[i], sizeof(int));
+	}
 }
 
 void Entity_Living::ReadData(std::fstream* input)
@@ -298,6 +304,14 @@ void Entity_Living::ReadData(std::fstream* input)
 		v.EntityID = VEntityID;
 		v.WorldID = VWorldID;
 		savedTargets.push_back(v);
+	}
+	healthThresholds.clear();
+	int numHealthThresholds;
+	input->read((char*)&numHealthThresholds, sizeof(int));
+	for (int i = 0; i < numHealthThresholds; i++) {
+		int threshold;
+		input->read((char*)&threshold, sizeof(int));
+		healthThresholds.push_back(threshold);
 	}
 }
 #pragma endregion
